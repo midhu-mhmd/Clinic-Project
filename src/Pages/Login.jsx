@@ -89,7 +89,7 @@ const Login = () => {
           </div>
 
           {/* Login button */}
-          <button
+          <button onClick={() => navigate("/")}
             type="submit"
             className="w-full bg-gray-900 text-white py-4 rounded-xl font-normal text-sm hover:bg-gray-800 active:scale-[0.99] transition-all duration-200"
           >

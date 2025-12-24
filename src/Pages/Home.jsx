@@ -7,7 +7,6 @@ import HowItWorks from '../components/HowItWorks/HowItWorks.jsx'
 import SpecialistsSection from '../components/SpecialistsSection/SpecialistsSection.jsx'
 import TrustShowcase from '../components/TrustShowcase/TrustShowcase.jsx'
 import FinalCTA from '../components/FinalCTA/FinalCTA.jsx'
-import Footer from '../components/Footer/Footer.jsx'
 
 const Home = () => {
   return (
