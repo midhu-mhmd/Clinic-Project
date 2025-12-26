@@ -17,11 +17,21 @@ const Login = () => {
     });
   };
 
+  // === THIS IS THE CRITICAL FIX ===
   const handleSubmit = (e) => {
     e.preventDefault();
     console.log("Login submitted:", formData);
-    // Add login logic here
+
+    // 1. Save the login state to browser storage
+    localStorage.setItem("isLoggedIn", "true");
+
+    // 2. TRIGGER THE NAVBAR TO UPDATE INSTANTLY
+    window.dispatchEvent(new Event("authUpdate"));
+
+    // 3. Navigate to home
+    navigate("/");
   };
+  // ===============================
 
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-6">
@@ -88,8 +98,8 @@ const Login = () => {
             </button>
           </div>
 
-          {/* Login button */}
-          <button onClick={() => navigate("/")}
+          {/* Login button - Removed onClick, logic is now in handleSubmit */}
+          <button
             type="submit"
             className="w-full bg-gray-900 text-white py-4 rounded-xl font-normal text-sm hover:bg-gray-800 active:scale-[0.99] transition-all duration-200"
           >
@@ -138,7 +148,7 @@ const Login = () => {
             Don't have an account?{" "}
             <a
               onClick={() => navigate("/register")}
-              className="text-gray-700 font-normal hover:text-gray-900 transition"
+              className="text-gray-700 font-normal hover:text-gray-900 cursor-pointer transition"
             >
               Create account
             </a>

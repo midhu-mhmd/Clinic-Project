@@ -16,16 +16,12 @@ const Register = () => {
     confirm: "",
   });
 
-  // State to hold validation errors
   const [errors, setErrors] = useState({});
 
-  // Regex patterns for validation
   const patterns = {
     email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
-    // Password: At least 8 chars, 1 uppercase, 1 lowercase, 1 number, 1 special char
-    password:
-      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
-    phone: /^\+?[\d\s-]{10,}$/, // Basic phone validation (10+ digits, optional formatting)
+    password: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,
+    phone: /^\+?[\d\s-]{10,}$/,
   };
 
   const handleChange = (e) => {
@@ -33,8 +29,6 @@ const Register = () => {
       ...formData,
       [e.target.id]: e.target.value,
     });
-
-    // Optional: Clear error for a specific field when user starts typing again
     if (errors[e.target.id]) {
       setErrors({
         ...errors,
@@ -45,44 +39,24 @@ const Register = () => {
 
   const validateForm = () => {
     const newErrors = {};
+    if (!formData.name.trim()) newErrors.name = "Full name is required";
+    else if (formData.name.length < 2) newErrors.name = "Name must be at least 2 characters";
 
-    // Name Validation
-    if (!formData.name.trim()) {
-      newErrors.name = "Full name is required";
-    } else if (formData.name.length < 2) {
-      newErrors.name = "Name must be at least 2 characters";
-    }
+    if (!formData.email) newErrors.email = "Email is required";
+    else if (!patterns.email.test(formData.email)) newErrors.email = "Please enter a valid email address";
 
-    // Email Validation
-    if (!formData.email) {
-      newErrors.email = "Email is required";
-    } else if (!patterns.email.test(formData.email)) {
-      newErrors.email = "Please enter a valid email address";
-    }
+    if (formData.phone && !patterns.phone.test(formData.phone)) newErrors.phone = "Please enter a valid phone number";
 
-    // Phone Validation (Optional but checked if entered)
-    if (formData.phone && !patterns.phone.test(formData.phone)) {
-      newErrors.phone = "Please enter a valid phone number";
-    }
+    if (!formData.password) newErrors.password = "Password is required";
+    else if (!patterns.password.test(formData.password)) newErrors.password = "Password must contain 8+ chars, 1 uppercase, 1 number, and 1 special char.";
 
-    // Password Validation
-    if (!formData.password) {
-      newErrors.password = "Password is required";
-    } else if (!patterns.password.test(formData.password)) {
-      newErrors.password =
-        "Password must contain 8+ chars, 1 uppercase, 1 number, and 1 special char.";
-    }
-
-    // Confirm Password Validation
-    if (formData.confirm !== formData.password) {
-      newErrors.confirm = "Passwords do not match";
-    }
+    if (formData.confirm !== formData.password) newErrors.confirm = "Passwords do not match";
 
     setErrors(newErrors);
-    // Return true if no errors
     return Object.keys(newErrors).length === 0;
   };
 
+  // === FIX 1: UPDATE HANDLE SUBMIT ===
   const handleSubmit = async (e) => {
     e.preventDefault();
     setApiError("");
@@ -102,15 +76,23 @@ const Register = () => {
         );
 
         console.log("Registration Successful:", response.data);
-        navigate("/login");
+
+        // --- NEW LOGIC START ---
+        // 1. Save Login State
+        localStorage.setItem("isLoggedIn", "true");
+        
+        // 2. Notify Navbar to update
+        window.dispatchEvent(new Event("authUpdate"));
+        
+        // 3. Navigate to Home (Logged in)
+        navigate("/");
+        // --- NEW LOGIC END ---
+
       } catch (error) {
         console.error("Axios Error:", error);
-
-        // Backend error message (like email already exists)
         if (error.response) {
           setApiError(error.response.data.message || "Registration failed");
         } else {
-          // Network / server down
           setApiError("Server is not responding. Please try again later.");
         }
       } finally {
@@ -124,9 +106,11 @@ const Register = () => {
     const baseClass =
       "w-full px-4 py-3.5 bg-gray-50 border rounded-xl focus:outline-none focus:bg-white text-sm placeholder:text-gray-400 transition-all duration-200";
     return errors[fieldName]
-      ? `${baseClass} border-red-500 focus:border-red-500` // Error state
-      : `${baseClass} border-gray-200 focus:border-gray-300`; // Normal state
+      ? `${baseClass} border-red-500 focus:border-red-500`
+      : `${baseClass} border-gray-200 focus:border-gray-300`;
   };
+
+  // === FIX 2: UPDATE GOOGLE SUCCESS ===
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const res = await axios.post("http://localhost:5000/api/users/google", {
@@ -134,7 +118,13 @@ const Register = () => {
       });
 
       console.log("Google auth success:", res.data);
+      
+      // --- NEW LOGIC START ---
+      localStorage.setItem("isLoggedIn", "true");
+      window.dispatchEvent(new Event("authUpdate"));
       navigate("/");
+      // --- NEW LOGIC END ---
+
     } catch (error) {
       console.error("Google OAuth Error:", error);
       setApiError("Google authentication failed");
@@ -264,14 +254,14 @@ const Register = () => {
           {/* Submit Button */}
           <button
             type="submit"
-            disabled={isSubmitting} // Disable button while loading
-            className="w-full bg-gray-900 text-white py-4 rounded-xl..."
+            disabled={isSubmitting}
+            className="w-full bg-gray-900 text-white py-4 rounded-xl font-normal text-sm hover:bg-gray-800 active:scale-[0.99] transition-all duration-200"
           >
             {isSubmitting ? "Creating Account..." : "Create Account"}
           </button>
         </form>
 
-        {/* Divider and Social Login (Unchanged) */}
+        {/* Divider */}
         <div className="my-8 relative">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-gray-100"></div>

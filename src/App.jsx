@@ -10,6 +10,7 @@ import ClinicList from './Pages/ClinicList.jsx';
 import DoctorList from './Pages/DoctorList.jsx';
 import ClinicProfile from './Pages/ClinicProfile.jsx';
 import DoctorProfile from './Pages/DoctorProfile.jsx';
+import ClinicOwnerRegister from './Pages/ClinicOwnerRegister.jsx';
 
 const App = () => {
   return (
@@ -24,6 +25,7 @@ const App = () => {
         <Route path="/doctors" element={<DoctorList />} />
         <Route path="/clinic/:id" element={<ClinicProfile />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
+        <Route path="/clinic-owner-register" element={<ClinicOwnerRegister />} />
       </Routes>
       <Footer />
     </>
