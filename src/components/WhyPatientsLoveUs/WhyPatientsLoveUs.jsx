@@ -1,89 +1,111 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import React, { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const features = [
   {
+    number: "01",
     title: "AI-guided care",
-    desc: "Our AI understands symptoms and guides patients to the right specialist instantly.",
-    color: "from-purple-400 to-purple-600",
-    icon: "🧠",
+    desc: "Intelligent symptom analysis that directs you to the precise specialist without the wait.",
   },
   {
+    number: "02",
     title: "Verified doctors",
-    desc: "Every clinic and doctor is carefully verified for quality and trust.",
-    color: "from-green-400 to-green-600",
-    icon: "🩺",
+    desc: "A curated network of healthcare professionals, strictly vetted for quality and trust.",
   },
   {
+    number: "03",
     title: "Instant booking",
-    desc: "Real-time availability lets you book appointments without waiting.",
-    color: "from-blue-400 to-blue-600",
-    icon: "📅",
+    desc: "Direct access to real-time availability. Schedule your consultation in seconds.",
   },
   {
+    number: "04",
     title: "Secure data",
-    desc: "Medical records are encrypted and protected at all times.",
-    color: "from-teal-400 to-teal-600",
-    icon: "🔒",
+    desc: "Clinical-grade encryption ensures your medical history remains private and protected.",
   },
 ];
 
 const WhyPatientsLoveUs = () => {
+  const sectionRef = useRef(null);
   const cardsRef = useRef([]);
 
   useEffect(() => {
-    gsap.fromTo(
-      cardsRef.current,
-      { opacity: 0, y: 50 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1,
-        ease: "power3.out",
-        stagger: 0.15,
-      }
-    );
+    const ctx = gsap.context(() => {
+      // Reveal header
+      gsap.from(".reveal-header", {
+        opacity: 0,
+        y: 30,
+        duration: 1.2,
+        ease: "power4.out",
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+        },
+      });
+
+      // Reveal grid items one by one with a border-draw effect
+      cardsRef.current.forEach((el, i) => {
+        gsap.from(el, {
+          opacity: 0,
+          y: 40,
+          duration: 1,
+          ease: "power3.out",
+          scrollTrigger: {
+            trigger: el,
+            start: "top 90%",
+          },
+          delay: i * 0.1,
+        });
+      });
+    }, sectionRef);
+
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section className="w-full py-28">
-      <div className="max-w-7xl mx-auto px-6">
-        {/* Heading */}
-        <div className="max-w-xl mb-16">
-          <h2 className="text-4xl md:text-5xl font-semibold text-gray-900">
-            Why patients trust us
-          </h2>
-          <p className="mt-4 text-lg text-gray-500">
-            Designed to make healthcare simpler, safer, and stress-free.
+    <section ref={sectionRef} className="w-full py-32 bg-[#FAF9F6]">
+      <div className="max-w-7xl mx-auto px-8">
+        
+        {/* HEADER */}
+        <div className="reveal-header border-b border-[#2D302D]/10 pb-16 mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+          <div className="max-w-xl">
+            <p className="text-[10px] tracking-[0.5em] uppercase text-[#8DAA9D] font-bold mb-4">
+              Core Philosophies
+            </p>
+            <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-light leading-[1] text-[#2D302D] tracking-tighter">
+              A healthcare experience <br />
+              <span className="italic font-serif text-[#8DAA9D]">reimagined.</span>
+            </h2>
+          </div>
+          <p className="max-w-xs text-sm text-[#2D302D]/60 leading-relaxed font-light">
+            We focus on the intersection of human empathy and medical precision to simplify your journey.
           </p>
         </div>
 
-        {/* Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        {/* MINIMAL GRID */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-l border-[#2D302D]/5">
           {features.map((item, index) => (
             <div
               key={index}
               ref={(el) => (cardsRef.current[index] = el)}
-              className="group relative overflow-hidden rounded-3xl bg-white p-8 shadow-[0_20px_50px_rgba(0,0,0,0.08)] hover:-translate-y-2 transition-all duration-300"
+              className="group relative p-10 border-r border-b border-[#2D302D]/5 hover:bg-[#8DAA9D]/5 transition-colors duration-700"
             >
-              {/* Gradient glow */}
-              <div
-                className={`absolute -top-20 -right-20 w-56 h-56 bg-linear-to-br ${item.color} opacity-20 blur-3xl`}
-              />
+              <span className="text-[10px] font-mono opacity-30 block mb-12">
+                [{item.number}]
+              </span>
 
-              <div className="relative z-10">
-                <div className="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center text-xl mb-6">
-                  {item.icon}
-                </div>
+              <h3 className="text-xl font-light text-[#2D302D] mb-4 tracking-tight">
+                {item.title}
+              </h3>
 
-                <h3 className="text-xl font-semibold text-gray-900">
-                  {item.title}
-                </h3>
-
-                <p className="mt-3 text-gray-500 leading-relaxed max-w-sm">
-                  {item.desc}
-                </p>
-              </div>
+              <p className="text-sm text-[#2D302D]/60 leading-relaxed font-light">
+                {item.desc}
+              </p>
+              
+              {/* Subtle hover line */}
+              <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-[#8DAA9D] group-hover:w-full transition-all duration-700"></div>
             </div>
           ))}
         </div>

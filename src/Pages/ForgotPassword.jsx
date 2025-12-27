@@ -1,239 +1,130 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Key, ArrowLeft, Mail, ShieldAlert, RefreshCw, CheckCircle2 } from "lucide-react";
 
 const ForgotPassword = () => {
-    const navigate = useNavigate();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
+  const [isResending, setIsResending] = useState(false);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Password reset requested for:", email);
-    // Add password reset logic here
+    // Protocol: Initiate Recovery Sequence
     setSubmitted(true);
-
-    // Reset after 5 seconds for demo purposes
-    setTimeout(() => {
-      setSubmitted(false);
-      setEmail("");
-    }, 5000);
   };
 
+  const handleResend = () => {
+    setIsResending(true);
+    setTimeout(() => setIsResending(false), 2000);
+  };
+
+  const inputClass = "w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-[#8DAA9D] transition-all duration-500 placeholder:text-[#2D302D]/20";
+
   return (
-    <div className="min-h-screen bg-white flex items-center justify-center p-6">
-      <div className="max-w-md w-full">
-        {/* Minimal header */}
-        <div className="text-center mb-10">
-          <div className="inline-flex items-center justify-center w-12 h-12 bg-gradient-to-br from-gray-50 to-gray-100 rounded-xl mb-6 border border-gray-100">
+    <div className="min-h-screen bg-[#FAF9F6] flex">
+      
+      {/* LEFT COLUMN: SYSTEM STATUS (Desktop Only) */}
+      <div className="hidden lg:flex w-1/3 bg-[#2D302D] p-16 flex-col justify-between text-[#FAF9F6]">
+        <div className="space-y-6">
+          <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">
             {submitted ? (
-              <svg
-                className="w-5 h-5 text-gray-900"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
+              <CheckCircle2 size={20} className="text-[#8DAA9D] animate-pulse" />
             ) : (
-              <svg
-                className="w-5 h-5 text-gray-900"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={1.5}
-                  d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"
-                />
-              </svg>
+              <ShieldAlert size={20} className="text-[#8DAA9D]" />
             )}
           </div>
-
-          <h1 className="text-2xl font-normal text-gray-900 tracking-tight">
-            {submitted ? "Check Your Email" : "Reset Password"}
-          </h1>
-
-          <p className="mt-3 text-gray-500 text-sm max-w-xs mx-auto leading-relaxed">
-            {submitted
-              ? `We've sent reset instructions to ${email}`
-              : "Enter your email and we'll send you reset instructions."}
+          <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
+            Recovery <br /> Sequence.
+          </h2>
+          <p className="text-xs tracking-widest leading-loose opacity-50 uppercase max-w-[220px]">
+            Verifying identity endpoint to restore clinical access keys.
           </p>
         </div>
 
-        {!submitted ? (
-          <>
-            {/* Reset form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div>
-                <input
-                  type="email"
-                  id="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Enter your email address"
-                  className="w-full px-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:bg-white focus:border-gray-300 text-sm placeholder:text-gray-400 transition-all duration-200"
-                  autoComplete="email"
-                  required
-                />
-              </div>
+        <div className="space-y-4">
+           <div className="h-[1px] w-full bg-[#FAF9F6]/10" />
+           <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.2em] font-bold opacity-40">
+              <span>Security Tier 01</span>
+              <span>Encrypted</span>
+           </div>
+        </div>
+      </div>
 
-              {/* Security note */}
-              <div className="flex items-start gap-2 text-xs text-gray-500 pt-2">
-                <div className="mt-0.5">
-                  <svg
-                    className="w-3.5 h-3.5"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
-                    />
-                  </svg>
-                </div>
-                <span>
-                  The reset link will expire in 24 hours for security.
-                </span>
-              </div>
+      {/* RIGHT COLUMN: INTERFACE */}
+      <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
+        <div className="max-w-md w-full">
+          {!submitted ? (
+            <>
+              <header className="mb-16">
+                <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Recovery — 03</span>
+                <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Reset Access</h1>
+                <p className="mt-6 text-[#2D302D]/50 text-sm leading-relaxed max-w-sm">
+                  Identify your registered communication endpoint to receive a secure recovery link.
+                </p>
+              </header>
 
-              {/* Submit button */}
-              <button
-                type="submit"
-                className="w-full bg-gray-900 text-white py-4 rounded-xl font-normal text-sm hover:bg-gray-800 active:scale-[0.99] transition-all duration-200"
-              >
-                Send Reset Instructions
-              </button>
-            </form>
-
-            {/* Back to login link */}
-            <div className="text-center mt-8 pt-6 border-t border-gray-100">
-              <button
-                type="button"
-                onClick={() => navigate("/login")}
-                className="inline-flex items-center gap-2 text-sm text-gray-700 font-normal hover:text-gray-900 transition bg-transparent p-0"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M10 19l-7-7m0 0l7-7m-7 7h18"
+              <form onSubmit={handleSubmit} className="space-y-12">
+                <div className="space-y-2 relative">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Registered Email</label>
+                  <input 
+                    type="email" 
+                    id="email" 
+                    value={email} 
+                    onChange={(e) => setEmail(e.target.value)} 
+                    placeholder="name@domain.com" 
+                    className={inputClass} 
+                    required
                   />
-                </svg>
-                Back to Sign In
-              </button>
-            </div>
-          </>
-        ) : (
-          /* Success state */
-          <div className="space-y-6">
-            {/* Success message */}
-            <div className="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5">
-                  <svg
-                    className="w-4 h-4 text-gray-700"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={1.5}
-                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                    />
-                  </svg>
                 </div>
-                <div>
-                  <p className="text-sm text-gray-700 font-medium">
-                    Reset email sent
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    If you don't see the email, check your spam folder.
+
+                <div className="flex items-center gap-3 text-[#2D302D]/40 italic">
+                  <Key size={14} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">Link expires in 24 hours</span>
+                </div>
+
+                <button type="submit" className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700">
+                  <span className="text-[10px] uppercase tracking-[0.4em] font-bold">Send Instructions</span>
+                  <RefreshCw size={16} className="group-hover:rotate-180 transition-transform duration-700" />
+                </button>
+              </form>
+            </>
+          ) : (
+            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <header className="mb-12">
+                <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Status: Dispatched</span>
+                <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Check Inbox</h1>
+                <div className="mt-8 p-6 bg-[#8DAA9D]/10 border-l-2 border-[#8DAA9D]">
+                  <p className="text-[#2D302D] text-sm leading-relaxed">
+                    A secure protocol link has been routed to: <br />
+                    <strong className="font-bold">{email}</strong>
                   </p>
                 </div>
+              </header>
+
+              <div className="space-y-4">
+                <button 
+                  onClick={handleResend}
+                  className="w-full py-5 border border-[#2D302D]/10 flex items-center justify-center gap-4 hover:bg-[#2D302D] hover:text-[#FAF9F6] transition-all"
+                >
+                  <RefreshCw size={16} className={isResending ? "animate-spin text-[#8DAA9D]" : "text-[#8DAA9D]"} />
+                  <span className="text-[10px] uppercase tracking-widest font-bold">
+                    {isResending ? "Re-routing..." : "Resend Protocol"}
+                  </span>
+                </button>
               </div>
             </div>
+          )}
 
-            {/* Action buttons */}
-            <div className="space-y-4">
-              <button
-                onClick={() => {
-                  setSubmitted(false);
-                  setEmail("");
-                }}
-                className="w-full bg-gray-900 text-white py-4 rounded-xl font-normal text-sm hover:bg-gray-800 active:scale-[0.99] transition-all duration-200"
-              >
-                Resend Email
-              </button>
-
-              <a
-                href="#"
-                className="w-full flex items-center justify-center gap-2 border border-gray-200 py-3.5 rounded-xl hover:border-gray-300 transition text-sm font-normal text-gray-700"
-              >
-                <svg
-                  className="w-4 h-4"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={1.5}
-                    d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"
-                  />
-                </svg>
-                Return to Login
-              </a>
-            </div>
-
-            {/* Help text */}
-            <div className="text-center pt-6 border-t border-gray-100">
-              <p className="text-xs text-gray-500">
-                Still having trouble?{" "}
-                <a
-                  href="#"
-                  className="text-gray-700 font-normal hover:text-gray-900 transition"
-                >
-                  Contact Support
-                </a>
-              </p>
-            </div>
+          <div className="mt-16 pt-12 border-t border-[#2D302D]/5">
+            <button 
+              onClick={() => navigate("/login")} 
+              className="group flex items-center gap-3 text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-all"
+            >
+              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
+              Return to Authentication
+            </button>
           </div>
-        )}
-
-        {/* Footer links */}
-        <div className="text-center mt-10 pt-6 border-t border-gray-100">
-          <p className="text-xs text-gray-400 space-x-3">
-            <a href="#" className="hover:text-gray-600 transition">
-              Terms
-            </a>
-            <span>·</span>
-            <a href="#" className="hover:text-gray-600 transition">
-              Privacy
-            </a>
-            <span>·</span>
-            <a href="#" className="hover:text-gray-600 transition">
-              Support
-            </a>
-          </p>
         </div>
       </div>
     </div>
@@ -241,3 +132,4 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
+ 

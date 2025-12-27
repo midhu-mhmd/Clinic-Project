@@ -1,52 +1,75 @@
-import React from 'react';
+import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#FAF9F6] border-t border-gray-100 py-8 px-4">
-      <div className="max-w-6xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 text-sm text-gray-600">
-          {/* HealthBook */}
-          <div className="space-y-2">
-            <h3 className="font-semibold text-gray-900 text-base">HealthBook</h3>
-            <p className="text-xs leading-relaxed opacity-80">
-              Making healthcare accessible, convenient, and patient-centric for everyone.
-            </p>
+    <footer className="bg-[#FAF9F6] pt-32 pb-12 px-8 border-t border-[#2D302D]/5">
+      <div className="max-w-[1400px] mx-auto">
+        
+        {/* TOP ROW: BRANDING STATEMENT */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24">
+          <div className="lg:col-span-6">
+            <h3 className="text-[ clamp(2rem,4vw,3rem)] font-light tracking-tighter text-[#2D302D] leading-none mb-8">
+              Redefining the <br />
+              <span className="italic font-serif text-[#8DAA9D]">patient journey.</span>
+            </h3>
+            <div className="flex gap-4">
+              <div className="w-2 h-2 rounded-full bg-[#8DAA9D] animate-pulse" />
+              <p className="text-[10px] tracking-[0.2em] uppercase text-[#2D302D]/50 font-bold max-w-[240px]">
+                Currently serving the digital healthcare landscape with clinical precision.
+              </p>
+            </div>
           </div>
-          
-          {/* Platform */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-gray-900">Platform</h4>
-            <ul className="space-y-1 text-xs">
-              <li><a href="#" className="hover:text-gray-900 transition-colors">Find Clinics</a></li>
-              <li><a href="#" className="hover:text-gray-900 transition-colors">Find Doctors</a></li>
-              <li><a href="#" className="hover:text-gray-900 transition-colors">Hire AI Maria</a></li>
-            </ul>
-          </div>
-          
-          {/* Company */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-gray-900">Company</h4>
-            <ul className="space-y-1 text-xs">
-              <li><a href="#" className="hover:text-gray-900 transition-colors">About Us</a></li>
-              <li><a href="#" className="hover:text-gray-900 transition-colors">AI Assistant</a></li>
-              <li><a href="#" className="hover:text-gray-900 transition-colors">Contact</a></li>
-            </ul>
-          </div>
-          
-          {/* Legal */}
-          <div className="space-y-2">
-            <h4 className="font-semibold text-gray-900">Legal</h4>
-            <ul className="space-y-1 text-xs">
-              <li><a href="#" className="hover:text-gray-900 transition-colors">Privacy Policy</a></li>
-              <li><a href="#" className="hover:text-gray-900 transition-colors">Terms of Service</a></li>
-            </ul>
+
+          {/* LINK GROUPS */}
+          <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-3 gap-12">
+            <div className="flex flex-col gap-6">
+              <span className="text-[9px] font-mono text-[#8DAA9D] uppercase tracking-[0.3em]">[ Platform ]</span>
+              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#2D302D] font-bold">
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">Clinics</a></li>
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">Specialists</a></li>
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">AI Maria</a></li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <span className="text-[9px] font-mono text-[#8DAA9D] uppercase tracking-[0.3em]">[ Studio ]</span>
+              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#2D302D] font-bold">
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">About</a></li>
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">Vision</a></li>
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">Contact</a></li>
+              </ul>
+            </div>
+
+            <div className="flex flex-col gap-6">
+              <span className="text-[9px] font-mono text-[#8DAA9D] uppercase tracking-[0.3em]">[ Legal ]</span>
+              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#2D302D] font-bold">
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">Privacy</a></li>
+                <li><a href="#" className="hover:text-[#8DAA9D] transition-colors">Terms</a></li>
+              </ul>
+            </div>
           </div>
         </div>
-        
-        <div className="pt-6 mt-8 border-t border-gray-100 flex items-center justify-between text-xs text-gray-500">
-          <p>&copy; 2023 HealthBook Inc. All rights reserved.</p>
-          <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-            <span className="text-white text-[10px]">DB</span>
+
+        {/* BOTTOM ROW: BIG BRANDING */}
+        <div className="border-t border-[#2D302D]/10 pt-12 flex flex-col md:flex-row justify-between items-end gap-12">
+          <div className="order-2 md:order-1">
+            <h1 className="text-[12vw] font-light tracking-tighter leading-none text-[#2D302D]/5 select-none">
+              HEALTHBOOK
+            </h1>
+            <p className="text-[9px] tracking-[0.4em] uppercase text-[#2D302D]/30 mt-4">
+              © 2025 Intellectual Property — All Rights Reserved
+            </p>
+          </div>
+
+          <div className="order-1 md:order-2 flex flex-col items-end gap-4">
+            <div className="flex gap-2">
+              {['TW', 'IG', 'LN'].map((social) => (
+                <a key={social} href="#" className="w-10 h-10 border border-[#2D302D]/10 rounded-full flex items-center justify-center text-[10px] font-bold hover:bg-[#2D302D] hover:text-[#FAF9F6] transition-all duration-500">
+                  {social}
+                </a>
+              ))}
+            </div>
+            <p className="text-[9px] tracking-widest text-[#2D302D]/40 uppercase">Designed for Wellness</p>
           </div>
         </div>
       </div>

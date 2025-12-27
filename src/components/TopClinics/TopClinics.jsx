@@ -1,132 +1,134 @@
-import { useEffect, useState } from 'react';
-import { ArrowRight } from 'lucide-react';
-import { ClinicCard } from './ClinicCard.jsx';
+import { useEffect, useRef } from 'react';
+import { ArrowRight, Star, MapPin } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import gsap from 'gsap';
+import { ScrollTrigger } from 'gsap/ScrollTrigger';
 
-/* ===============================
-   STATIC CLINICS (TEST DATA)
-================================ */
+gsap.registerPlugin(ScrollTrigger);
+
 const STATIC_CLINICS = [
-  {
-    id: 1,
-    name: "Apollo Health Center",
-    rating: 4.8,
-    location: "Kochi, Kerala",
-    image: "/images/clinic1.jpg",
-    specialties: [
-      { id: 1, name: "Cardiology" },
-      { id: 2, name: "General Medicine" }
-    ]
-  },
-  {
-    id: 2,
-    name: "Lakeshore Hospital",
-    rating: 4.6,
-    location: "Ernakulam",
-    image: "/images/clinic2.jpg",
-    specialties: [
-      { id: 3, name: "Orthopedics" },
-      { id: 4, name: "Neurology" }
-    ]
-  },
-  {
-    id: 3,
-    name: "Aster Medcity",
-    rating: 4.9,
-    location: "Kochi",
-    image: "/images/clinic3.jpg",
-    specialties: [
-      { id: 5, name: "Pediatrics" },
-      { id: 6, name: "Dermatology" }
-    ]
-  },
-  {
-    id: 4,
-    name: "Care Clinic",
-    rating: 4.4,
-    location: "Trivandrum",
-    image: "/images/clinic4.jpg",
-    specialties: [
-      { id: 7, name: "ENT" },
-      { id: 8, name: "Dental" }
-    ]
-  }
+  { id: 1, name: "Apollo Health", location: "Kochi", specialty: ["Cardiology", "Diagnostics"], rate: 4.8, img: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800" },
+  { id: 2, name: "Lakeshore Hospital", location: "Ernakulam", specialty: ["Neurology", "Surgery"], rate: 4.6, img: "https://images.unsplash.com/photo-1586773860418-d3b978ec017e?auto=format&fit=crop&q=80&w=800" },
+  { id: 3, name: "Aster Medcity", location: "Kochi", specialty: ["Pediatrics", "Wellness"], rate: 4.9, img: "https://images.unsplash.com/photo-1512678080530-7760d81faba6?auto=format&fit=crop&q=80&w=800" },
+  { id: 4, name: "Care Clinic", location: "Trivandrum", specialty: ["Dental Care", "Ortho"], rate: 4.4, img: "https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800" }
 ];
 
 function TopClinics() {
   const navigate = useNavigate();
-  const [clinics, setClinics] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const scrollRef = useRef(null);
+  const containerRef = useRef(null);
 
-  /* ===============================
-     MOCK FETCH (TEST MODE)
-  ================================ */
   useEffect(() => {
-    // simulate API delay
-    setTimeout(() => {
-      setClinics(STATIC_CLINICS);
-      setLoading(false);
-    }, 1200);
+    let ctx = gsap.context(() => {
+      const amountToScroll = scrollRef.current.offsetWidth - window.innerWidth;
+
+      gsap.to(scrollRef.current, {
+        x: -amountToScroll - 200,
+        ease: "none",
+        scrollTrigger: {
+          trigger: containerRef.current,
+          start: "top top",
+          end: () => `+=${amountToScroll}`,
+          pin: true,
+          scrub: 1,
+          invalidateOnRefresh: true,
+        }
+      });
+    }, containerRef);
+    return () => ctx.revert();
   }, []);
 
   return (
-    <section className="min-h-screen bg-[#FAF9F6]">
-      <div className="max-w-7xl mx-auto px-8 py-16 md:py-24">
-
-        {/* HEADER */}
-        <header className="mb-20 border-b pb-12 border-black/10">
-          <div className="flex items-end justify-between">
-            <div>
-              <h1 className="text-5xl md:text-6xl font-extralight tracking-tight text-black">
-                Explore Top Clinics
-              </h1>
-              <p className="mt-4 text-neutral-500 font-light">
-                Highly rated healthcare facilities near you.
-              </p>
-            </div>
-
-            <button onClick={() => navigate('/clinics')} className="hidden md:flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 transition">
-              View All
-              <ArrowRight className="w-4 h-4" />
-            </button>
+    <section ref={containerRef} className="min-h-[150vh] bg-transparent overflow-hidden">
+      <div className="h-screen flex flex-col justify-center relative">
+        
+        {/* Header Section */}
+        <div className="px-8 sm:px-20 mb-12 relative z-10">
+          <div className="flex items-center gap-3 mb-4">
+            <span className="w-8 h-[1px] bg-[#8DAA9D]"></span>
+            <span className="text-[10px] tracking-[0.5em] text-[#8DAA9D] uppercase font-bold">Featured Partners</span>
           </div>
-        </header>
-
-        {/* CONTENT */}
-        {loading ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-            {[...Array(4)].map((_, i) => (
-              <div key={i} className="space-y-6 animate-pulse">
-                <div className="aspect-[4/3] bg-neutral-200 rounded-xl" />
-                <div className="space-y-3">
-                  <div className="h-5 bg-neutral-200 w-3/4 rounded" />
-                  <div className="h-6 bg-neutral-200 w-full rounded" />
-                  <div className="h-10 bg-neutral-200 w-full rounded" />
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16">
-            {clinics.map((clinic) => (
-              <ClinicCard key={clinic.id} clinic={clinic} />
-            ))}
-          </div>
-        )}
-
-        {/* MOBILE CTA */}
-        <div className="mt-24 pt-16 border-t border-black/10 text-center md:hidden">
-          <button className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 transition">
-            View All Clinics
-            <ArrowRight className="w-4 h-4" />
-          </button>
+          <h2 className="text-5xl lg:text-7xl font-light text-[#2D302D] tracking-tighter leading-none">
+            Premier <span className="italic font-serif">Institutions</span>.
+          </h2>
         </div>
 
+        {/* The Horizontal Track */}
+        <div ref={scrollRef} className="flex gap-12 px-8 sm:px-20 w-fit items-center">
+          {STATIC_CLINICS.map((clinic) => (
+            <article 
+              key={clinic.id}
+              className="clinic-card group relative flex-shrink-0 w-[85vw] md:w-[420px] bg-white border border-neutral-100 p-6 transition-all duration-500 hover:border-[#8DAA9D]/30"
+            >
+              {/* Image Section */}
+              <div className="relative aspect-[4/3] overflow-hidden mb-8 bg-neutral-100">
+                <img 
+                  src={clinic.img} 
+                  className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
+                  alt={clinic.name}
+                />
+                
+                {/* Minimal Rating Badge */}
+                <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 flex items-center gap-1.5">
+                  <Star size={12} className="fill-[#8DAA9D] text-[#8DAA9D]" />
+                  <span className="text-[11px] font-medium text-[#2D302D]">{clinic.rate}</span>
+                </div>
+              </div>
+
+              {/* Info Section */}
+              <div className="space-y-6">
+                <div>
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="text-2xl font-light text-[#2D302D] tracking-tight group-hover:text-[#8DAA9D] transition-colors">
+                      {clinic.name}
+                    </h3>
+                    <div className="flex items-center gap-1 text-[#2D302D]/30">
+                       <MapPin size={12} />
+                       <span className="text-[10px] uppercase tracking-widest">{clinic.location}</span>
+                    </div>
+                  </div>
+
+                  {/* Specialty Tags */}
+                  <div className="flex flex-wrap gap-2 mt-4">
+                    {clinic.specialty.map((s, i) => (
+                      <span key={i} className="text-[9px] uppercase tracking-wider font-bold text-[#2D302D]/40 px-3 py-1 border border-neutral-100 rounded-full group-hover:border-[#8DAA9D]/20 transition-colors">
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Modern Functional Button */}
+                <button 
+                  onClick={() => navigate(`/clinic/${clinic.id}`)}
+                  className="w-full py-4 bg-transparent border border-[#2D302D]/10 text-[#2D302D] text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:bg-[#2D302D] hover:text-white"
+                >
+                  Book Appointment
+                </button>
+              </div>
+            </article>
+          ))}
+
+          {/* End Section: Minimalist Invitation */}
+          <div className="flex-shrink-0 px-20">
+            <button 
+              onClick={() => navigate('/clinics')}
+              className="text-left group"
+            >
+              <h4 className="text-4xl lg:text-6xl font-serif italic text-[#2D302D]/10 group-hover:text-[#8DAA9D] transition-all duration-700 leading-tight">
+                See our full <br /> network.
+              </h4>
+              <div className="mt-8 flex items-center gap-4 text-[#2D302D]/40 group-hover:text-[#2D302D] transition-colors">
+                 <span className="text-[10px] tracking-widest uppercase font-bold">Explore All</span>
+                 <ArrowRight size={16} />
+              </div>
+            </button>
+          </div>
+        </div>
       </div>
     </section>
   );
 }
 
 export default TopClinics;
-
 

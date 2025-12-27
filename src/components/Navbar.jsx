@@ -6,22 +6,19 @@ import * as THREE from "three";
 const Navbar = () => {
   const mountRef = useRef(null);
   const navRef = useRef(null);
+  const logoTextRef = useRef(null);
   const navigate = useNavigate();
 
+  // --- RESTORED ORIGINAL AUTH LOGIC ---
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-  // 1. Initialize State securely
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
   );
 
-  // 2. THE CRITICAL FIX: Listen for the custom event
   useEffect(() => {
     const handleAuthChange = () => {
       setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
     };
-
-    // Listen for custom event (internal) and storage event (cross-tab)
     window.addEventListener("authUpdate", handleAuthChange);
     window.addEventListener("storage", handleAuthChange);
 
@@ -31,40 +28,78 @@ const Navbar = () => {
     };
   }, []);
 
-  // GSAP Animation
+  const handleLogout = () => {
+    localStorage.removeItem("isLoggedIn");
+    window.dispatchEvent(new Event("authUpdate"));
+    setIsProfileOpen(false);
+    navigate("/");
+  };
+  // ------------------------------------
+
+  // GSAP: Entrance and Logo Interaction
   useEffect(() => {
     gsap.fromTo(
       navRef.current,
-      { y: -40, opacity: 0 },
-      { y: 0, opacity: 1, duration: 1, ease: "power3.out" }
+      { y: -100, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.2, ease: "expo.out" }
     );
+
+    const logoHover = gsap.to(logoTextRef.current, {
+      letterSpacing: "0.5em",
+      duration: 0.7,
+      paused: true,
+      ease: "power2.out"
+    });
+
+    const el = document.querySelector(".logo-trigger");
+    if (el) {
+      el.addEventListener("mouseenter", () => logoHover.play());
+      el.addEventListener("mouseleave", () => logoHover.reverse());
+    }
   }, []);
 
-  // Three.js Logic
+  // Three.js: The Premium Octahedron Logo
   useEffect(() => {
     if (mountRef.current) mountRef.current.innerHTML = "";
     const scene = new THREE.Scene();
-    const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 10);
-    camera.position.z = 3;
+    const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
+    camera.position.z = 2.5;
+    
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
-    renderer.setSize(35, 35);
+    renderer.setPixelRatio(window.devicePixelRatio);
+    renderer.setSize(42, 42);
     mountRef.current?.appendChild(renderer.domElement);
 
-    const geometry = new THREE.IcosahedronGeometry(0.8, 1);
-    const material = new THREE.MeshStandardMaterial({
-      color: "#a3b18a",
-      wireframe: true,
+    const geometry = new THREE.OctahedronGeometry(0.8, 0); 
+    const material = new THREE.MeshPhysicalMaterial({
+      color: "#8DAA9D",
+      roughness: 0.1,
+      transmission: 1,
+      thickness: 1.2,
+      transparent: true,
+      opacity: 0.9,
     });
+    
     const shape = new THREE.Mesh(geometry, material);
     scene.add(shape);
-    const light = new THREE.PointLight(0xffffff, 1);
+    
+    // Tech wireframe overlay
+    const wireframe = new THREE.Mesh(
+      geometry,
+      new THREE.MeshBasicMaterial({ color: "#2D302D", wireframe: true, transparent: true, opacity: 0.15 })
+    );
+    scene.add(wireframe);
+
+    const light = new THREE.PointLight(0xffffff, 2);
     light.position.set(2, 2, 2);
     scene.add(light);
+    scene.add(new THREE.AmbientLight(0xffffff, 0.6));
 
     let frameId;
     const animate = () => {
-      shape.rotation.y += 0.002;
-      shape.rotation.x += 0.001;
+      shape.rotation.y += 0.01;
+      wireframe.rotation.y += 0.01;
+      shape.rotation.x += 0.005;
       renderer.render(scene, camera);
       frameId = requestAnimationFrame(animate);
     };
@@ -73,122 +108,103 @@ const Navbar = () => {
     return () => {
       cancelAnimationFrame(frameId);
       renderer.dispose();
-      if (mountRef.current) mountRef.current.innerHTML = "";
     };
   }, []);
-
-  const handleLogout = () => {
-    localStorage.removeItem("isLoggedIn");
-    window.dispatchEvent(new Event("authUpdate")); // Notifies itself to update
-    setIsProfileOpen(false);
-    navigate("/");
-  };
 
   return (
     <nav
       ref={navRef}
-      className="fixed top-0 left-0 w-full z-50 bg-white border-b border-gray-100"
+      className="fixed top-0 left-0 w-full z-100 pointer-events-none"
     >
-      <div className="max-w-7xl mx-auto px-8 py-4 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto flex items-center justify-between rounded-2xl px-8 py-3 pointer-events-auto">
+        
+        {/* LOGO SECTION */}
         <div
-          className="flex items-center gap-1.5 cursor-pointer group"
+          className="logo-trigger flex items-center gap-4 cursor-pointer group"
           onClick={() => navigate("/")}
         >
-          <div
-            ref={mountRef}
-            className="w-8.75 h-8.75 flex items-center justify-center opacity-80"
-          />
-          <span className="text-[15px] font-light tracking-[0.2em] text-slate-500 uppercase">
-            Health
-            <span className="font-semibold text-slate-400 ml-1">Book</span>
-          </span>
+          <div ref={mountRef} className="w-10 h-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-110" />
+          <div className="flex flex-col leading-none">
+            <span ref={logoTextRef} className="text-[13px] font-bold tracking-[0.3em] text-[#2D302D] uppercase transition-all">
+              Sovereign
+            </span>
+            <span className="text-[9px] tracking-[0.1em] text-[#8DAA9D] font-medium mt-1 uppercase flex items-center gap-2">
+              <span className="w-3 h-[1px] bg-[#8DAA9D]/40" />
+              Healthbook
+            </span>
+          </div>
         </div>
 
-        <div className="hidden md:flex items-center gap-10 text-sm text-gray-600">
+        {/* NAVIGATION LINKS */}
+        <div className="hidden md:flex items-center gap-10 text-[10px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/50">
           {[
             { name: "Clinics", path: "/clinics" },
             { name: "Doctors", path: "/doctors" },
             { name: "Help", path: "/help" },
           ].map((item) => (
-            <Link key={item.name} to={item.path} className="relative group">
+            <Link key={item.name} to={item.path} className="relative group transition-colors hover:text-[#2D302D]">
               {item.name}
-              <span className="absolute -bottom-1 left-0 w-0 h-px bg-gray-900 transition-all duration-300 group-hover:w-full" />
+              <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-[#8DAA9D] transition-all duration-500 group-hover:w-full" />
             </Link>
           ))}
         </div>
 
+        {/* AUTH ACTIONS */}
         <div className="flex items-center gap-6">
           {!isLoggedIn ? (
-            <>
+            <div className="flex items-center gap-6">
               <button
                 onClick={() => navigate("/login")}
-                className="text-sm text-gray-600 hover:text-gray-900"
+                className="text-[10px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-colors"
               >
                 Sign In
               </button>
               <button
                 onClick={() => navigate("/register")}
-                className="px-5 py-2 text-sm text-white rounded-full bg-gray-900"
+                className="px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold text-[#FAF9F6] rounded-full bg-[#2D302D] hover:bg-[#8DAA9D] transition-all duration-500"
               >
-                Get Started
+                Join
               </button>
-            </>
+            </div>
           ) : (
-            <div className="flex items-center gap-4">
-              <button className="hidden sm:block text-xs font-medium text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg">
-                Book Now
+            <div className="flex items-center gap-6">
+              <button className="hidden sm:block text-[9px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D] border border-[#8DAA9D]/30 px-5 py-2.5 rounded-full hover:bg-[#8DAA9D] hover:text-[#FAF9F6] transition-all duration-500">
+                Book Appointment
               </button>
+              
               <div className="relative">
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
-                  className="w-9 h-9 rounded-full bg-gray-100 border flex items-center justify-center"
+                  className="w-10 h-10 rounded-full border border-[#8DAA9D]/20 flex items-center justify-center bg-white shadow-sm group hover:border-[#8DAA9D] transition-all"
                 >
-                  <svg
-                    className="w-5 h-5 text-gray-600"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth="1.5"
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-                    />
-                  </svg>
+                   <svg className="w-5 h-5 text-[#2D302D]/60 group-hover:text-[#8DAA9D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                   </svg>
                 </button>
+                
+                {/* RESTORED ORIGINAL DROPDOWN ITEMS */}
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-3 w-56 bg-white border border-gray-100 rounded-2xl shadow-xl py-2 z-50">
-                    <div className="px-4 py-2 border-b border-gray-50 mb-1">
-                      <p className="text-xs text-gray-400">Signed in as</p>
-                      <p className="text-sm font-medium text-gray-900">
-                        Alex Johnson
-                      </p>
+                  <div className="absolute right-0 mt-4 w-60 bg-[#FAF9F6] backdrop-blur-2xl border border-[#2D302D]/5 rounded-2xl shadow-2xl py-3 overflow-hidden">
+                    <div className="px-5 py-3 border-b border-[#2D302D]/5">
+                      <p className="text-[9px] tracking-[0.2em] uppercase text-[#8DAA9D] font-bold">Account</p>
+                      <p className="text-sm font-medium text-[#2D302D]">Alex Johnson</p>
                     </div>
 
-                    <Link
-                      to="/appointments"
-                      className="block px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50"
-                    >
-                      My Appointments
-                    </Link>
-
-                    {/* New Option Added Here */}
-                    <Link
-                      to="/clinic-owner-register"
-                      className="block px-4 py-2.5 text-sm text-blue-600 hover:bg-blue-50 font-medium"
-                    >
-                      Are you a clinic owner?
-                    </Link>
-
-                    <div className="border-t border-gray-50 mt-1 pt-1">
-                      <button
-                        onClick={handleLogout}
-                        className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50"
-                      >
-                        Sign Out
-                      </button>
+                    <div className="py-2">
+                      <Link to="/appointments" className="block px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[#2D302D]/60 hover:bg-[#8DAA9D]/10 hover:text-[#2D302D]">
+                        My Appointments
+                      </Link>
+                      <Link to="/clinic-registration" className="block px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[#8DAA9D] hover:bg-[#8DAA9D]/10">
+                        Register Clinic
+                      </Link>
                     </div>
+
+                    <button
+                      onClick={handleLogout}
+                      className="w-full text-left px-5 py-3 text-[10px] uppercase tracking-[0.2em] font-bold text-red-400 hover:bg-red-50 transition-colors border-t border-[#2D302D]/5"
+                    >
+                      Sign Out
+                    </button>
                   </div>
                 )}
               </div>

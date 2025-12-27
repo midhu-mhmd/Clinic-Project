@@ -1,21 +1,106 @@
-import React from "react";
+import React, { useEffect, useRef } from "react";
+import gsap from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const FinalCTA = () => {
-  return (
-    <section className="relative h-64 flex items-center justify-center text-center px-4 overflow-hidden bg-[#FAF9F6]">
-      {/* Subtle overlay */}
-      <div className="absolute inset-0 bg-white/90" />
+  const sectionRef = useRef(null);
+  const buttonRef = useRef(null);
 
-      <div className="relative z-10 max-w-md">
-        <h1 className="font-inter text-3xl md:text-4xl font-bold mb-3 leading-tight text-gray-900">
-          Smarter healthcare starts here.
-        </h1>
-        <p className="font-inter text-sm md:text-base font-normal mb-6 text-gray-700 leading-relaxed">
-          Join thousands of patients who've found a better way to manage their
-          health appointments.
+  useEffect(() => {
+    const ctx = gsap.context(() => {
+      // Text Reveal
+      gsap.from(".cta-reveal", {
+        y: 100,
+        opacity: 0,
+        duration: 1.5,
+        ease: "expo.out",
+        stagger: 0.1,
+        scrollTrigger: {
+          trigger: sectionRef.current,
+          start: "top 80%",
+        },
+      });
+    }, sectionRef);
+    return () => ctx.revert();
+  }, []);
+
+  // Magnetic Button Effect
+  const handleMouseMove = (e) => {
+    const { clientX, clientY } = e;
+    const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
+    const x = clientX - (left + width / 2);
+    const y = clientY - (top + height / 2);
+
+    gsap.to(buttonRef.current, {
+      x: x * 0.2,
+      y: y * 0.2,
+      duration: 0.5,
+      ease: "power2.out",
+    });
+  };
+
+  const handleMouseLeave = () => {
+    gsap.to(buttonRef.current, {
+      x: 0,
+      y: 0,
+      duration: 0.5,
+      ease: "elastic.out(1, 0.3)",
+    });
+  };
+
+  return (
+    <section 
+      ref={sectionRef} 
+      className="relative min-h-[80vh] flex flex-col items-center justify-center  border-t border-[#2D302D]/10 overflow-hidden"
+    >
+      {/* Decorative Branding Background */}
+      <div className="absolute inset-0 flex items-center justify-center opacity-[0.02] pointer-events-none select-none">
+        <h2 className="text-[30vw] font-serif italic">Health</h2>
+      </div>
+
+      <div className="relative z-10 text-center max-w-4xl px-8">
+        <div className="overflow-hidden mb-6">
+          <p className="cta-reveal text-[10px] tracking-[0.6em] text-[#8DAA9D] uppercase font-bold">
+            07 — The New Standard
+          </p>
+        </div>
+
+        <div className="overflow-hidden mb-12">
+          <h2 className="cta-reveal text-[clamp(2.5rem,8vw,6rem)] font-light leading-[1] text-[#2D302D] tracking-tighter">
+            Take the first step <br />
+            <span className="italic font-serif text-[#8DAA9D]">to clarity.</span>
+          </h2>
+        </div>
+
+        <div className="overflow-hidden flex justify-center">
+          <div className="cta-reveal">
+            <button
+              ref={buttonRef}
+              onMouseMove={handleMouseMove}
+              onMouseLeave={handleMouseLeave}
+              className="group relative bg-[#2D302D] text-[#FAF9F6] px-16 py-8 rounded-full text-[11px] tracking-[0.4em] uppercase font-bold transition-transform hover:bg-[#8DAA9D] duration-700"
+            >
+              Consult AI Assistant
+              <div className="absolute -inset-4 border border-[#8DAA9D]/30 rounded-full scale-0 group-hover:scale-100 transition-transform duration-700 -z-10" />
+            </button>
+          </div>
+        </div>
+      </div>
+
+      {/* Minimal Footer Info */}
+      <div className="absolute bottom-12 w-full px-12 flex flex-col md:flex-row justify-between items-center gap-6">
+        <p className="text-[9px] tracking-widest text-[#2D302D]/40 uppercase">
+          © 2024 HealthBook — Refining Patient Care
         </p>
-        <button className="bg-white text-gray-600 px-8 py-3 rounded-full font-inter text-sm font-semibold cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-purple-100">
-          Talk to AI & Book Now
+        
+        <button 
+          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+          className="text-[9px] tracking-[0.3em] text-[#2D302D] uppercase font-bold group flex items-center gap-4"
+        >
+          Back to Top
+          <div className="w-8 h-[1px] bg-[#8DAA9D] group-hover:w-12 transition-all duration-500"></div>
         </button>
       </div>
     </section>

@@ -1,98 +1,115 @@
-import { useEffect, useRef } from "react";
-import gsap from "gsap";
+import React, { useEffect, useRef } from "react";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const HowItWorks = () => {
-  const screensRef = useRef([]);
+  const containerRef = useRef(null);
+  const stepsRef = useRef([]);
 
   useEffect(() => {
-    gsap.fromTo(
-      screensRef.current,
-      { opacity: 0, y: 80 },
-      {
-        opacity: 1,
-        y: 0,
-        duration: 1.2,
-        ease: "power4.out",
-        stagger: 0.3,
-      }
-    );
+    const ctx = gsap.context(() => {
+      stepsRef.current.forEach((step, i) => {
+        gsap.fromTo(
+          step,
+          { opacity: 0, y: 100 },
+          {
+            opacity: 1,
+            y: 0,
+            duration: 1.5,
+            ease: "expo.out",
+            scrollTrigger: {
+              trigger: step,
+              start: "top 85%",
+            },
+            delay: i * 0.1,
+          }
+        );
+      });
+    }, containerRef);
+    return () => ctx.revert();
   }, []);
 
-  return (
-    <section className="relative w-full  py-36 overflow-hidden">
-      {/* Soft background glow */}
-      <div className="absolute -top-40 left-1/2 -translate-x-1/2 w-225 h-225 bg-blue-200/40 blur-[160px]" />
+  const steps = [
+    {
+      num: "01",
+      title: "Self-Analysis",
+      desc: "Converse with our AI to map out your symptoms with clinical precision.",
+      img: "/screens/ai-search.png",
+    },
+    {
+      num: "02",
+      title: "Specialist Matching",
+      desc: "Our system filters through verified clinics to find your ideal medical match.",
+      img: "/screens/doctor-list.png",
+      offset: true, // This creates the staggered look
+    },
+    {
+      num: "03",
+      title: "Seamless Entry",
+      desc: "Confirm your appointment and sync it directly to your digital health record.",
+      img: "/screens/booking.png",
+    },
+  ];
 
-      <div className="relative max-w-7xl mx-auto px-6">
-        {/* Heading */}
-        <div className="max-w-xl mb-24">
-          <p className="text-sm text-blue-600 font-medium">
-            How HealthBook works
+  return (
+    <section ref={containerRef} className="relative w-full py-40 bg-[#FAF9F6]">
+      <div className="max-w-7xl mx-auto px-8">
+        
+        {/* MINIMAL HEADER */}
+        <div className="mb-32">
+          <p className="text-[10px] tracking-[0.5em] text-[#8DAA9D] uppercase font-bold mb-6">
+            04 — The Methodology
           </p>
-          <h2 className="mt-4 text-5xl font-semibold text-gray-900 leading-tight">
-            From symptoms to appointment <br /> in minutes
+          <h2 className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-light leading-[1] text-[#2D302D] tracking-tighter">
+            An effortless transition <br />
+            <span className="italic font-serif text-[#8DAA9D]">from worry to wellness.</span>
           </h2>
-          <p className="mt-6 text-lg text-gray-500">
-            A real product flow, not just features.
-          </p>
         </div>
 
-        {/* Screenshots */}
-        <div className="relative flex flex-col md:flex-row items-center gap-20">
-          
-          {/* Screen 1 */}
-          <div
-            ref={(el) => (screensRef.current[0] = el)}
-            className="relative w-[320px] md:w-90"
-          >
-            <p className="mb-4 text-sm text-gray-500">
-              Step 01 — Describe symptoms
-            </p>
-            <div className="rounded-3xl overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.15)]">
-              <img
-                src="/screens/ai-search.png"
-                alt="AI search"
-                className="w-full"
-              />
-            </div>
-          </div>
+        {/* STAGGERED EXHIBITS */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24 items-start">
+          {steps.map((step, i) => (
+            <div
+              key={i}
+              ref={(el) => (stepsRef.current[i] = el)}
+              className={`flex flex-col ${step.offset ? "md:mt-32" : ""}`}
+            >
+              {/* Image Container with Minimalist Frame */}
+              <div className="relative group aspect-[9/12] mb-10 overflow-hidden bg-white border border-[#2D302D]/5 rounded-[2rem] transition-all duration-700 hover:border-[#8DAA9D]/30">
+                <img
+                  src={step.img}
+                  alt={step.title}
+                  className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-1000"
+                />
+                {/* Overlay Number */}
+                <div className="absolute top-8 left-8 text-[10px] font-mono text-[#2D302D]/40 tracking-widest uppercase">
+                  Phase — {step.num}
+                </div>
+              </div>
 
-          {/* Screen 2 (raised) */}
-          <div
-            ref={(el) => (screensRef.current[1] = el)}
-            className="relative w-[320px] md:w-95 -mt-20"
-          >
-            <p className="mb-4 text-sm text-gray-500">
-              Step 02 — Choose doctor
-            </p>
-            <div className="rounded-3xl overflow-hidden shadow-[0_60px_140px_rgba(0,0,0,0.18)]">
-              <img
-                src="/screens/doctor-list.png"
-                alt="Doctor list"
-                className="w-full"
-              />
+              {/* Text Detail */}
+              <div className="px-2">
+                <h3 className="text-2xl font-light text-[#2D302D] mb-4 tracking-tight">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-[#2D302D]/50 font-light leading-relaxed">
+                  {step.desc}
+                </p>
+                
+                {/* Minimalist connecting line for desktop */}
+                {i < 2 && (
+                  <div className="hidden md:block mt-8 w-full h-[1px] bg-gradient-to-r from-[#8DAA9D]/40 to-transparent" />
+                )}
+              </div>
             </div>
-          </div>
-
-          {/* Screen 3 */}
-          <div
-            ref={(el) => (screensRef.current[2] = el)}
-            className="relative w-[320px] md:w-90"
-          >
-            <p className="mb-4 text-sm text-gray-500">
-              Step 03 — Book instantly
-            </p>
-            <div className="rounded-3xl overflow-hidden shadow-[0_40px_120px_rgba(0,0,0,0.15)]">
-              <img
-                src="/screens/booking.png"
-                alt="Booking"
-                className="w-full"
-              />
-            </div>
-          </div>
-
+          ))}
         </div>
       </div>
+
+      {/* Background Accent */}
+      <div className="absolute bottom-0 right-0 w-[50vw] h-[50vw] bg-[#8DAA9D]/5 rounded-full blur-[120px] -z-10" />
     </section>
   );
 };
