@@ -36,35 +36,36 @@ const HowItWorks = () => {
       num: "01",
       title: "Self-Analysis",
       desc: "Converse with our AI to map out your symptoms with clinical precision.",
-      img: "/screens/ai-search.png",
+      img: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&q=80&w=800",
     },
     {
       num: "02",
       title: "Specialist Matching",
       desc: "Our system filters through verified clinics to find your ideal medical match.",
-      img: "/screens/doctor-list.png",
-      offset: true, // This creates the staggered look
+      img: "https://images.unsplash.com/photo-1666214280557-f1b5022eb634?auto=format&fit=crop&q=80&w=800",
+      offset: true,
     },
     {
       num: "03",
       title: "Seamless Entry",
       desc: "Confirm your appointment and sync it directly to your digital health record.",
-      img: "/screens/booking.png",
+      img: "https://images.unsplash.com/photo-1576091160399-112ba8d25d1d?auto=format&fit=crop&q=80&w=800",
     },
   ];
 
   return (
     <section ref={containerRef} className="relative w-full py-40 bg-[#FAF9F6]">
       <div className="max-w-7xl mx-auto px-8">
-        
         {/* MINIMAL HEADER */}
         <div className="mb-32">
           <p className="text-[10px] tracking-[0.5em] text-[#8DAA9D] uppercase font-bold mb-6">
             04 — The Methodology
           </p>
-          <h2 className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-light leading-[1] text-[#2D302D] tracking-tighter">
+          <h2 className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-light leading-none text-[#2D302D] tracking-tighter">
             An effortless transition <br />
-            <span className="italic font-serif text-[#8DAA9D]">from worry to wellness.</span>
+            <span className="italic font-serif text-[#8DAA9D]">
+              from worry to wellness.
+            </span>
           </h2>
         </div>
 
@@ -77,7 +78,7 @@ const HowItWorks = () => {
               className={`flex flex-col ${step.offset ? "md:mt-32" : ""}`}
             >
               {/* Image Container with Minimalist Frame */}
-              <div className="relative group aspect-[9/12] mb-10 overflow-hidden bg-white border border-[#2D302D]/5 rounded-[2rem] transition-all duration-700 hover:border-[#8DAA9D]/30">
+              <div className="relative group aspect-9/12 mb-10 overflow-hidden bg-white border border-[#2D302D]/5 rounded-4xl transition-all duration-700 hover:border-[#8DAA9D]/30">
                 <img
                   src={step.img}
                   alt={step.title}
@@ -97,10 +98,10 @@ const HowItWorks = () => {
                 <p className="text-sm text-[#2D302D]/50 font-light leading-relaxed">
                   {step.desc}
                 </p>
-                
+
                 {/* Minimalist connecting line for desktop */}
                 {i < 2 && (
-                  <div className="hidden md:block mt-8 w-full h-[1px] bg-gradient-to-r from-[#8DAA9D]/40 to-transparent" />
+                  <div className="hidden md:block mt-8 w-full h-px bg-linear-to-r from-[#8DAA9D]/40 to-transparent" />
                 )}
               </div>
             </div>

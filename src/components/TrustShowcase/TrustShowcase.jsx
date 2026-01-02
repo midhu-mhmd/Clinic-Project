@@ -39,7 +39,7 @@ const TrustShowcase = () => {
 
   return (
     <section ref={sectionRef} className="bg-[#FAF9F6] py-40 px-8 overflow-hidden">
-      <div className="max-w-[1400px] mx-auto">
+      <div className="max-w-350 mx-auto">
         
         {/* MINIMALIST HEADER */}
         <div className="flex flex-col lg:flex-row justify-between items-end mb-24 border-b border-[#2D302D]/10 pb-16">
@@ -70,7 +70,7 @@ const TrustShowcase = () => {
                 <Plus size={14} />
               </div>
             </div>
-            <div className="aspect-[16/10] overflow-hidden grayscale hover:grayscale-0 transition-all duration-1000">
+            <div className="aspect-16/10 overflow-hidden grayscale hover:grayscale-0 transition-all duration-1000">
               <img 
                 src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1200" 
                 alt="Clinical UI" 

@@ -74,7 +74,7 @@ const WhyPatientsLoveUs = () => {
             <p className="text-[10px] tracking-[0.5em] uppercase text-[#8DAA9D] font-bold mb-4">
               Core Philosophies
             </p>
-            <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-light leading-[1] text-[#2D302D] tracking-tighter">
+            <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-light leading-none text-[#2D302D] tracking-tighter">
               A healthcare experience <br />
               <span className="italic font-serif text-[#8DAA9D]">reimagined.</span>
             </h2>
@@ -105,7 +105,7 @@ const WhyPatientsLoveUs = () => {
               </p>
               
               {/* Subtle hover line */}
-              <div className="absolute bottom-0 left-0 w-0 h-[1px] bg-[#8DAA9D] group-hover:w-full transition-all duration-700"></div>
+              <div className="absolute bottom-0 left-0 w-0 h-px bg-[#8DAA9D] group-hover:w-full transition-all duration-700"></div>
             </div>
           ))}
         </div>

@@ -4,7 +4,7 @@ import { Star } from 'lucide-react';
 export function ClinicCard({ clinic }) {
   return (
     <article className="group">
-      <div className="relative aspect-[4/3] bg-neutral-200 overflow-hidden mb-6">
+      <div className="relative aspect-4/3 bg-neutral-200 overflow-hidden mb-6">
         {clinic.image_url && (
           <img
             src={clinic.image_url}

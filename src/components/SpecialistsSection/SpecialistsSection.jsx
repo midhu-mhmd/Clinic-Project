@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 gsap.registerPlugin(ScrollTrigger);
 
 const specialists = [
-  { name: "Dr. Sarah Johnson", role: "Cardiology", image: "https://images.unsplash.com/photo-1559839734-2b71f1536780?auto=format&fit=crop&q=80&w=800" },
+  { name: "Dr. Sarah Johnson", role: "Cardiology", image: "https://images.pexels.com/photos/4173239/pexels-photo-4173239.jpeg?auto=compress&cs=tinysrgb&w=800" },
   { name: "Dr. Emily Chen", role: "Pediatrics", image: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?auto=format&fit=crop&q=80&w=800" },
   { name: "Dr. Michael Ross", role: "Dermatology", image: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?auto=format&fit=crop&q=80&w=800" },
   { name: "Dr. Lisa Wong", role: "General Practice", image: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=800" },
@@ -53,7 +53,7 @@ const SpecialistsSection = () => {
             className="reveal-item group flex items-center gap-4 text-[10px] tracking-[0.3em] uppercase font-bold text-[#2D302D]"
           >
             All Specialists
-            <span className="w-12 h-[1px] bg-[#8DAA9D] group-hover:w-20 transition-all duration-700"></span>
+            <span className="w-12 h-px bg-[#8DAA9D] group-hover:w-20 transition-all duration-700"></span>
           </button>
         </div>
 
@@ -62,7 +62,7 @@ const SpecialistsSection = () => {
           {specialists.map((doc, index) => (
             <div key={index} className="reveal-item group cursor-pointer">
               {/* Image with subtle reveal */}
-              <div className="relative aspect-[3/4] overflow-hidden mb-6 bg-[#2D302D]/5">
+              <div className="relative aspect-3/4 overflow-hidden mb-6 bg-[#2D302D]/5">
                 <img 
                   src={doc.image} 
                   alt={doc.name}

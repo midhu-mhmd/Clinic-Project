@@ -1,129 +1,167 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Key, ArrowLeft, Mail, ShieldAlert, RefreshCw, CheckCircle2 } from "lucide-react";
+import axios from "axios";
+import {
+  ArrowLeft,
+  ShieldAlert,
+  ShieldCheck,
+  RefreshCw,
+  ChevronRight,
+} from "lucide-react";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+
+  // Local UI States
   const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-  const [isResending, setIsResending] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState({ text: "", type: "" });
 
-  const handleSubmit = (e) => {
+  const handleRequestOTP = async (e) => {
     e.preventDefault();
-    // Protocol: Initiate Recovery Sequence
-    setSubmitted(true);
+    setLoading(true);
+    setMessage({ text: "", type: "" });
+
+    try {
+      // 1. Call Backend to trigger OTP email
+      const response = await axios.post(
+        "http://localhost:5000/api/users/forgot-password",
+        {
+          email,
+        }
+      );
+
+      setMessage({
+        text: "Security code dispatched successfully.",
+        type: "success",
+      });
+
+      // 2. Industry Standard: Delay navigation slightly so user sees the success message
+      setTimeout(() => {
+        // We pass the 'email' in the state object so ResetPassword.jsx can use it
+        navigate("/reset-password/:token", { state: { email } });
+      }, 1500);
+    } catch (err) {
+      // Handling errors gracefully
+      const errorMsg =
+        err.response?.data?.message || "Internal system error. Try again.";
+      setMessage({ text: errorMsg, type: "error" });
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleResend = () => {
-    setIsResending(true);
-    setTimeout(() => setIsResending(false), 2000);
-  };
-
-  const inputClass = "w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-[#8DAA9D] transition-all duration-500 placeholder:text-[#2D302D]/20";
+  // Shared Design Constants
+  const inputClass =
+    "w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-[#8DAA9D] transition-all duration-500 placeholder:text-[#2D302D]/20";
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] flex">
-      
-      {/* LEFT COLUMN: SYSTEM STATUS (Desktop Only) */}
+      {/* LEFT COLUMN: SYSTEM STATUS SIDEBAR */}
       <div className="hidden lg:flex w-1/3 bg-[#2D302D] p-16 flex-col justify-between text-[#FAF9F6]">
         <div className="space-y-6">
           <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">
-            {submitted ? (
-              <CheckCircle2 size={20} className="text-[#8DAA9D] animate-pulse" />
-            ) : (
-              <ShieldAlert size={20} className="text-[#8DAA9D]" />
-            )}
+            <ShieldAlert size={20} className="text-[#8DAA9D]" />
           </div>
-          <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
-            Recovery <br /> Sequence.
-          </h2>
-          <p className="text-xs tracking-widest leading-loose opacity-50 uppercase max-w-[220px]">
-            Verifying identity endpoint to restore clinical access keys.
+          <div className="space-y-2">
+            <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
+              Identity <br /> Verification.
+            </h2>
+            <div className="h-px w-12 bg-[#8DAA9D] mt-4" />
+          </div>
+          <p className="text-[10px] tracking-[0.2em] leading-loose opacity-50 uppercase max-w-55">
+            Protocol 01: Requesting temporary cryptographic access key via
+            registered endpoint.
           </p>
         </div>
 
         <div className="space-y-4">
-           <div className="h-[1px] w-full bg-[#FAF9F6]/10" />
-           <div className="flex justify-between items-center text-[9px] uppercase tracking-[0.2em] font-bold opacity-40">
-              <span>Security Tier 01</span>
-              <span>Encrypted</span>
-           </div>
+          <div className="flex items-center gap-4 opacity-30">
+            <div className="w-2 h-2 rounded-full bg-[#8DAA9D] animate-pulse" />
+            <span className="text-[9px] uppercase tracking-widest font-bold">
+              System Online
+            </span>
+          </div>
         </div>
       </div>
 
       {/* RIGHT COLUMN: INTERFACE */}
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
         <div className="max-w-md w-full">
-          {!submitted ? (
-            <>
-              <header className="mb-16">
-                <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Recovery — 03</span>
-                <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Reset Access</h1>
-                <p className="mt-6 text-[#2D302D]/50 text-sm leading-relaxed max-w-sm">
-                  Identify your registered communication endpoint to receive a secure recovery link.
-                </p>
-              </header>
+          <header className="mb-16">
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">
+              Authentication Recovery — Step 01
+            </span>
+            <h1 className="text-6xl font-light tracking-tighter uppercase text-[#2D302D]">
+              Lost <br /> Access?
+            </h1>
+          </header>
 
-              <form onSubmit={handleSubmit} className="space-y-12">
-                <div className="space-y-2 relative">
-                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Registered Email</label>
-                  <input 
-                    type="email" 
-                    id="email" 
-                    value={email} 
-                    onChange={(e) => setEmail(e.target.value)} 
-                    placeholder="name@domain.com" 
-                    className={inputClass} 
-                    required
-                  />
-                </div>
-
-                <div className="flex items-center gap-3 text-[#2D302D]/40 italic">
-                  <Key size={14} />
-                  <span className="text-[10px] uppercase tracking-widest font-bold">Link expires in 24 hours</span>
-                </div>
-
-                <button type="submit" className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700">
-                  <span className="text-[10px] uppercase tracking-[0.4em] font-bold">Send Instructions</span>
-                  <RefreshCw size={16} className="group-hover:rotate-180 transition-transform duration-700" />
-                </button>
-              </form>
-            </>
-          ) : (
-            <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
-              <header className="mb-12">
-                <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Status: Dispatched</span>
-                <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Check Inbox</h1>
-                <div className="mt-8 p-6 bg-[#8DAA9D]/10 border-l-2 border-[#8DAA9D]">
-                  <p className="text-[#2D302D] text-sm leading-relaxed">
-                    A secure protocol link has been routed to: <br />
-                    <strong className="font-bold">{email}</strong>
-                  </p>
-                </div>
-              </header>
-
-              <div className="space-y-4">
-                <button 
-                  onClick={handleResend}
-                  className="w-full py-5 border border-[#2D302D]/10 flex items-center justify-center gap-4 hover:bg-[#2D302D] hover:text-[#FAF9F6] transition-all"
-                >
-                  <RefreshCw size={16} className={isResending ? "animate-spin text-[#8DAA9D]" : "text-[#8DAA9D]"} />
-                  <span className="text-[10px] uppercase tracking-widest font-bold">
-                    {isResending ? "Re-routing..." : "Resend Protocol"}
-                  </span>
-                </button>
-              </div>
+          <form onSubmit={handleRequestOTP} className="space-y-12">
+            <div className="space-y-2 relative">
+              <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">
+                Registered Email Address
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="email@example.com"
+                required
+                disabled={loading}
+              />
             </div>
-          )}
 
-          <div className="mt-16 pt-12 border-t border-[#2D302D]/5">
-            <button 
-              onClick={() => navigate("/login")} 
+            <div className="space-y-6">
+              <button
+                type="submit"
+                disabled={loading}
+                className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700 disabled:opacity-50"
+              >
+                <span className="text-[10px] uppercase tracking-[0.4em] font-bold">
+                  {loading ? "Initializing..." : "Request Security Code"}
+                </span>
+                {loading ? (
+                  <RefreshCw size={16} className="animate-spin" />
+                ) : (
+                  <ChevronRight
+                    size={16}
+                    className="group-hover:translate-x-2 transition-transform duration-500"
+                  />
+                )}
+              </button>
+
+              {/* MESSAGE FEEDBACK */}
+              {message.text && (
+                <div
+                  className={`p-4 text-[10px] uppercase tracking-widest font-bold border animate-in fade-in slide-in-from-top-2 duration-500 ${
+                    message.type === "success"
+                      ? "bg-green-50 border-green-100 text-green-600"
+                      : "bg-red-50 border-red-100 text-red-600"
+                  }`}
+                >
+                  {message.text}
+                </div>
+              )}
+            </div>
+          </form>
+
+          {/* FOOTER NAVIGATION */}
+          <div className="mt-20 pt-12 border-t border-[#2D302D]/5 flex justify-between items-center">
+            <button
+              onClick={() => navigate("/login")}
               className="group flex items-center gap-3 text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-all"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-              Return to Authentication
+              <ArrowLeft
+                size={14}
+                className="group-hover:-translate-x-1 transition-transform"
+              />
+              Back to Login
             </button>
+            <span className="text-[9px] font-bold opacity-20 uppercase tracking-tighter underline">
+              Secure Terminal 2.0
+            </span>
           </div>
         </div>
       </div>
@@ -132,4 +170,3 @@ const ForgotPassword = () => {
 };
 
 export default ForgotPassword;
- 

@@ -128,8 +128,8 @@ const Navbar = () => {
             <span ref={logoTextRef} className="text-[13px] font-bold tracking-[0.3em] text-[#2D302D] uppercase transition-all">
               Sovereign
             </span>
-            <span className="text-[9px] tracking-[0.1em] text-[#8DAA9D] font-medium mt-1 uppercase flex items-center gap-2">
-              <span className="w-3 h-[1px] bg-[#8DAA9D]/40" />
+            <span className="text-[9px] tracking-widest text-[#8DAA9D] font-medium mt-1 uppercase flex items-center gap-2">
+              <span className="w-3 h-px bg-[#8DAA9D]/40" />
               Healthbook
             </span>
           </div>
@@ -144,7 +144,7 @@ const Navbar = () => {
           ].map((item) => (
             <Link key={item.name} to={item.path} className="relative group transition-colors hover:text-[#2D302D]">
               {item.name}
-              <span className="absolute -bottom-2 left-0 w-0 h-[1px] bg-[#8DAA9D] transition-all duration-500 group-hover:w-full" />
+              <span className="absolute -bottom-2 left-0 w-0 h-px bg-[#8DAA9D] transition-all duration-500 group-hover:w-full" />
             </Link>
           ))}
         </div>

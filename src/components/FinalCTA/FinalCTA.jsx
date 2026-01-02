@@ -29,7 +29,8 @@ const FinalCTA = () => {
   // Magnetic Button Effect
   const handleMouseMove = (e) => {
     const { clientX, clientY } = e;
-    const { left, top, width, height } = buttonRef.current.getBoundingClientRect();
+    const { left, top, width, height } =
+      buttonRef.current.getBoundingClientRect();
     const x = clientX - (left + width / 2);
     const y = clientY - (top + height / 2);
 
@@ -51,8 +52,8 @@ const FinalCTA = () => {
   };
 
   return (
-    <section 
-      ref={sectionRef} 
+    <section
+      ref={sectionRef}
       className="relative min-h-[80vh] flex flex-col items-center justify-center  border-t border-[#2D302D]/10 overflow-hidden"
     >
       {/* Decorative Branding Background */}
@@ -68,9 +69,11 @@ const FinalCTA = () => {
         </div>
 
         <div className="overflow-hidden mb-12">
-          <h2 className="cta-reveal text-[clamp(2.5rem,8vw,6rem)] font-light leading-[1] text-[#2D302D] tracking-tighter">
+          <h2 className="cta-reveal text-[clamp(2.5rem,8vw,6rem)] font-light leading-none text-[#2D302D] tracking-tighter">
             Take the first step <br />
-            <span className="italic font-serif text-[#8DAA9D]">to clarity.</span>
+            <span className="italic font-serif text-[#8DAA9D]">
+              to clarity.
+            </span>
           </h2>
         </div>
 
@@ -94,13 +97,13 @@ const FinalCTA = () => {
         <p className="text-[9px] tracking-widest text-[#2D302D]/40 uppercase">
           © 2024 HealthBook — Refining Patient Care
         </p>
-        
-        <button 
-          onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+
+        <button
+          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
           className="text-[9px] tracking-[0.3em] text-[#2D302D] uppercase font-bold group flex items-center gap-4"
         >
           Back to Top
-          <div className="w-8 h-[1px] bg-[#8DAA9D] group-hover:w-12 transition-all duration-500"></div>
+          <div className="w-8 h-px bg-[#8DAA9D] group-hover:w-12 transition-all duration-500"></div>
         </button>
       </div>
     </section>
