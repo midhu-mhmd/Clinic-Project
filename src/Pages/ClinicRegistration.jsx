@@ -1,18 +1,45 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const ClinicRegistration = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    // Logic: Post to /api/register (Owner + Tenant payload)
-    setTimeout(() => {
+
+    // Using FormData is the safest way to grab values from the 'name' attributes
+    const formData = new FormData(e.currentTarget);
+    
+    const payload = {
+      owner: {
+        name: formData.get("ownerName"),
+        email: formData.get("email"),
+        password: formData.get("password"),
+      },
+      clinic: {
+        name: formData.get("clinicName"),
+        registrationId: formData.get("registrationId"),
+        address: formData.get("location"),
+      },
+    };
+
+    try {
+      const response = await axios.post(
+        "http://localhost:5000/api/tenants/clinic-register",
+        payload
+      );
+      
+      localStorage.setItem("token", response.data.token);
+      navigate("/plans");
+    } catch (err) {
+      console.error("Registration Error:", err);
+      alert(err.response?.data?.message || "Registration failed. Please check your connection.");
+    } finally {
       setLoading(false);
-      navigate("/plans"); // Move to Step 2
-    }, 1500);
+    }
   };
 
   const inputGroupStyle = "relative group mb-10";
@@ -23,7 +50,7 @@ const ClinicRegistration = () => {
 
   return (
     <div className="min-h-screen bg-white flex flex-col md:flex-row font-sans antialiased text-[#1a1a1a]">
-      {/* Editorial Sidebar (Persistent) */}
+      {/* Editorial Sidebar */}
       <div className="md:w-5/12 bg-[#F9F9F9] p-12 md:p-24 flex flex-col justify-between border-r border-gray-100">
         <div>
           <h2 className="text-[10px] tracking-[0.5em] text-gray-400 uppercase mb-12">
@@ -43,7 +70,7 @@ const ClinicRegistration = () => {
 
         <div className="hidden md:block">
           <p className="text-[10px] tracking-widest text-gray-300 uppercase">
-            © 2025 HealthBook SaaS
+            © 2026 HealthBook SaaS
           </p>
         </div>
       </div>
@@ -52,7 +79,7 @@ const ClinicRegistration = () => {
       <div className="md:w-7/12 p-12 md:p-24 overflow-y-auto">
         <div className="max-w-md mx-auto">
           <form onSubmit={handleSubmit}>
-            {/* Part A: Tenant Owner (The Person) */}
+            {/* Part A: Tenant Owner */}
             <section className="mb-20">
               <h3 className="text-[11px] tracking-[0.3em] uppercase font-bold mb-12 border-b border-gray-100 pb-4">
                 01. Personal Identity
@@ -62,6 +89,7 @@ const ClinicRegistration = () => {
                 <input
                   type="text"
                   id="ownerName"
+                  name="ownerName" // Added name
                   placeholder=" "
                   required
                   className={inputStyle}
@@ -75,6 +103,7 @@ const ClinicRegistration = () => {
                 <input
                   type="email"
                   id="email"
+                  name="email" // Added name
                   placeholder=" "
                   required
                   className={inputStyle}
@@ -88,6 +117,7 @@ const ClinicRegistration = () => {
                 <input
                   type="password"
                   id="password"
+                  name="password" // Added name
                   placeholder=" "
                   required
                   className={inputStyle}
@@ -98,7 +128,7 @@ const ClinicRegistration = () => {
               </div>
             </section>
 
-            {/* Part B: Tenant Registration (The Clinic) */}
+            {/* Part B: Tenant Registration */}
             <section className="mb-20">
               <h3 className="text-[11px] tracking-[0.3em] uppercase font-bold mb-12 border-b border-gray-100 pb-4">
                 02. Clinic Entity
@@ -108,6 +138,7 @@ const ClinicRegistration = () => {
                 <input
                   type="text"
                   id="clinicName"
+                  name="clinicName" // Added name
                   placeholder=" "
                   required
                   className={inputStyle}
@@ -118,20 +149,16 @@ const ClinicRegistration = () => {
               </div>
 
               <div className={inputGroupStyle}>
-                <div className="flex">
-                  <input
-                    type="text"
-                    id="subdomain"
-                    placeholder=" "
-                    required
-                    className={inputStyle}
-                  />
-                  <span className="border-b border-gray-200 py-3 text-gray-400 text-xs">
-                    .healthbook.pro
-                  </span>
-                </div>
-                <label htmlFor="subdomain" className={labelStyle}>
-                  Workspace URL
+                <input
+                  type="text"
+                  id="registrationId"
+                  name="registrationId" // Added name
+                  placeholder=" "
+                  required
+                  className={inputStyle}
+                />
+                <label htmlFor="registrationId" className={labelStyle}>
+                  Registration ID
                 </label>
               </div>
 
@@ -139,6 +166,7 @@ const ClinicRegistration = () => {
                 <input
                   type="text"
                   id="location"
+                  name="location" // Added name
                   placeholder=" "
                   required
                   className={inputStyle}

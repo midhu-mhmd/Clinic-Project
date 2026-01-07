@@ -142,42 +142,6 @@ const HeroSection = () => {
               </div>
             </div>
           </div>
-
-          {/* RIGHT: VISUAL AREA (Visible/Hidden behavior adjusted for Mobile) */}
-          <div className="lg:col-span-5 xl:col-span-4 order-1 lg:order-2 flex justify-center lg:block">
-            <div
-              ref={visualRef}
-              className="relative w-full max-w-[320px] sm:max-w-100 lg:max-w-none aspect-4/5 sm:aspect-3/4 bg-[#2D302D] overflow-hidden shadow-2xl"
-            >
-              <div className="absolute inset-0 p-6 lg:p-8 flex flex-col justify-between text-[#FAF9F6]">
-                <div className="flex justify-between items-start">
-                  <Plus className="text-[#8DAA9D] w-5 h-5 lg:w-6 lg:h-6" />
-                  <span className="text-[8px] lg:text-[9px] uppercase tracking-widest opacity-40 font-mono">
-                    System_V.08
-                  </span>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="h-px w-full bg-white/10" />
-                  <h3 className="text-3xl lg:text-4xl xl:text-5xl font-serif italic font-light tracking-tighter">
-                    98.2%
-                  </h3>
-                  <p className="text-[9px] lg:text-[10px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D]">
-                    Diagnostic Accuracy
-                  </p>
-                </div>
-              </div>
-              {/* Noise texture overlay */}
-              <div className="absolute inset-0 opacity-[0.15] pointer-events-none mix-blend-overlay bg-black" />
-            </div>
-
-            {/* Sideways Label - Hidden on Mobile for clean UI */}
-            <div className="hidden lg:block fade-up absolute -left-12 bottom-12 bg-[#8DAA9D] text-[#FAF9F6] py-3 lg:py-4 px-6 -rotate-90 origin-bottom-left">
-              <span className="text-[9px] uppercase tracking-[0.4em] font-bold whitespace-nowrap">
-                Clinical Excellence
-              </span>
-            </div>
-          </div>
         </div>
       </div>
 

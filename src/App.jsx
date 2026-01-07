@@ -1,23 +1,22 @@
-import React from 'react'
+import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Navbar from './components/Navbar.jsx'
-import Footer from './components/Footer/Footer.jsx';
+import Navbar from "./components/Navbar.jsx";
+import Footer from "./components/Footer/Footer.jsx";
 
-import Home from './Pages/Home.jsx'
-import Register from './Pages/Register.jsx'
-import Login from './Pages/Login.jsx'
-import ForgotPassword from './Pages/ForgotPassword.jsx';
-import ResetPassword from './Pages/ResetPassword.jsx';
-import ClinicList from './Pages/ClinicList.jsx';
-import DoctorList from './Pages/DoctorList.jsx';
-import ClinicProfile from './Pages/ClinicProfile.jsx';
-import DoctorProfile from './Pages/DoctorProfile.jsx';
-import ClinicRegistration from './Pages/ClinicRegistration.jsx';
-import SaaSPlans from './Pages/SaaSPlans.jsx';
-import Payment from './Pages/Payment.jsx';
-import ClinicLogin from './Pages/ClinicLogin.jsx';
-import Help from './Pages/Help.jsx';
-import ProtectedRoute from './components/ProtectedRoute.jsx';
+import Home from "./Pages/Home.jsx";
+import Register from "./Pages/Register.jsx";
+import Login from "./Pages/Login.jsx";
+import ForgotPassword from "./Pages/ForgotPassword.jsx";
+import ResetPassword from "./Pages/ResetPassword.jsx";
+import ClinicList from "./Pages/ClinicList.jsx";
+import DoctorList from "./Pages/DoctorList.jsx";
+import ClinicProfile from "./Pages/ClinicProfile.jsx";
+import DoctorProfile from "./Pages/DoctorProfile.jsx";
+import ClinicRegistration from "./Pages/ClinicRegistration.jsx";
+import SaaSPlans from "./Pages/SaaSPlans.jsx";
+import Payment from "./Pages/Payment.jsx";
+import ClinicLogin from "./Pages/ClinicLogin.jsx";
+import Help from "./Pages/Help.jsx";
 
 const App = () => {
   return (
@@ -38,39 +37,16 @@ const App = () => {
         <Route path="/clinic/:id" element={<ClinicProfile />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
 
-        {/* 🔐 Protected routes */}
-        <Route
-          path="/clinic-registration"
-          element={
-            <ProtectedRoute>
-              <ClinicRegistration />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/clinic-registration" element={<ClinicRegistration />} />
 
-        <Route
-          path="/plans"
-          element={
-            <ProtectedRoute>
-              <SaaSPlans />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/plans" element={<SaaSPlans />} />
 
-        <Route
-          path="/payment"
-          element={
-            <ProtectedRoute>
-              <Payment />
-            </ProtectedRoute>
-          }
-        />
+        <Route path="/payment" element={<Payment />} />
       </Routes>
 
       <Footer />
     </>
-  )
-}
+  );
+};
 
 export default App;
-

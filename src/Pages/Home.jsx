@@ -10,7 +10,7 @@ import FinalCTA from "../components/FinalCTA/FinalCTA.jsx";
 
 const Home = () => {
   return (
-    <div className="bg-[#FAF9F6]">
+    <div className="bg-[#FAF9F6] overflow-hidden">
       <HeroSection />
       <AiAssistantSection />
       <WhyPatientsLoveUs />
