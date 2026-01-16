@@ -1,168 +1,153 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import {
-  ArrowLeft,
-  ShieldAlert,
-  ShieldCheck,
-  RefreshCw,
-  ChevronRight,
+import { 
+  ArrowLeft, ShieldAlert, RefreshCw, ChevronRight, 
+  Building2, User, Stethoscope 
 } from "lucide-react";
 
 const ForgotPassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
 
-  // Local UI States
+  // 'choice', 'user', or 'clinic'
+  const [view, setView] = useState(location.state?.role || "choice");
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
 
+  // Handle Logic
   const handleRequestOTP = async (e) => {
     e.preventDefault();
     setLoading(true);
     setMessage({ text: "", type: "" });
 
+    const endpoint = view === "clinic" 
+      ? "http://localhost:5000/api/tenants/forgot-password" 
+      : "http://localhost:5000/api/users/forgot-password";
+
     try {
-      // 1. Call Backend to trigger OTP email
-      const response = await axios.post(
-        "http://localhost:5000/api/users/forgot-password",
-        {
-          email,
-        }
-      );
-
-      setMessage({
-        text: "Security code dispatched successfully.",
-        type: "success",
-      });
-
-      // 2. Industry Standard: Delay navigation slightly so user sees the success message
+      await axios.post(endpoint, { email });
+      setMessage({ text: "Security code dispatched successfully.", type: "success" });
       setTimeout(() => {
-        // We pass the 'email' in the state object so ResetPassword.jsx can use it
-        navigate("/reset-password/:token", { state: { email } });
+        navigate("/reset-password/:token", { state: { email, role: view } });
       }, 1500);
     } catch (err) {
-      // Handling errors gracefully
-      const errorMsg =
-        err.response?.data?.message || "Internal system error. Try again.";
-      setMessage({ text: errorMsg, type: "error" });
-    } finally {
-      setLoading(false);
-    }
+      setMessage({ text: err.response?.data?.message || "Error occurred.", type: "error" });
+    } finally { setLoading(false); }
   };
 
-  // Shared Design Constants
-  const inputClass =
-    "w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-[#8DAA9D] transition-all duration-500 placeholder:text-[#2D302D]/20";
+  // --- STYLES BASED ON VIEW ---
+  const isClinic = view === "clinic";
+  const themeColor = isClinic ? "text-[#8DAA9D]" : "text-[#7B9ACC]";
+  const bgColor = isClinic ? "bg-[#2D302D]" : "bg-[#1A1C1E]"; // Darker for patients
+  const accentBorder = isClinic ? "border-[#8DAA9D]" : "border-[#7B9ACC]";
 
+  // --- VIEW 1: THE CHOICE SCREEN ---
+  if (view === "choice") {
+    return (
+      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-8">
+        <h2 className="text-[10px] tracking-[0.5em] text-gray-400 uppercase mb-4">Identity Verification</h2>
+        <h1 className="text-4xl font-light tracking-tighter uppercase mb-12">Select your <span className="italic font-serif">portal.</span></h1>
+        
+        <div className="grid md:grid-cols-2 gap-8 w-full max-w-3xl">
+          {/* Patient Card */}
+          <button onClick={() => setView("user")} className="group p-12 bg-white border border-gray-100 hover:border-blue-200 transition-all text-left space-y-6">
+            <User size={32} className="text-blue-400" />
+            <div>
+              <h3 className="text-xl font-bold uppercase tracking-tight">Patient Portal</h3>
+              <p className="text-xs text-gray-400 leading-relaxed mt-2">Recover access to your personal health records and appointments.</p>
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-widest flex items-center gap-2">Enter →</div>
+          </button>
+
+          {/* Clinic Card */}
+          <button onClick={() => setView("clinic")} className="group p-12 bg-[#2D302D] text-white transition-all text-left space-y-6">
+            <Building2 size={32} className="text-[#8DAA9D]" />
+            <div>
+              <h3 className="text-xl font-bold uppercase tracking-tight">Clinic Admin</h3>
+              <p className="text-xs text-gray-400 leading-relaxed mt-2">System recovery for healthcare providers and staff members.</p>
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-[#8DAA9D] flex items-center gap-2">Access Terminal →</div>
+          </button>
+        </div>
+        <button onClick={() => navigate("/login")} className="mt-12 text-[10px] uppercase tracking-widest text-gray-400 hover:text-black font-bold">Return to Sign In</button>
+      </div>
+    );
+  }
+
+  // --- VIEW 2: THE DYNAMIC FORM (PATIENT OR CLINIC) ---
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex">
-      {/* LEFT COLUMN: SYSTEM STATUS SIDEBAR */}
-      <div className="hidden lg:flex w-1/3 bg-[#2D302D] p-16 flex-col justify-between text-[#FAF9F6]">
+    <div className="min-h-screen bg-[#FAF9F6] flex animate-in fade-in duration-700">
+      {/* SIDEBAR: Changes based on view */}
+      <div className={`hidden lg:flex w-1/3 ${bgColor} p-16 flex-col justify-between text-[#FAF9F6] transition-colors duration-1000`}>
         <div className="space-y-6">
-          <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">
-            <ShieldAlert size={20} className="text-[#8DAA9D]" />
+          <div className={`w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center`}>
+            {isClinic ? <Stethoscope size={20} className={themeColor} /> : <User size={20} className={themeColor} />}
           </div>
           <div className="space-y-2">
             <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
-              Identity <br /> Verification.
+              {isClinic ? "Clinical" : "Patient"} <br /> Recovery.
             </h2>
-            <div className="h-px w-12 bg-[#8DAA9D] mt-4" />
+            <div className={`h-px w-12 mt-4 ${isClinic ? 'bg-[#8DAA9D]' : 'bg-[#7B9ACC]'}`} />
           </div>
           <p className="text-[10px] tracking-[0.2em] leading-loose opacity-50 uppercase max-w-55">
-            Protocol 01: Requesting temporary cryptographic access key via
-            registered endpoint.
+            {isClinic ? "Admin Access Protocol 0.2: Encrypted Key Dispatch." : "Patient Safety Protocol 0.1: Identity Confirmation."}
           </p>
         </div>
-
-        <div className="space-y-4">
-          <div className="flex items-center gap-4 opacity-30">
-            <div className="w-2 h-2 rounded-full bg-[#8DAA9D] animate-pulse" />
-            <span className="text-[9px] uppercase tracking-widest font-bold">
-              System Online
-            </span>
-          </div>
+        <div className="text-[9px] uppercase tracking-widest font-bold opacity-30">
+          Terminal ID: {isClinic ? "CLINIC-ADM-01" : "PATIENT-USR-99"}
         </div>
       </div>
 
-      {/* RIGHT COLUMN: INTERFACE */}
+      {/* FORM AREA */}
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
         <div className="max-w-md w-full">
-          <header className="mb-16">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">
-              Authentication Recovery — Step 01
+          <button onClick={() => setView("choice")} className="mb-12 text-[9px] uppercase tracking-widest font-bold flex items-center gap-2 text-gray-400 hover:text-black">
+            <ArrowLeft size={12} /> Change Portal
+          </button>
+
+          <header className="mb-12">
+            <span className={`text-[10px] uppercase tracking-[0.5em] font-bold mb-4 block ${themeColor}`}>
+              Recovery Phase 01
             </span>
             <h1 className="text-6xl font-light tracking-tighter uppercase text-[#2D302D]">
-              Lost <br /> Access?
+              {isClinic ? "Admin" : "Secure"} <br /> Reset
             </h1>
           </header>
 
           <form onSubmit={handleRequestOTP} className="space-y-12">
-            <div className="space-y-2 relative">
+            <div className="space-y-2">
               <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">
-                Registered Email Address
+                {isClinic ? "Professional Work Email" : "Personal Email Address"}
               </label>
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className={inputClass}
-                placeholder="email@example.com"
+                className="w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-black transition-all"
+                placeholder="Enter email..."
                 required
-                disabled={loading}
               />
             </div>
 
-            <div className="space-y-6">
-              <button
-                type="submit"
-                disabled={loading}
-                className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700 disabled:opacity-50"
-              >
-                <span className="text-[10px] uppercase tracking-[0.4em] font-bold">
-                  {loading ? "Initializing..." : "Request Security Code"}
-                </span>
-                {loading ? (
-                  <RefreshCw size={16} className="animate-spin" />
-                ) : (
-                  <ChevronRight
-                    size={16}
-                    className="group-hover:translate-x-2 transition-transform duration-500"
-                  />
-                )}
-              </button>
-
-              {/* MESSAGE FEEDBACK */}
-              {message.text && (
-                <div
-                  className={`p-4 text-[10px] uppercase tracking-widest font-bold border animate-in fade-in slide-in-from-top-2 duration-500 ${
-                    message.type === "success"
-                      ? "bg-green-50 border-green-100 text-green-600"
-                      : "bg-red-50 border-red-100 text-red-600"
-                  }`}
-                >
-                  {message.text}
-                </div>
-              )}
-            </div>
-          </form>
-
-          {/* FOOTER NAVIGATION */}
-          <div className="mt-20 pt-12 border-t border-[#2D302D]/5 flex justify-between items-center">
             <button
-              onClick={() => navigate("/login")}
-              className="group flex items-center gap-3 text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-all"
+              type="submit"
+              disabled={loading}
+              className={`w-full ${isClinic ? 'bg-[#2D302D]' : 'bg-black'} text-white py-6 flex items-center justify-between px-8 hover:opacity-80 transition-all`}
             >
-              <ArrowLeft
-                size={14}
-                className="group-hover:-translate-x-1 transition-transform"
-              />
-              Back to Login
+              <span className="text-[10px] uppercase tracking-[0.4em] font-bold">
+                {loading ? "Processing..." : "Dispatch Code"}
+              </span>
+              {loading ? <RefreshCw size={16} className="animate-spin" /> : <ChevronRight size={16} />}
             </button>
-            <span className="text-[9px] font-bold opacity-20 uppercase tracking-tighter underline">
-              Secure Terminal 2.0
-            </span>
-          </div>
+
+            {message.text && (
+              <div className={`p-4 text-[10px] uppercase tracking-widest font-bold border ${message.type === "success" ? "bg-green-50 border-green-100 text-green-600" : "bg-red-50 border-red-100 text-red-600"}`}>
+                {message.text}
+              </div>
+            )}
+          </form>
         </div>
       </div>
     </div>

@@ -87,9 +87,15 @@ const ClinicLogin = () => {
             </div>
 
             <div className="flex justify-between items-center pt-2">
-              <span className="text-[10px] tracking-widest text-gray-400 uppercase cursor-pointer hover:text-black transition-colors">
+              <button
+                type="button" // Use type="button" to prevent form submission
+                onClick={() =>
+                  navigate("/forgot-password", { state: { role: "clinic" } })
+                }
+                className="text-[10px] tracking-widest text-gray-400 uppercase cursor-pointer hover:text-black transition-colors focus:outline-none"
+              >
                 Forgot Password?
-              </span>
+              </button>
             </div>
 
             <button

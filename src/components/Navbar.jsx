@@ -138,7 +138,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav ref={navRef} className="fixed top-0 left-0 w-full z-[100] pointer-events-none">
+    <nav ref={navRef} className="fixed top-0 left-0 w-full z-100 pointer-events-none">
       <div className="max-w-7xl mx-auto flex items-center justify-between rounded-2xl px-8 py-3 pointer-events-auto">
         
         {/* LOGO SECTION */}
@@ -193,7 +193,7 @@ const Navbar = () => {
                 </button>
                 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-4 w-60 bg-[#FAF9F6] border border-[#2D302D]/5 rounded-2xl shadow-2xl py-3 overflow-hidden z-[110]">
+                  <div className="absolute right-0 mt-4 w-60 bg-[#FAF9F6] border border-[#2D302D]/5 rounded-2xl shadow-2xl py-3 overflow-hidden z-110">
                     <div className="px-5 py-3 border-b border-[#2D302D]/5">
                       <p className="text-[9px] tracking-[0.2em] uppercase text-[#8DAA9D] font-bold">Account</p>
                       <p className="text-sm font-medium text-[#2D302D] truncate">
@@ -208,13 +208,6 @@ const Navbar = () => {
                         className="block px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[#2D302D]/60 hover:bg-[#8DAA9D]/10 hover:text-[#2D302D]"
                       >
                         My Appointments
-                      </Link>
-                      <Link 
-                        to="/clinic-registration" 
-                        onClick={() => setIsProfileOpen(false)}
-                        className="block px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[#8DAA9D] hover:bg-[#8DAA9D]/10"
-                      >
-                        Register Clinic
                       </Link>
                     </div>
 
