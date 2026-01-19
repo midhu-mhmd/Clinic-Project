@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
-import { ArrowRight, Lock } from "lucide-react";
+import { ArrowRight, Lock, AlertCircle } from "lucide-react";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -17,13 +17,32 @@ const Login = () => {
     setFormData({ ...formData, [e.target.id]: e.target.value });
   };
 
+  // --- HELPER: Verify Role and Handle Session ---
+  const handleAuthSuccess = (data) => {
+    // 1. Role Validation: Check if the user is a patient
+    // Adjust "patient" string to match exactly what your backend sends
+    if (data.user && data.user.role !== "patient") {
+      setApiError("Access Denied: Use the Clinic Portal to login as Admin.");
+      localStorage.clear();
+      return;
+    }
+
+    // 2. Establish Session
+    localStorage.setItem("token", data.token);
+    localStorage.setItem("isLoggedIn", "true");
+    localStorage.setItem("user", JSON.stringify(data.user));
+
+    // 3. Global update and redirect
+    window.dispatchEvent(new Event("authUpdate"));
+    navigate("/");
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsSubmitting(true);
     setApiError("");
 
     try {
-      // 1. FIX: Normalize email before sending to prevent 401/404 mismatches
       const payload = {
         email: formData.email.trim().toLowerCase(),
         password: formData.password
@@ -32,25 +51,12 @@ const Login = () => {
       const res = await axios.post("http://localhost:5000/api/users/login", payload);
 
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("isLoggedIn", "true");
-        
-        if (res.data.user) {
-          localStorage.setItem("user", JSON.stringify(res.data.user));
-        }
-
-        window.dispatchEvent(new Event("authUpdate"));
-        navigate("/");
+        handleAuthSuccess(res.data);
       }
     } catch (error) {
-      // 2. FIX: Capture the specific backend "Google Login" or "Invalid Credentials" message
       const message = error.response?.data?.message || "Authentication failed";
       setApiError(message);
-      
-      // Clear storage on failure to prevent stale sessions
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      localStorage.setItem("isLoggedIn", "false");
+      localStorage.clear();
     } finally {
       setIsSubmitting(false);
     }
@@ -63,15 +69,7 @@ const Login = () => {
         credential: response.credential,
       });
       
-      localStorage.setItem("token", res.data.token);
-      localStorage.setItem("isLoggedIn", "true");
-      
-      if (res.data.user) {
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-      }
-      
-      window.dispatchEvent(new Event("authUpdate"));
-      navigate("/");
+      handleAuthSuccess(res.data);
     } catch (error) {
       setApiError(error.response?.data?.message || "Google Sign-In failed.");
     }
@@ -88,8 +86,14 @@ const Login = () => {
             <Lock size={20} className="text-[#8DAA9D]" />
           </div>
           <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
-            Secure <br /> Login.
+            Patient <br /> Portal.
           </h2>
+          <p className="text-[10px] uppercase tracking-widest leading-loose opacity-60">
+            Exclusive access for patients. <br /> Clinic admins must use the <br /> 
+            <span className="text-[#8DAA9D] cursor-pointer hover:underline" onClick={() => navigate("/clinic-login")}>
+              Partner Dashboard
+            </span>.
+          </p>
         </div>
       </div>
 
@@ -97,8 +101,8 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
         <div className="max-w-md w-full">
           <header className="mb-16">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Portal Access</span>
-            <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Welcome Back</h1>
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Patient Authentication</span>
+            <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Personal Login</h1>
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-10">
@@ -117,7 +121,8 @@ const Login = () => {
 
             {/* Error Message Display */}
             {apiError && (
-              <div className="flex items-center gap-2 p-3 bg-red-50 border-l-2 border-red-500">
+              <div className="flex items-center gap-3 p-4 bg-red-50 border-l-2 border-red-500 animate-in fade-in slide-in-from-left-2 duration-300">
+                <AlertCircle size={14} className="text-red-600" />
                 <p className="text-red-600 text-[10px] uppercase font-bold tracking-tight">{apiError}</p>
               </div>
             )}
@@ -139,7 +144,7 @@ const Login = () => {
               width="350" 
             />
             <button onClick={() => navigate("/register")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100">
-              New user? <span className="text-[#8DAA9D]">Create an Account</span>
+              New patient? <span className="text-[#8DAA9D]">Join the platform</span>
             </button>
           </div>
         </div>

@@ -26,7 +26,7 @@ const TenantDashboard = () => {
     // localStorage.clear(); 
 
     // Redirect to login page
-    navigate("/login", { replace: true });
+    navigate("/clinic-login", { replace: true });
   };
 
   // Mock data for the Overview stats

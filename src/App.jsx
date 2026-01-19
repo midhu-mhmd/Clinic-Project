@@ -21,6 +21,7 @@ import Appointments from "./Pages/clinicSide/clinicAppointments.jsx";
 import Patients from "./Pages/clinicSide/clinicPatients.jsx";
 import ClinicSettings from "./Pages/clinicSide/clinicSettings.jsx";
 import Doctors from "./Pages/clinicSide/clinicDoctors.jsx";
+import AppointmentPage from "./Pages/Appointment.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -61,6 +62,7 @@ const App = () => {
         <Route path="/help" element={<Help />} />
         <Route path="/clinic/:id" element={<ClinicProfile />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
+        <Route path="/appointment/:id" element={<AppointmentPage />} />
 
         {/* Clinic Side - No Navbar/Footer routes */}
         <Route path="/clinic-login" element={<ClinicLogin />} />

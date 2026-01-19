@@ -88,7 +88,7 @@ const ClinicRegistration = () => {
     };
 
     try {
-      await axios.post("http://localhost:5000/api/tenants/clinic-register", payload);
+      await axios.post("http://localhost:5000/api/tenants/register", payload);
       setStep("otp");
     } catch (err) {
       setApiError(err.response?.data?.message || "Registration failed.");
