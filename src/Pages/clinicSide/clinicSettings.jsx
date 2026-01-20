@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { Globe, Lock, Palette, BellRing, CreditCard, Loader2 } from "lucide-react";
+import { Globe, Lock, BellRing, CreditCard, Loader2 } from "lucide-react";
 
 // Sub-components
 import PublicProfile from "../../components/clinicSettings/PublicProfile.jsx";
-import VisualIdentity from "../../components/clinicSettings/VisualIdentity.jsx";
 import SecurityLogin from "../../components/clinicSettings/SecurityLogin.jsx";
 import AlertsNotifications from "../../components/clinicSettings/AlertsNotifications.jsx";
 import BillingSubscription from "../../components/clinicSettings/BillingSubscription.jsx";
@@ -48,7 +47,6 @@ const ClinicSettings = () => {
 
   const sections = [
     { id: "profile", path: "/dashboard/settings", icon: <Globe size={16} />, label: "Public Profile" },
-    { id: "branding", path: "/dashboard/settings/branding", icon: <Palette size={16} />, label: "Visual Identity" },
     { id: "security", path: "/dashboard/settings/security", icon: <Lock size={16} />, label: "Security & Login" },
     { id: "notifications", path: "/dashboard/settings/notifications", icon: <BellRing size={16} />, label: "Alerts & Notifications" },
     { id: "billing", path: "/dashboard/settings/billing", icon: <CreditCard size={16} />, label: "Subscription" },
@@ -104,7 +102,6 @@ const ClinicSettings = () => {
           */}
           <Routes>
             <Route index element={<PublicProfile data={settingsData} onUpdate={handleUpdate} />} />
-            <Route path="branding" element={<VisualIdentity data={settingsData} onUpdate={handleUpdate} />} />
             <Route path="security" element={<SecurityLogin data={settingsData} onUpdate={handleUpdate} />} />
             <Route path="notifications" element={<AlertsNotifications data={settingsData} onUpdate={handleUpdate} />} />
             <Route path="billing" element={<BillingSubscription data={settingsData} onUpdate={handleUpdate} />} />

@@ -1,18 +1,13 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import axios from "axios";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useNavigate } from "react-router-dom";
-import {
-  ArrowUpRight,
-  Search,
-  Plus,
-  Loader2,
-  MapPin,
-  AlertCircle,
-} from "lucide-react";
+import { ArrowUpRight, Search, MapPin, AlertCircle, Plus } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 const ClinicList = () => {
   const containerRef = useRef(null);
@@ -22,90 +17,54 @@ const ClinicList = () => {
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
 
-  // 1. Unified Data Fetching with fixed Backend Mapping
+  // 1. DATA SYNC
   useEffect(() => {
     const fetchClinics = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "http://localhost:5000/api/tenants/all"
-        );
-
-        const responseData = response.data;
-
-        if (responseData.success && Array.isArray(responseData.data)) {
-          const normalizedData = responseData.data.map((c) => ({
+        const { data: response } = await axios.get(`${API_BASE_URL}/tenants/all`);
+        if (response.success) {
+          setClinics(response.data.map((c, i) => ({
             ...c,
+            id: c._id,
             displayLocation: c.location || "Global Access",
-            displayTags: c.tags || ["General Practice"],
-            displayImg:
-              c.img ||
-              "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800",
-          }));
-          setClinics(normalizedData);
+            displayImg: c.img || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200",
+            indexStr: String(i + 1).padStart(2, "0"),
+          })));
         }
       } catch (err) {
-        console.error("Server is returning 500. Check Backend Logs.");
-        // FALLBACK DATA: Remove this once your backend is fixed
-        /*
-      setClinics([{
-        _id: "demo",
-        name: "Demo Clinic (Server Offline)",
-        displayLocation: "Check Backend",
-        displayTags: ["Error 500"],
-        displayImg: "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800"
-      }]);
-      */
-        setError(
-          "The server encountered an internal error (500). Please check the backend console."
-        );
+        setError("Network Infrastructure Offline");
       } finally {
-        setLoading(false);
+        setTimeout(() => setLoading(false), 600);
       }
     };
     fetchClinics();
   }, []);
 
-  // 2. GSAP Refresh & Animations
-  useEffect(() => {
-    ScrollTrigger.refresh();
-  }, [searchQuery, clinics]);
-
+  // 2. 2025 KINETIC TYPOGRAPHY & REVEALS
   useEffect(() => {
     if (loading || clinics.length === 0) return;
 
-    const ctx = gsap.context(() => {
-      gsap.from(".reveal-text", {
-        y: 120,
-        rotate: 2,
-        duration: 1.2,
-        ease: "expo.out",
-        stagger: 0.1,
-      });
-
-      gsap.from(".clinic-item", {
+    let ctx = gsap.context(() => {
+      // Hero reveal
+      gsap.from(".reveal-item", {
+        y: 80,
         opacity: 0,
-        y: 40,
-        stagger: 0.05,
-        duration: 0.8,
-        ease: "power2.out",
-        scrollTrigger: {
-          trigger: ".clinic-grid",
-          start: "top 85%",
-        },
+        stagger: 0.1,
+        duration: 1.4,
+        ease: "expo.out"
       });
 
-      gsap.utils.toArray(".clinic-img-container").forEach((container) => {
-        const img = container.querySelector("img");
-        gsap.to(img, {
-          yPercent: 20,
-          ease: "none",
+      // Card Staggered Reveal
+      gsap.utils.toArray(".clinic-card").forEach((card, i) => {
+        gsap.from(card, {
+          y: 60,
+          opacity: 0,
+          duration: 1,
           scrollTrigger: {
-            trigger: container,
-            start: "top bottom",
-            end: "bottom top",
-            scrub: true,
-          },
+            trigger: card,
+            start: "top 90%",
+          }
         });
       });
     }, containerRef);
@@ -113,213 +72,131 @@ const ClinicList = () => {
     return () => ctx.revert();
   }, [loading, clinics]);
 
-  // 3. Search Logic
-  const filteredClinics = clinics.filter(
-    (clinic) =>
-      clinic.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      clinic.displayLocation?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredClinics = useMemo(() => {
+    return clinics.filter(c => c.name?.toLowerCase().includes(searchQuery.toLowerCase()));
+  }, [searchQuery, clinics]);
 
-  // 4. Conditional States (Loading / Error)
-  if (error) {
-    return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6] p-12 text-center">
-        <AlertCircle
-          className="text-[#8DAA9D] mb-6"
-          size={48}
-          strokeWidth={1}
-        />
-        <h2 className="text-2xl font-light uppercase tracking-tighter mb-4">
-          Connection Offline
-        </h2>
-        <p className="text-[10px] uppercase tracking-[0.4em] font-bold opacity-40 max-w-xs leading-loose">
-          {error}
-        </p>
-        <button
-          onClick={() => window.location.reload()}
-          className="mt-10 px-8 py-4 border border-[#2D302D]/10 text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-[#2D302D] hover:text-white transition-all"
-        >
-          Retry Synchronization
-        </button>
-      </div>
-    );
-  }
-
-  if (loading) {
-    return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6]">
-        <div className="relative">
-          <Loader2
-            className="animate-spin text-[#8DAA9D]"
-            size={48}
-            strokeWidth={1}
-          />
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="w-1 h-1 bg-[#2D302D] rounded-full" />
-          </div>
-        </div>
-        <p className="mt-6 text-[9px] uppercase tracking-[0.6em] font-bold text-[#2D302D]/40">
-          Syncing Virtual Vault
-        </p>
-      </div>
-    );
-  }
+  if (error) return <ErrorState message={error} />;
 
   return (
-    <div
-      ref={containerRef}
-      className="bg-[#FAF9F6] text-[#2D302D] min-h-screen selection:bg-[#8DAA9D] selection:text-white"
-    >
-      {/* MINIMAL NAV */}
-      <nav className="flex justify-between items-center px-8 sm:px-12 py-8 border-b border-[#2D302D]/5 sticky top-0 bg-[#FAF9F6]/80 backdrop-blur-xl z-50">
-        <div className="flex items-center gap-4 text-[10px] uppercase tracking-[0.4em] font-black">
-          <div className="w-2 h-2 bg-[#8DAA9D] rounded-full shadow-[0_0_10px_#8DAA9D]" />
-          Directory <span className="hidden sm:inline opacity-20">v2.0</span>
+    <div ref={containerRef} className="relative min-h-screen bg-[#FBFBF9] text-[#1A1A1A] font-sans selection:bg-[#8DAA9D] selection:text-white">
+      
+      {/* 00. FLOATING NAV (Minimalist) */}
+      <nav className="fixed top-0 z-50 w-full flex justify-between items-center px-6 py-10 md:px-16">
+        <div className="flex items-center gap-2 group cursor-pointer">
+          <div className="h-1.5 w-1.5 rounded-full bg-[#8DAA9D]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.4em]">Directory v.25</span>
         </div>
-        <div className="flex gap-8 sm:gap-12 text-[9px] uppercase tracking-[0.3em] font-bold">
-          <button className="opacity-40 hover:opacity-100 hover:text-[#8DAA9D] transition-all">
-            Regional
-          </button>
-          <button className="opacity-40 hover:opacity-100 hover:text-[#8DAA9D] transition-all">
-            Specialty
-          </button>
+        <div className="flex items-center gap-8">
+            <span className="text-[9px] font-bold uppercase tracking-widest opacity-30 hover:opacity-100 cursor-pointer transition-opacity">Contact</span>
+            <div className="h-10 w-10 rounded-full border border-[#1A1A1A]/10 flex items-center justify-center hover:bg-[#1A1A1A] hover:text-white transition-all duration-500">
+                <Plus size={14} />
+            </div>
         </div>
       </nav>
 
-      <main className="px-8 sm:px-12 py-24">
-        {/* EDITORIAL HEADER */}
-        <header className="mb-32">
-          <div className="overflow-hidden mb-2">
-            <h1 className="reveal-text text-[clamp(2.5rem,10vw,10rem)] font-light leading-[0.8] tracking-tighter uppercase">
-              Elite{" "}
-              <span className="italic font-serif text-[#8DAA9D] lowercase tracking-tight">
-                medical
-              </span>
+      <main className="px-6 md:px-16 pt-48 pb-40">
+        
+        {/* 01. HERO (Extreme Minimalist) */}
+        <header className="mb-40 md:mb-64">
+          <div className="overflow-hidden mb-12">
+            <h1 className="reveal-item text-[12vw] md:text-[9vw] font-light leading-[0.8] tracking-tighter uppercase">
+              The <span className="italic font-serif text-[#8DAA9D] lowercase tracking-normal">Technical</span><br />
+              Index.
             </h1>
           </div>
-          <div className="overflow-hidden">
-            <h1 className="reveal-text text-[clamp(2.5rem,10vw,10rem)] font-light leading-[0.8] tracking-tighter uppercase">
-              Infrastructure.
-            </h1>
-          </div>
-
-          <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mt-20 gap-16">
-            <p className="max-w-sm text-[#2D302D]/40 font-light text-base sm:text-lg leading-relaxed border-l border-[#2D302D]/10 pl-8">
-              A curated index of premier clinical environments, audited for
-              technical precision and hospitality.
+          
+          <div className="reveal-item flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+            <p className="max-w-xs text-xs md:text-sm font-medium leading-relaxed opacity-40 uppercase tracking-widest">
+              An audited archive of premier healthcare environments. Built for precision.
             </p>
-
-            <div className="relative w-full lg:w-1/3 group">
-              <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-4 h-4 opacity-20 group-focus-within:text-[#8DAA9D] group-focus-within:opacity-100 transition-all" />
-              <input
-                type="text"
-                placeholder="Search by name or city..."
+            
+            {/* Minimalist Floating Search */}
+            <div className="relative w-full md:w-64">
+              <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 opacity-20" />
+              <input 
+                type="text" 
+                placeholder="SEARCH ARCHIVE" 
+                className="w-full bg-transparent border-b border-[#1A1A1A]/10 py-3 pl-6 outline-none focus:border-[#8DAA9D] transition-all text-[9px] font-bold tracking-widest"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent border-b border-[#2D302D]/10 py-6 pl-10 outline-none focus:border-[#8DAA9D] transition-all text-[11px] uppercase tracking-[0.3em] font-bold placeholder:text-[#2D302D]/20"
               />
             </div>
           </div>
         </header>
 
-        {/* SWISS GRID LIST */}
-        <section className="clinic-grid grid grid-cols-1 lg:grid-cols-2 gap-px bg-[#2D302D]/5 border-y border-[#2D302D]/5">
-          {filteredClinics.length > 0 ? (
-            filteredClinics.map((clinic, index) => (
-              <div
-                key={clinic._id}
-                onClick={() => navigate(`/clinic/${clinic._id}`)}
-                className="clinic-item bg-[#FAF9F6] p-8 sm:p-16 group cursor-pointer relative overflow-hidden transition-all duration-700 hover:bg-white"
-              >
-                {/* Background Decor */}
-                <div className="absolute top-0 right-0 p-8 opacity-[0.03] text-[120px] font-black pointer-events-none select-none transition-all duration-700 group-hover:opacity-[0.07] group-hover:scale-110">
-                  {clinic.indexId || index + 1}
-                </div>
-
-                <div className="flex justify-between items-start mb-24 relative z-10">
-                  <span className="text-[9px] font-mono opacity-30 uppercase tracking-[0.4em]">
-                    Registry Ref // {clinic.indexId || `00${index + 1}`}
-                  </span>
-                  <div className="w-14 h-14 rounded-full border border-[#2D302D]/5 flex items-center justify-center group-hover:bg-[#2D302D] group-hover:text-[#FAF9F6] transition-all duration-700 ease-expo">
-                    <ArrowUpRight size={20} strokeWidth={1.5} />
-                  </div>
-                </div>
-
-                <div className="flex flex-col xl:flex-row gap-16 items-start xl:items-end relative z-10">
-                  <div className="flex-1 space-y-8">
-                    <h2 className="text-5xl sm:text-6xl font-light tracking-tighter uppercase group-hover:text-[#8DAA9D] transition-all duration-500 leading-[0.9]">
-                      {clinic.name}
-                    </h2>
-
-                    <div className="flex flex-wrap gap-2">
-                      {clinic.displayTags.slice(0, 3).map((tag) => (
-                        <span
-                          key={tag}
-                          className="text-[8px] uppercase tracking-widest font-black px-4 py-2 bg-white border border-[#2D302D]/5 rounded-full group-hover:border-[#8DAA9D]/40 transition-colors"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
-
-                  <div className="clinic-img-container w-full xl:w-64 aspect-[4/5] overflow-hidden grayscale group-hover:grayscale-0 transition-all duration-1000 rounded-sm bg-gray-100 relative">
-                    <img
-                      src={clinic.displayImg}
-                      alt={clinic.name}
-                      className="w-full h-full object-cover scale-150 transition-transform duration-[2s] ease-out"
-                    />
-                  </div>
-                </div>
-
-                <div className="mt-16 pt-8 border-t border-[#2D302D]/5 flex justify-between items-center relative z-10">
-                  <div className="flex items-center gap-3 opacity-40 group-hover:opacity-100 transition-all">
-                    <MapPin size={12} className="text-[#8DAA9D]" />
-                    <span className="text-[10px] uppercase tracking-[0.2em] font-bold">
-                      {clinic.displayLocation}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-4">
-                    <span className="text-[8px] uppercase tracking-widest font-bold opacity-0 group-hover:opacity-40 transition-all">
-                      View Dossier
-                    </span>
-                    <Plus
-                      size={14}
-                      className="opacity-20 group-hover:rotate-90 group-hover:opacity-100 transition-all duration-700"
-                    />
-                  </div>
+        {/* 02. EDITORIAL GRID (Focus on Whitespace) */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-32">
+          {loading ? (
+             <SkeletonLoader />
+          ) : filteredClinics.map((clinic) => (
+            <article 
+              key={clinic.id}
+              onClick={() => navigate(`/clinic/${clinic.id}`)}
+              className="clinic-card group cursor-pointer"
+            >
+              <div className="relative mb-8 overflow-hidden aspect-[4/5] bg-[#F4F1EE]">
+                <img 
+                  src={clinic.displayImg} 
+                  className="h-full w-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110 grayscale group-hover:grayscale-0"
+                  alt={clinic.name}
+                />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
+                <div className="absolute top-6 left-6 mix-blend-difference text-white">
+                    <span className="text-[9px] font-bold tracking-[0.5em]">{clinic.indexStr}</span>
                 </div>
               </div>
-            ))
-          ) : (
-            <div className="col-span-2 py-40 text-center bg-white/50 backdrop-blur-md">
-              <p className="text-[10px] uppercase tracking-[0.4em] font-bold opacity-30">
-                No facilities match your search criteria
-              </p>
-            </div>
-          )}
-        </section>
+
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 opacity-30">
+                  <MapPin size={10} />
+                  <span className="text-[9px] font-bold uppercase tracking-widest">{clinic.displayLocation}</span>
+                </div>
+                <div className="flex justify-between items-end">
+                    <h2 className="text-3xl md:text-4xl font-light tracking-tighter uppercase leading-none group-hover:italic transition-all">
+                        {clinic.name}
+                    </h2>
+                    <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-500" />
+                </div>
+              </div>
+            </article>
+          ))}
+        </div>
       </main>
 
-      {/* FOOTER CTA */}
-      <footer className="px-8 py-60 text-center border-t border-[#2D302D]/5 overflow-hidden">
-        <div className="space-y-4 mb-12">
-          <span className="text-[9px] uppercase tracking-[0.6em] font-black text-[#8DAA9D]">
-            Partnerships
-          </span>
-          <h3 className="text-sm opacity-40 uppercase tracking-widest">
-            Are you a clinical director?
-          </h3>
-        </div>
-        <button className="group relative text-4xl sm:text-7xl font-light tracking-tighter uppercase transition-all duration-700">
-          <span className="group-hover:italic group-hover:text-[#8DAA9D]">
-            List your practice
-          </span>
-          <div className="absolute -bottom-4 left-0 w-0 h-px bg-[#8DAA9D] group-hover:w-full transition-all duration-700" />
-        </button>
+      {/* 03. FOOTER (Brutalist Minimalism) */}
+      <footer className="py-40 px-6 border-t border-[#1A1A1A]/5 text-center">
+          <div className="max-w-2xl mx-auto space-y-12">
+            <h3 className="text-[10vw] md:text-[6vw] font-light uppercase tracking-tighter leading-none">
+              List your <br />Facility
+            </h3>
+            <button className="text-[10px] font-bold uppercase tracking-[0.5em] border-b border-[#1A1A1A] pb-2 hover:text-[#8DAA9D] hover:border-[#8DAA9D] transition-all">
+                Begin Audit Protocol
+            </button>
+          </div>
       </footer>
     </div>
   );
 };
+
+const SkeletonLoader = () => (
+    <>
+      {[1, 2, 3].map((i) => (
+        <div key={i} className="space-y-6 animate-pulse">
+          <div className="aspect-[4/5] bg-[#1A1A1A]/5" />
+          <div className="h-4 w-24 bg-[#1A1A1A]/5" />
+          <div className="h-12 w-full bg-[#1A1A1A]/5" />
+        </div>
+      ))}
+    </>
+);
+
+const ErrorState = ({ message }) => (
+  <div className="flex h-screen flex-col items-center justify-center bg-[#FBFBF9] text-center">
+    <AlertCircle className="mb-4 text-[#8DAA9D]" size={32} />
+    <h3 className="text-[10px] font-bold uppercase tracking-widest opacity-40">{message}</h3>
+    <button onClick={() => window.location.reload()} className="mt-8 text-[9px] font-bold uppercase tracking-widest underline">Reset</button>
+  </div>
+);
 
 export default ClinicList;

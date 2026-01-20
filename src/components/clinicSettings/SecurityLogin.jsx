@@ -1,12 +1,15 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { 
   ShieldCheck, Lock, Smartphone, History, 
-  KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff 
+  KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2 
 } from "lucide-react";
+
+const API_BASE_URL = "http://localhost:5000/api";
 
 const SecurityLogin = () => {
   const [isSaving, setIsSaving] = useState(false);
+  const [fetching, setFetching] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
   
@@ -22,24 +25,71 @@ const SecurityLogin = () => {
     loginAlerts: true
   });
 
+  const [activeSessions, setActiveSessions] = useState([]);
+
+  // 1. DATA INITIALIZATION: Fetch active sessions and current settings
+  const fetchSecurityData = useCallback(async () => {
+    try {
+      const token = localStorage.getItem("token");
+      const config = { headers: { Authorization: `Bearer ${token}` } };
+      
+      const [sessionsRes, prefsRes] = await Promise.all([
+        axios.get(`${API_BASE_URL}/users/sessions`, config),
+        axios.get(`${API_BASE_URL}/users/security-settings`, config)
+      ]);
+
+      if (sessionsRes.data.success) setActiveSessions(sessionsRes.data.data);
+      if (prefsRes.data.success) setSecurityPrefs(prefsRes.data.data);
+      
+    } catch (err) {
+      console.error("Failed to sync security data", err);
+    } finally {
+      setFetching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchSecurityData();
+  }, [fetchSecurityData]);
+
+  // 2. DYNAMIC PREFERENCE UPDATES (Toggles)
+  const toggleSecuritySetting = async (key) => {
+    const updatedValue = !securityPrefs[key];
+    
+    // Optimistic Update
+    setSecurityPrefs(prev => ({ ...prev, [key]: updatedValue }));
+
+    try {
+      const token = localStorage.getItem("token");
+      await axios.put(`${API_BASE_URL}/users/update-security`, 
+        { [key]: updatedValue }, 
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setMessage({ type: "success", text: `${key} preference updated.` });
+    } catch (err) {
+      // Revert on error
+      setSecurityPrefs(prev => ({ ...prev, [key]: !updatedValue }));
+      setMessage({ type: "error", text: "Cloud sync failed." });
+    } finally {
+      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    }
+  };
+
+  // 3. PASSWORD HANDLER (remains similar, but with dynamic URL)
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     if (passwords.newPassword !== passwords.confirmPassword) {
-      return setMessage({ type: "error", text: "New passwords do not match." });
+      return setMessage({ type: "error", text: "Passwords do not match." });
     }
 
     setIsSaving(true);
     try {
       const token = localStorage.getItem("token");
-      // This assumes you have a /change-password endpoint in your Auth/User controller
-      await axios.put("http://localhost:5000/api/users/change-password", {
-        currentPassword: passwords.currentPassword,
-        newPassword: passwords.newPassword
-      }, {
+      await axios.put(`${API_BASE_URL}/users/change-password`, passwords, {
         headers: { Authorization: `Bearer ${token}` }
       });
 
-      setMessage({ type: "success", text: "Credentials updated successfully." });
+      setMessage({ type: "success", text: "Credentials updated." });
       setPasswords({ currentPassword: "", newPassword: "", confirmPassword: "" });
     } catch (err) {
       setMessage({ type: "error", text: err.response?.data?.message || "Verification failed." });
@@ -49,121 +99,117 @@ const SecurityLogin = () => {
     }
   };
 
+  if (fetching) return (
+    <div className="h-64 flex items-center justify-center">
+      <Loader2 className="animate-spin text-gray-300" size={20} />
+    </div>
+  );
+
   return (
-    <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">
-      {/* Feedback Toast */}
+    <div className="space-y-12 animate-in fade-in duration-700">
+      {/* Dynamic Feedback Toast */}
       {message.text && (
-        <div className={`fixed top-8 right-8 z-50 flex items-center gap-3 px-6 py-4 border ${
-          message.type === "success" ? "bg-emerald-50 border-emerald-100 text-emerald-700" : "bg-red-50 border-red-100 text-red-700"
+        <div className={`fixed top-8 right-8 z-100 flex items-center gap-3 px-6 py-4 border shadow-2xl ${
+          message.type === "success" ? "bg-white border-emerald-500 text-emerald-700" : "bg-white border-red-500 text-red-700"
         }`}>
-          {message.type === "success" ? <CheckCircle2 size={14} /> : <AlertTriangle size={14} />}
-          <span className="text-[10px] uppercase tracking-widest font-bold">{message.text}</span>
+          {message.type === "success" ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
+          <span className="text-[10px] uppercase tracking-[0.2em] font-black">{message.text}</span>
         </div>
       )}
 
-      {/* SECTION 1: PASSWORD UPDATE */}
+      {/* SECTION 1: CREDENTIALS */}
       <section>
         <div className="flex items-center gap-3 mb-8">
-          <KeyRound size={18} className="text-gray-400" />
-          <h4 className="text-[11px] font-bold uppercase tracking-widest">Update Credentials</h4>
+          <KeyRound size={16} className="text-gray-400" />
+          <h4 className="text-[10px] font-black uppercase tracking-[0.3em]">Identity Protocol</h4>
         </div>
 
-        <form onSubmit={handlePasswordChange} className="space-y-6 bg-white border border-gray-100 p-8">
-          <div className="space-y-2 relative">
-            <label className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Current Password</label>
+        <form onSubmit={handlePasswordChange} className="space-y-8 bg-[#FAF9F6] p-10">
+          <div className="relative border-b border-gray-200 focus-within:border-black transition-colors">
+            <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">Current Signature</label>
             <input 
               type={showPassword ? "text" : "password"}
               required
-              className="w-full border-b border-gray-100 py-3 text-xs outline-none focus:border-black transition-all"
+              className="w-full bg-transparent py-2 text-xs outline-none"
               value={passwords.currentPassword}
               onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})}
             />
-            <button 
-              type="button" 
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute right-0 bottom-3 text-gray-300 hover:text-black"
-            >
+            <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 bottom-2 opacity-30 hover:opacity-100">
               {showPassword ? <EyeOff size={14}/> : <Eye size={14}/>}
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">New Password</label>
-              <input 
-                type="password"
-                required
-                className="w-full border-b border-gray-100 py-3 text-xs outline-none focus:border-black transition-all"
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
+            <div className="border-b border-gray-200 focus-within:border-black">
+              <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">New Key</label>
+              <input type="password" required className="w-full bg-transparent py-2 text-xs outline-none"
                 value={passwords.newPassword}
                 onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">Confirm New Password</label>
-              <input 
-                type="password"
-                required
-                className="w-full border-b border-gray-100 py-3 text-xs outline-none focus:border-black transition-all"
+            <div className="border-b border-gray-200 focus-within:border-black">
+              <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">Confirm New Key</label>
+              <input type="password" required className="w-full bg-transparent py-2 text-xs outline-none"
                 value={passwords.confirmPassword}
                 onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
               />
             </div>
           </div>
 
-          <button 
-            type="submit"
-            disabled={isSaving}
-            className="mt-4 bg-black text-white px-8 py-4 text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-gray-800 transition-all disabled:bg-gray-200"
-          >
-            {isSaving ? "Validating..." : "Update Password"}
+          <button type="submit" disabled={isSaving}
+            className="bg-[#1A1A1A] text-white px-10 py-4 text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-[#8DAA9D] transition-all disabled:opacity-20">
+            {isSaving ? "Syncing..." : "Rewrite Credentials"}
           </button>
         </form>
       </section>
 
-      {/* SECTION 2: MULTI-FACTOR AUTH */}
-      <section className="pt-8 border-t border-gray-50">
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center gap-3">
-            <Smartphone size={18} className="text-gray-400" />
+      {/* SECTION 2: MFA DYNAMIC TOGGLE */}
+      <section className="pt-10 border-t border-gray-100">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 bg-gray-50 flex items-center justify-center rounded-full">
+                <Smartphone size={16} className={securityPrefs.twoFactor ? "text-[#8DAA9D]" : "text-gray-300"} />
+            </div>
             <div>
-              <h4 className="text-[11px] font-bold uppercase tracking-widest">Two-Factor Authentication</h4>
-              <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">Add an extra layer of clinical data protection</p>
+              <h4 className="text-[10px] font-black uppercase tracking-widest">Two-Factor Authentication</h4>
+              <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">Multi-layered clinical access protocol</p>
             </div>
           </div>
           <button 
-            onClick={() => setSecurityPrefs({...securityPrefs, twoFactor: !securityPrefs.twoFactor})}
-            className={`w-12 h-6 rounded-full p-1 flex transition-all duration-300 ${securityPrefs.twoFactor ? "bg-emerald-500 justify-end" : "bg-gray-200 justify-start"}`}
+            onClick={() => toggleSecuritySetting('twoFactor')}
+            className={`w-12 h-6 rounded-full p-1 transition-all duration-500 ${securityPrefs.twoFactor ? "bg-[#8DAA9D]" : "bg-gray-200"}`}
           >
-            <div className="w-4 h-4 bg-white rounded-full shadow-sm" />
+            <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-300 ${securityPrefs.twoFactor ? "translate-x-6" : "translate-x-0"}`} />
           </button>
         </div>
       </section>
 
-      {/* SECTION 3: RECENT SESSIONS */}
-      <section className="pt-8 border-t border-gray-50">
-        <div className="flex items-center gap-3 mb-6">
-          <History size={18} className="text-gray-400" />
-          <h4 className="text-[11px] font-bold uppercase tracking-widest">Active Institutional Sessions</h4>
+      {/* SECTION 3: DYNAMIC SESSION LIST */}
+      <section className="pt-10 border-t border-gray-100">
+        <div className="flex items-center gap-3 mb-8">
+          <History size={16} className="text-gray-400" />
+          <h4 className="text-[10px] font-black uppercase tracking-[0.3em]">Institutional Log</h4>
         </div>
         
-        <div className="space-y-3">
-          {[
-            { device: "Chrome / macOS", ip: "192.168.1.1", status: "Current Session", date: "Active now" },
-            { device: "iPhone 15 Pro", ip: "172.20.10.4", status: "Verified Device", date: "2 days ago" }
-          ].map((session, i) => (
-            <div key={i} className="flex items-center justify-between p-4 border border-gray-50 hover:bg-gray-50 transition-colors">
-              <div className="flex items-center gap-4">
-                <div className="w-8 h-8 bg-gray-100 flex items-center justify-center rounded-sm">
-                  <ShieldCheck size={14} className="text-gray-400" />
-                </div>
+        <div className="grid gap-4">
+          {activeSessions.length > 0 ? activeSessions.map((session, i) => (
+            <div key={i} className="flex items-center justify-between p-6 border border-gray-100 hover:border-[#8DAA9D]/30 transition-all">
+              <div className="flex items-center gap-6">
+                <ShieldCheck size={16} className={session.isCurrent ? "text-[#8DAA9D]" : "text-gray-200"} />
                 <div>
-                  <p className="text-[10px] font-bold uppercase tracking-tight">{session.device}</p>
-                  <p className="text-[9px] text-gray-400 font-mono uppercase">{session.ip} • {session.date}</p>
+                  <p className="text-[10px] font-black uppercase tracking-tight">{session.browser} / {session.os}</p>
+                  <p className="text-[8px] text-gray-400 font-mono uppercase mt-1">
+                    {session.ipAddress} • {session.lastAccess}
+                  </p>
                 </div>
               </div>
-              <span className="text-[8px] uppercase tracking-widest font-bold text-emerald-600">{session.status}</span>
+              <span className={`text-[8px] uppercase tracking-widest font-black ${session.isCurrent ? "text-[#8DAA9D]" : "opacity-20"}`}>
+                {session.isCurrent ? "Active Connection" : "Verified Device"}
+              </span>
             </div>
-          ))}
+          )) : (
+            <p className="text-[9px] uppercase tracking-widest opacity-30 italic">No historical logs found.</p>
+          )}
         </div>
       </section>
     </div>
