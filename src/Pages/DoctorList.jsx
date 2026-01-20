@@ -1,51 +1,48 @@
-import React, { useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import axios from "axios";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { ArrowUpRight, Search, Heart, Globe, Plus } from "lucide-react";
+import { ArrowUpRight, Search, Heart, Globe, Plus, Loader2, AlertCircle } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const DOCTORS = [
-  {
-    id: "01",
-    name: "Dr. Sarah Jenkins",
-    specialty: "Cardiology",
-    experience: "15Y",
-    availability: "Today",
-    img: "https://images.unsplash.com/photo-1559839734-2b71f1536783?q=80&w=800",
-  },
-  {
-    id: "02",
-    name: "Dr. Mark Doe",
-    specialty: "Internal Med",
-    experience: "8Y",
-    availability: "Tomorrow",
-    img: "https://images.unsplash.com/photo-1612349317150-e413f6a5b16d?q=80&w=800",
-  },
-  {
-    id: "03",
-    name: "Dr. Emily Yu",
-    specialty: "Pediatrics",
-    experience: "12Y",
-    availability: "Oct 24",
-    img: "https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=800",
-  },
-  {
-    id: "04",
-    name: "Dr. Robert Chen",
-    specialty: "Orthopedics",
-    experience: "14Y",
-    availability: "Today",
-    img: "https://images.unsplash.com/photo-1622253692010-333f2da6031d?q=80&w=800",
-  },
-];
-
 const DoctorList = () => {
   const mainRef = useRef(null);
+  
+  // --- DYNAMIC STATE ---
+  const [doctors, setDoctors] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [searchQuery, setSearchQuery] = useState("");
+
+  // --- DATA FETCHING ---
+  const fetchDoctors = async () => {
+    try {
+      const token = localStorage.getItem("token");
+      // Use the corrected endpoint from our previous fix
+      const { data } = await axios.get("http://localhost:5000/api/doctors", {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (data.success) {
+        setDoctors(data.data);
+      }
+    } catch (err) {
+      setError("Unable to retrieve faculty data.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
+    fetchDoctors();
+  }, []);
+
+  // --- ANIMATIONS ---
+  useEffect(() => {
+    if (loading) return; // Wait for data before animating
+
     const ctx = gsap.context(() => {
-      // Elegant Reveal
       gsap.from(".header-reveal", {
         y: 100,
         opacity: 0,
@@ -54,7 +51,6 @@ const DoctorList = () => {
         stagger: 0.15,
       });
 
-      // Subtle row entrance
       gsap.utils.toArray(".doctor-row").forEach((row) => {
         gsap.from(row, {
           opacity: 0,
@@ -68,12 +64,26 @@ const DoctorList = () => {
       });
     }, mainRef);
     return () => ctx.revert();
-  }, []);
+  }, [loading, doctors]); // Re-run when doctors load
+
+  // --- SEARCH FILTER ---
+  const filteredDoctors = doctors.filter((doc) =>
+    doc.specialization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    doc.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  if (loading) {
+    return (
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6]">
+        <Loader2 className="animate-spin text-[#8DAA9D] mb-4" size={40} />
+        <p className="text-[10px] uppercase tracking-[0.4em] opacity-40">Loading Faculty...</p>
+      </div>
+    );
+  }
 
   return (
     <div ref={mainRef} className="bg-[#FAF9F6] text-[#2D302D] min-h-screen">
       <main className="px-8 lg:px-16 pt-32 pb-20">
-        {/* REFINED HEADER */}
         <header className="mb-32 border-b border-[#2D302D]/10 pb-20">
           <div className="overflow-hidden mb-4">
             <h1 className="header-reveal text-[clamp(3.5rem,10vw,10rem)] font-light leading-[0.8] tracking-tighter uppercase italic font-serif text-[#8DAA9D]">
@@ -93,13 +103,12 @@ const DoctorList = () => {
             </p>
             <div className="w-full lg:w-100">
               <div className="flex items-center gap-4 border-b border-[#2D302D]/10 py-4 group focus-within:border-[#8DAA9D] transition-all">
-                <Search
-                  size={16}
-                  className="opacity-30 group-focus-within:text-[#8DAA9D] group-focus-within:opacity-100"
-                />
+                <Search size={16} className="opacity-30 group-focus-within:text-[#8DAA9D]" />
                 <input
                   type="text"
-                  placeholder="Search by Specialty..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search by Specialty or Name..."
                   className="bg-transparent outline-none text-[10px] uppercase tracking-[0.4em] font-bold w-full"
                 />
               </div>
@@ -107,23 +116,27 @@ const DoctorList = () => {
           </div>
         </header>
 
-        {/* LIST: THE ARCHITECTURAL TABLE */}
+        {error && (
+          <div className="flex items-center gap-4 text-red-500 mb-10">
+            <AlertCircle size={20} />
+            <span className="text-xs uppercase tracking-widest">{error}</span>
+          </div>
+        )}
+
         <div className="border-t border-[#2D302D]/10">
-          {DOCTORS.map((doc) => (
+          {filteredDoctors.map((doc, index) => (
             <div
-              key={doc.id}
+              key={doc._id}
               className="doctor-row group relative grid grid-cols-1 lg:grid-cols-12 items-center py-10 px-4 border-b border-[#2D302D]/5 hover:bg-[#8DAA9D]/5 transition-all duration-700 cursor-pointer"
             >
-              {/* Exhibit Number */}
-              <div className="hidden lg:block lg:col-span-1 text-[10px] font-mono opacity-20 group-hover:opacity-100 group-hover:text-[#8DAA9D] transition-all">
-                {doc.id}
+              <div className="hidden lg:block lg:col-span-1 text-[10px] font-mono opacity-20 group-hover:opacity-100 transition-all">
+                {String(index + 1).padStart(2, '0')}
               </div>
 
-              {/* Identity & Portrait Overlay */}
               <div className="lg:col-span-4 flex items-center gap-8">
                 <div className="relative w-20 h-28 overflow-hidden grayscale brightness-110 group-hover:grayscale-0 group-hover:brightness-100 transition-all duration-1000 rounded-sm bg-[#2D302D]/5">
                   <img
-                    src={doc.img}
+                    src={doc.image || `https://ui-avatars.com/api/?name=${doc.name}`}
                     alt={doc.name}
                     className="w-full h-full object-cover scale-125 group-hover:scale-100 transition-transform duration-1000"
                   />
@@ -134,64 +147,40 @@ const DoctorList = () => {
                   </h2>
                   <div className="flex items-center gap-2 mt-1">
                     <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/40">
-                      {doc.specialty}
+                      {doc.specialization}
                     </span>
                     <div className="w-1 h-1 rounded-full bg-[#8DAA9D]/30" />
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D]">
-                      Verified
+                    <span className={`text-[9px] uppercase tracking-[0.2em] font-bold ${doc.status === 'On Duty' ? 'text-[#8DAA9D]' : 'text-amber-500'}`}>
+                      {doc.status}
                     </span>
                   </div>
                 </div>
               </div>
 
-              {/* Horizontal Metadata */}
               <div className="hidden lg:flex lg:col-span-2 flex-col gap-1 pl-8 border-l border-[#2D302D]/5">
-                <span className="text-[9px] uppercase tracking-widest font-bold text-[#2D302D]/30">
-                  Experience
-                </span>
-                <span className="text-sm font-medium tracking-tight text-[#2D302D]">
-                  {doc.experience}
-                </span>
+                <span className="text-[9px] uppercase tracking-widest font-bold text-[#2D302D]/30">Experience</span>
+                <span className="text-sm font-medium tracking-tight text-[#2D302D]">{doc.experience} Years</span>
               </div>
 
               <div className="hidden lg:flex lg:col-span-2 flex-col gap-1 pl-8 border-l border-[#2D302D]/5">
-                <span className="text-[9px] uppercase tracking-widest font-bold text-[#2D302D]/30">
-                  Next Entry
-                </span>
-                <span className="text-sm font-medium tracking-tight text-[#8DAA9D]">
-                  {doc.availability}
-                </span>
+                <span className="text-[9px] uppercase tracking-widest font-bold text-[#2D302D]/30">Rating</span>
+                <span className="text-sm font-medium tracking-tight text-[#8DAA9D]">{doc.rating || "5.0"} ⭐</span>
               </div>
 
-              {/* Actions & Iconography */}
               <div className="lg:col-span-3 flex items-center justify-end gap-10">
                 <div className="hidden xl:flex items-center gap-6 opacity-0 group-hover:opacity-100 transition-all duration-700">
-                  <Heart
-                    size={16}
-                    strokeWidth={1.5}
-                    className="text-[#2D302D]/40 hover:text-[#8DAA9D]"
-                  />
-                  <Globe
-                    size={16}
-                    strokeWidth={1.5}
-                    className="text-[#2D302D]/40 hover:text-[#8DAA9D]"
-                  />
+                  <Heart size={16} strokeWidth={1.5} className="text-[#2D302D]/40 hover:text-[#8DAA9D]" />
+                  <Globe size={16} strokeWidth={1.5} className="text-[#2D302D]/40 hover:text-[#8DAA9D]" />
                 </div>
-                <button className="relative overflow-hidden bg-[#2D302D] text-[#FAF9F6] px-10 py-5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#8DAA9D] transition-all duration-700 flex items-center gap-4 group/btn">
-                  Book Entry{" "}
-                  <ArrowUpRight
-                    size={14}
-                    className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform"
-                  />
+                <button className="relative bg-[#2D302D] text-[#FAF9F6] px-10 py-5 rounded-full text-[10px] font-bold uppercase tracking-[0.2em] hover:bg-[#8DAA9D] transition-all duration-700 flex items-center gap-4 group/btn">
+                  Book Entry <ArrowUpRight size={14} className="group-hover/btn:translate-x-1 group-hover/btn:-translate-y-1 transition-transform" />
                 </button>
               </div>
             </div>
           ))}
         </div>
       </main>
-
-      {/* FOOTER ACCENT */}
-      <footer className="px-8 lg:px-16 py-32 flex flex-col items-center">
+     <footer className="px-8 lg:px-16 py-32 flex flex-col items-center">
         <div className="w-full h-px bg-[#2D302D]/5 mb-24" />
         <h3 className="text-[clamp(2.5rem,8vw,8rem)] font-light tracking-tighter uppercase leading-none text-[#2D302D]/5 select-none text-center">
           A Lineage of <br /> Clinical Precision.

@@ -1,5 +1,5 @@
 import React from "react";
-import { Routes, Route, useLocation } from "react-router-dom";
+import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import Home from "./Pages/Home.jsx";
@@ -16,42 +16,32 @@ import SaaSPlans from "./Pages/SaaSPlans.jsx";
 import Payment from "./Pages/Payment.jsx";
 import ClinicLogin from "./Pages/ClinicLogin.jsx";
 import Help from "./Pages/Help.jsx";
-import ClinicDashboard from "./Pages/ClinicDashboard.jsx";
-import Appointments from "./Pages/clinicSide/clinicAppointments.jsx";
-import Patients from "./Pages/clinicSide/clinicPatients.jsx";
-import ClinicSettings from "./Pages/clinicSide/clinicSettings.jsx";
-import Doctors from "./Pages/clinicSide/clinicDoctors.jsx";
+import TenantDashboard from "./Pages/ClinicDashboard.jsx";
 import AppointmentPage from "./Pages/Appointment.jsx";
 
 const App = () => {
   const location = useLocation();
 
-  // Define paths where Navbar and Footer should NOT be shown
-  // We include dashboard, appointments, patients, settings, etc.
-  const clinicSidePaths = [
+  // Paths that should not have the main public Navbar/Footer
+  // We check if it starts with /dashboard or other clinic-specific auth pages
+  const noNavPaths = [
     "/dashboard",
-    "/appointments",
-    "/patients",
-    "/settings",
-    "/doctors-management",
     "/clinic-login",
     "/clinic-registration",
     "/plans",
     "/payment",
   ];
 
-  // Check if the current path is a clinic-side path
-  const isClinicSide = clinicSidePaths.some((path) =>
+  const isClinicSide = noNavPaths.some((path) =>
     location.pathname.startsWith(path)
   );
 
   return (
     <>
-      {/* Only show Navbar if NOT on clinic-side */}
       {!isClinicSide && <Navbar />}
 
       <Routes>
-        {/* Public routes */}
+        {/* --- PUBLIC ROUTES --- */}
         <Route path="/" element={<Home />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />
@@ -64,19 +54,26 @@ const App = () => {
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/appointment/:id" element={<AppointmentPage />} />
 
-        {/* Clinic Side - No Navbar/Footer routes */}
+        {/* --- CLINIC AUTH & ONBOARDING --- */}
         <Route path="/clinic-login" element={<ClinicLogin />} />
         <Route path="/clinic-registration" element={<ClinicRegistration />} />
         <Route path="/plans" element={<SaaSPlans />} />
         <Route path="/payment" element={<Payment />} />
-        <Route path="/dashboard" element={<ClinicDashboard />} />
-        <Route path="/appointments" element={<Appointments />} />
-        <Route path="/patients" element={<Patients />} />
-        <Route path="/settings" element={<ClinicSettings />} />
-        <Route path="/doctors-management" element={<Doctors />} />
+        
+        {/* --- DASHBOARD SYSTEM --- */}
+        {/* By using /dashboard/*, all clinic sub-pages (appointments, settings, etc.) 
+            will now live INSIDE the TenantDashboard layout.
+        */}
+        <Route path="/dashboard/*" element={<TenantDashboard />} />
+
+        {/* Redirect legacy top-level paths to the new dashboard structure 
+            to prevent broken links while you transition.
+        */}
+        <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
+        <Route path="/appointments" element={<Navigate to="/dashboard/appointments" replace />} />
+        <Route path="/patients" element={<Navigate to="/dashboard/patients" replace />} />
       </Routes>
 
-      {/* Only show Footer if NOT on clinic-side */}
       {!isClinicSide && <Footer />}
     </>
   );
