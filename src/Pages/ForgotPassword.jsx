@@ -123,7 +123,7 @@ const ForgotPassword = () => {
             </h2>
             <div className={`h-px w-12 mt-4 ${isClinic ? 'bg-[#8DAA9D]' : 'bg-[#7B9ACC]'}`} />
           </div>
-          <p className="text-[10px] tracking-[0.2em] leading-loose opacity-50 uppercase max-w-[220px]">
+          <p className="text-[10px] tracking-[0.2em] leading-loose opacity-50 uppercase max-w-55">
             {isClinic 
               ? "Admin Access Protocol 0.2: Encrypted Key Dispatch Authorized." 
               : "Patient Safety Protocol 0.1: Verified Identity Confirmation Required."}

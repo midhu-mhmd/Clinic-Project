@@ -1,7 +1,11 @@
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+
+// Components
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer/Footer.jsx";
+
+// Public Pages
 import Home from "./Pages/Home.jsx";
 import Register from "./Pages/Register.jsx";
 import Login from "./Pages/Login.jsx";
@@ -16,28 +20,35 @@ import SaaSPlans from "./Pages/SaaSPlans.jsx";
 import Payment from "./Pages/Payment.jsx";
 import ClinicLogin from "./Pages/ClinicLogin.jsx";
 import Help from "./Pages/Help.jsx";
-import TenantDashboard from "./Pages/ClinicDashboard.jsx";
 import AppointmentPage from "./Pages/Appointment.jsx";
+
+// Dashboard / Admin Components
+import TenantDashboard from "./Pages/ClinicDashboard.jsx";
+import AdminLayout from "./Pages/adminDashboard/AdminLayout.jsx";
+import SuperAdminDashboard from "./Pages/adminDashboard/SuperAdminDashboard.jsx";
+import TenantsPage from "./Pages/adminDashboard/TenantsPage.jsx";
+import GlobalDirectory from "./Pages/adminDashboard/GlobalDirectory.jsx";
+import Subscriptions from "./Pages/adminDashboard/Subscriptions.jsx";
+import SystemLogs from "./Pages/adminDashboard/SystemLogs.jsx";
 
 const App = () => {
   const location = useLocation();
 
-  // Paths that should not have the main public Navbar/Footer
-  // We check if it starts with /dashboard or other clinic-specific auth pages
-  const noNavPaths = [
-    "/dashboard",
-    "/clinic-login",
-    "/clinic-registration",
-    "/plans",
-    "/payment",
-  ];
-
-  const isClinicSide = noNavPaths.some((path) =>
-    location.pathname.startsWith(path)
-  );
+  /**
+   * isClinicSide logic:
+   * If the URL starts with /dashboard (Clinic Side) or /admin (SuperAdmin Side),
+   * or matches Auth/SaaS onboarding paths, hide the public Navbar/Footer.
+   */
+  const isClinicSide =
+    location.pathname.startsWith("/dashboard") ||
+    location.pathname.startsWith("/admin") ||
+    ["/clinic-login", "/clinic-registration", "/plans", "/payment"].some(
+      (path) => location.pathname.startsWith(path),
+    );
 
   return (
     <>
+      {/* Show Public Nav only on Home, Login, Clinic List, etc. */}
       {!isClinicSide && <Navbar />}
 
       <Routes>
@@ -59,19 +70,37 @@ const App = () => {
         <Route path="/clinic-registration" element={<ClinicRegistration />} />
         <Route path="/plans" element={<SaaSPlans />} />
         <Route path="/payment" element={<Payment />} />
-        
-        {/* --- DASHBOARD SYSTEM --- */}
-        {/* By using /dashboard/*, all clinic sub-pages (appointments, settings, etc.) 
-            will now live INSIDE the TenantDashboard layout.
-        */}
+
+        {/* --- TENANT / CLINIC DASHBOARD --- */}
+        {/* Uses a wildcard /* to allow the TenantDashboard to handle sub-navigation */}
         <Route path="/dashboard/*" element={<TenantDashboard />} />
 
-        {/* Redirect legacy top-level paths to the new dashboard structure 
-            to prevent broken links while you transition.
-        */}
-        <Route path="/settings" element={<Navigate to="/dashboard/settings" replace />} />
-        <Route path="/appointments" element={<Navigate to="/dashboard/appointments" replace />} />
-        <Route path="/patients" element={<Navigate to="/dashboard/patients" replace />} />
+        {/* --- SUPER ADMIN SYSTEM (NESTED) --- */}
+        <Route path="/admin" element={<AdminLayout />}>
+          <Route index element={<Navigate to="/admin/dashboard" replace />} />
+          <Route path="dashboard" element={<SuperAdminDashboard />} />
+          <Route path="tenants" element={<TenantsPage />} />
+          <Route path="global-directory" element={<GlobalDirectory />} />
+          <Route path="subscriptions" element={<Subscriptions />} />
+          <Route path="system-logs" element={<SystemLogs />} />
+        </Route>
+
+        {/* --- LEGACY REDIRECTS --- */}
+        <Route
+          path="/settings"
+          element={<Navigate to="/dashboard/settings" replace />}
+        />
+        <Route
+          path="/appointments"
+          element={<Navigate to="/dashboard/appointments" replace />}
+        />
+        <Route
+          path="/patients"
+          element={<Navigate to="/dashboard/patients" replace />}
+        />
+
+        {/* Catch-all Redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       {!isClinicSide && <Footer />}

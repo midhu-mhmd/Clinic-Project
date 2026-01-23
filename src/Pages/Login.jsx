@@ -19,10 +19,16 @@ const Login = () => {
 
   // --- HELPER: Verify Role and Handle Session ---
   const handleAuthSuccess = (data) => {
-    // 1. Role Validation: Check if the user is a patient
-    // Adjust "patient" string to match exactly what your backend sends
-    if (data.user && data.user.role !== "patient") {
-      setApiError("Access Denied: Use the Clinic Portal to login as Admin.");
+    const userRole = data.user?.role; // Get the role from response
+
+    /**
+     * UPDATED LOGIC:
+     * 1. Allow "patient"
+     * 2. Allow "super-admin" (Platform Owner)
+     * 3. Block "admin" or "clinic-admin" (Tenant Admins)
+     */
+    if (userRole !== "PATIENT" && userRole !== "SUPER_ADMIN") {
+      setApiError("Access Denied: Clinic/Tenant Admins must use the Partner Dashboard.");
       localStorage.clear();
       return;
     }
@@ -32,9 +38,15 @@ const Login = () => {
     localStorage.setItem("isLoggedIn", "true");
     localStorage.setItem("user", JSON.stringify(data.user));
 
-    // 3. Global update and redirect
+    // 3. Global update
     window.dispatchEvent(new Event("authUpdate"));
-    navigate("/");
+
+    // 4. Conditional Redirect (Optional: Send Super Admin to a different page if needed)
+    if (userRole === "SUPER_ADMIN") {
+      navigate("/admin/dashboard"); // Or just "/" if they share the view
+    } else {
+      navigate("/");
+    }
   };
 
   const handleSubmit = async (e) => {
@@ -89,7 +101,8 @@ const Login = () => {
             Patient <br /> Portal.
           </h2>
           <p className="text-[10px] uppercase tracking-widest leading-loose opacity-60">
-            Exclusive access for patients. <br /> Clinic admins must use the <br /> 
+            Secure access for Patients & Platform Staff. <br /> 
+            Clinic partners must use the <br /> 
             <span className="text-[#8DAA9D] cursor-pointer hover:underline" onClick={() => navigate("/clinic-login")}>
               Partner Dashboard
             </span>.
@@ -101,7 +114,7 @@ const Login = () => {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
         <div className="max-w-md w-full">
           <header className="mb-16">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Patient Authentication</span>
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">Secure Authentication</span>
             <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">Personal Login</h1>
           </header>
 
