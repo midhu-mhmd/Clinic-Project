@@ -31,7 +31,7 @@ const ClinicProfile = () => {
       try {
         // 1. Fixed data destructuring to get the inner 'data' object from backend
         const response = await axios.get(
-          `http://localhost:5000/api/tenants/${id}`
+          `http://localhost:5000/api/tenants/${id}`,
         );
 
         // Based on your controller: res.status(200).json({ success: true, data: clinic })
@@ -268,7 +268,8 @@ const ClinicProfile = () => {
               <div className="space-y-4">
                 <button
                   onClick={() => {
-                    navigate(`/appointment/${id}`);
+                    // We pass the clinicId in the 'state' object
+                    navigate("/appointment", { state: { clinicId: id } });
                   }}
                   className="w-full bg-[#8DAA9D] text-[#FAF9F6] py-8 text-[10px] uppercase tracking-[0.5em] font-bold hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-700"
                 >

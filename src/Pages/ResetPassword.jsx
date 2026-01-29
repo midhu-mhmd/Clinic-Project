@@ -62,7 +62,7 @@ const ResetPassword = () => {
     // If view is clinic, we use the tenant API and go to clinic-login
     // If view is user, we use the user API and go to patient login
     const isClinicFlow = view === "clinic";
-    
+    console.log("DEBUG PAYLOAD:", { email, otp, newPassword });
     const endpoint = isClinicFlow 
       ? "http://localhost:5000/api/tenants/reset-password" 
       : "http://localhost:5000/api/users/reset-password-otp";
@@ -77,9 +77,7 @@ const ResetPassword = () => {
       });
 
       setSuccess(true);
-      
-      // 3. SECURE REDIRECT
-      // Navigates specifically to the portal the user belongs to
+
       setTimeout(() => {
         navigate(redirectPath);
       }, 3000);
@@ -98,7 +96,7 @@ const ResetPassword = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] flex">
-      {/* SIDEBAR */}
+
       <div className="hidden lg:flex w-1/3 bg-[#2D302D] p-16 flex-col justify-between text-[#FAF9F6]">
         <div className="space-y-6">
           <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">

@@ -1,7 +1,7 @@
 import React from "react";
 import { Routes, Route, useLocation, Navigate } from "react-router-dom";
 
-// Components
+
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 
@@ -30,25 +30,21 @@ import TenantsPage from "./Pages/adminDashboard/TenantsPage.jsx";
 import GlobalDirectory from "./Pages/adminDashboard/GlobalDirectory.jsx";
 import Subscriptions from "./Pages/adminDashboard/Subscriptions.jsx";
 import SystemLogs from "./Pages/adminDashboard/SystemLogs.jsx";
+import PatientsPage from "./Pages/adminDashboard/PatientsPage.jsx";
 
 const App = () => {
   const location = useLocation();
 
-  /**
-   * isClinicSide logic:
-   * If the URL starts with /dashboard (Clinic Side) or /admin (SuperAdmin Side),
-   * or matches Auth/SaaS onboarding paths, hide the public Navbar/Footer.
-   */
   const isClinicSide =
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/admin") ||
-    ["/clinic-login", "/clinic-registration", "/plans", "/payment"].some(
+    ["/clinic-login", "/clinic-registration", "/plans", "/payment", "/login", "/register"].some(
       (path) => location.pathname.startsWith(path),
     );
 
   return (
     <>
-      {/* Show Public Nav only on Home, Login, Clinic List, etc. */}
+     
       {!isClinicSide && <Navbar />}
 
       <Routes>
@@ -72,7 +68,6 @@ const App = () => {
         <Route path="/payment" element={<Payment />} />
 
         {/* --- TENANT / CLINIC DASHBOARD --- */}
-        {/* Uses a wildcard /* to allow the TenantDashboard to handle sub-navigation */}
         <Route path="/dashboard/*" element={<TenantDashboard />} />
 
         {/* --- SUPER ADMIN SYSTEM (NESTED) --- */}
@@ -83,9 +78,9 @@ const App = () => {
           <Route path="global-directory" element={<GlobalDirectory />} />
           <Route path="subscriptions" element={<Subscriptions />} />
           <Route path="system-logs" element={<SystemLogs />} />
+          <Route path="patients" element={<PatientsPage />} />
         </Route>
 
-        {/* --- LEGACY REDIRECTS --- */}
         <Route
           path="/settings"
           element={<Navigate to="/dashboard/settings" replace />}
@@ -99,7 +94,6 @@ const App = () => {
           element={<Navigate to="/dashboard/patients" replace />}
         />
 
-        {/* Catch-all Redirect */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 

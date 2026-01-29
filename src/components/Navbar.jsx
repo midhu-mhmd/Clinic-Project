@@ -178,7 +178,7 @@ const Navbar = () => {
             </div>
           ) : (
             <div className="flex items-center gap-6">
-              <button className="hidden sm:block text-[9px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D] border border-[#8DAA9D]/30 px-5 py-2.5 rounded-full hover:bg-[#8DAA9D] hover:text-[#FAF9F6] transition-all duration-500">
+              <button onClick={() => navigate("/appointment/:id")} className="hidden sm:block text-[9px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D] border border-[#8DAA9D]/30 px-5 py-2.5 rounded-full hover:bg-[#8DAA9D] hover:text-[#FAF9F6] transition-all duration-500">
                 Book Appointment
               </button>
               

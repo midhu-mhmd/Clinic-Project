@@ -15,13 +15,10 @@ const DoctorList = () => {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
-  /**
-   * Fetches all doctors across all clinics using the public endpoint
-   */
+
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      // Calls the new public directory endpoint (bypasses auth)
       const { data } = await axios.get("http://localhost:5000/api/doctors/directory");
       
       if (data.success) {
@@ -38,10 +35,7 @@ const DoctorList = () => {
     fetchDoctors();
   }, []);
 
-  /**
-   * Navigates to the public detail view.
-   * Ensure your App.js route is: <Route path="/doctor/:id" element={<DoctorProfile />} />
-   */
+
   const handleDoctorClick = (id) => {
     navigate(`/doctor/${id}`);
   };

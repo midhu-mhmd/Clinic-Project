@@ -12,6 +12,7 @@ const AdminLayout = () => {
   const menuItems = [
     { icon: <LayoutDashboard size={18} />, label: "Overview", path: "/admin/dashboard" },
     { icon: <Building2 size={18} />, label: "Tenants / Clinics", path: "/admin/tenants" },
+    { icon: <Users size={18} />, label: "Patient Registry", path: "/admin/patients" },
     { icon: <Users size={18} />, label: "Global Directory", path: "/admin/global-directory" },
     { icon: <DollarSign size={18} />, label: "Subscriptions", path: "/admin/subscriptions" },
     { icon: <Activity size={18} />, label: "System Logs", path: "/admin/system-logs" },
