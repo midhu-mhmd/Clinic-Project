@@ -17,6 +17,8 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
+const API_BASE_URL = "http://localhost:5000/api";
+
 const ClinicProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -27,24 +29,31 @@ const ClinicProfile = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let isMounted = true;
+
     const fetchClinicDetails = async () => {
       try {
-        // 1. Fixed data destructuring to get the inner 'data' object from backend
-        const response = await axios.get(
-          `http://localhost:5000/api/tenants/${id}`,
-        );
+        setLoading(true);
 
-        // Based on your controller: res.status(200).json({ success: true, data: clinic })
-        if (response.data && response.data.data) {
-          setClinic(response.data.data);
-        }
+        const response = await axios.get(`${API_BASE_URL}/tenants/${id}`);
+
+        // expected: { success: true, data: clinic }
+        const clinicData = response?.data?.data || null;
+
+        if (isMounted) setClinic(clinicData);
       } catch (error) {
         console.error("Error fetching clinic:", error);
+        if (isMounted) setClinic(null);
       } finally {
-        setLoading(false);
+        if (isMounted) setLoading(false);
       }
     };
-    fetchClinicDetails();
+
+    if (id) fetchClinicDetails();
+
+    return () => {
+      isMounted = false;
+    };
   }, [id]);
 
   useEffect(() => {
@@ -79,6 +88,7 @@ const ClinicProfile = () => {
         scrollTrigger: { trigger: ".info-grid", start: "top 85%" },
       });
     }, containerRef);
+
     return () => ctx.revert();
   }, [loading, clinic]);
 
@@ -93,7 +103,6 @@ const ClinicProfile = () => {
     );
   }
 
-  // 2. Added safety check if clinic exists after loading
   if (!clinic) {
     return (
       <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
@@ -104,7 +113,6 @@ const ClinicProfile = () => {
     );
   }
 
-  // 3. Handled name splitting with safety fallback
   const clinicName = clinic.name || "Unknown Facility";
   const nameParts = clinicName.split(" ");
   const firstName = nameParts[0];
@@ -218,8 +226,9 @@ const ClinicProfile = () => {
                 {
                   label: "Standard",
                   val:
-                    clinic.subscription?.plan + " Certified" ||
-                    "Tier-1 Certified",
+                    (clinic.subscription?.plan
+                      ? clinic.subscription.plan + " Certified"
+                      : null) || "Tier-1 Certified",
                   icon: <ShieldCheck size={14} />,
                 },
                 {
@@ -268,13 +277,14 @@ const ClinicProfile = () => {
               <div className="space-y-4">
                 <button
                   onClick={() => {
-                    // We pass the clinicId in the 'state' object
-                    navigate("/appointment", { state: { clinicId: id } });
+                    // ✅ URL param = reliable + auto-select source of truth
+                    navigate(`/appointment/${id}`, { state: { clinicId: id } });
                   }}
                   className="w-full bg-[#8DAA9D] text-[#FAF9F6] py-8 text-[10px] uppercase tracking-[0.5em] font-bold hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-700"
                 >
                   Book Appointment
                 </button>
+
                 <button className="w-full border border-[#FAF9F6]/10 py-8 text-[10px] uppercase tracking-[0.5em] font-bold hover:border-[#FAF9F6] transition-all duration-700">
                   Inquire
                 </button>

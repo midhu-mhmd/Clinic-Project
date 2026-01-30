@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useParams, useNavigate } from "react-router-dom"; // 1. Added useNavigate
+import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -20,7 +20,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 const DoctorProfile = () => {
   const { id } = useParams();
-  const navigate = useNavigate(); // 2. Initialize navigate
+  const navigate = useNavigate();
   const containerRef = useRef(null);
   const imageRef = useRef(null);
 
@@ -33,8 +33,9 @@ const DoctorProfile = () => {
       try {
         setLoading(true);
         setError(null);
+
         const { data } = await axios.get(
-          `http://localhost:5000/api/doctors/public/${id}`,
+          `http://localhost:5000/api/doctors/public/${id}`
         );
 
         if (data.success) {
@@ -43,7 +44,7 @@ const DoctorProfile = () => {
       } catch (err) {
         setError(
           err.response?.data?.message ||
-            "Clinical dossier could not be retrieved.",
+            "Clinical dossier could not be retrieved."
         );
         console.error("Profile Fetch Error:", err);
       } finally {
@@ -79,7 +80,7 @@ const DoctorProfile = () => {
             end: "bottom top",
             scrub: 1.5,
           },
-        },
+        }
       );
 
       gsap.from(".fade-up", {
@@ -93,6 +94,7 @@ const DoctorProfile = () => {
         },
       });
     }, containerRef);
+
     return () => ctx.revert();
   }, [loading, doctor]);
 
@@ -123,6 +125,20 @@ const DoctorProfile = () => {
       </div>
     );
   }
+
+  // ✅ LOGIC: safely extract clinicId + doctorId
+  const clinicId =
+    doctor?.tenantId?._id ||
+    doctor?.tenantId?.id ||
+    doctor?.tenantId ||
+    doctor?.clinicId?._id ||
+    doctor?.clinicId?.id ||
+    doctor?.clinicId ||
+    doctor?.tenant?._id ||
+    doctor?.tenant?.id ||
+    doctor?.tenant;
+
+  const doctorId = doctor?._id || doctor?.id;
 
   return (
     <div
@@ -286,12 +302,14 @@ const DoctorProfile = () => {
                 ].map((opt, i) => (
                   <div
                     key={i}
-                    className={`p-6 border transition-all cursor-pointer flex justify-between items-center group ${opt.active ? "border-[#8DAA9D] bg-[#8DAA9D]/5" : "border-[#FAF9F6]/10 hover:border-[#FAF9F6]/40"}`}
+                    className={`p-6 border transition-all cursor-pointer flex justify-between items-center group ${
+                      opt.active
+                        ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
+                        : "border-[#FAF9F6]/10 hover:border-[#FAF9F6]/40"
+                    }`}
                   >
                     <div className="flex items-center gap-4">
-                      <div
-                        className={opt.active ? "text-[#8DAA9D]" : "opacity-30"}
-                      >
+                      <div className={opt.active ? "text-[#8DAA9D]" : "opacity-30"}>
                         {opt.icon}
                       </div>
                       <span className="text-[11px] font-bold uppercase tracking-widest">
@@ -308,11 +326,14 @@ const DoctorProfile = () => {
               <div className="space-y-4">
                 <button
                   onClick={() => {
-                    navigate("/appointment", {
-                      state: {
-                        clinicId: doctor.clinicId,
-                        doctorId: doctor.id,
-                      },
+                    if (!clinicId || !doctorId) {
+                      console.log("Missing clinicId/doctorId", { clinicId, doctorId, doctor });
+                      return;
+                    }
+
+                    // ✅ route matches /appointment/:id
+                    navigate(`/appointment/${clinicId}`, {
+                      state: { clinicId, doctorId },
                     });
                   }}
                   className="w-full py-8 bg-[#8DAA9D] text-[#FAF9F6] text-[10px] uppercase tracking-[0.5em] font-bold hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-700 flex items-center justify-center gap-4 group"
