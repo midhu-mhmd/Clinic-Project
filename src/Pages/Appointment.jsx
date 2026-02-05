@@ -1,752 +1,307 @@
-import React, {
-  useState,
-  useEffect,
-  useRef,
-  useMemo,
-  useCallback,
-  useLayoutEffect,
-} from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback, useLayoutEffect } from "react";
 import axios from "axios";
 import gsap from "gsap";
-import { useParams, useLocation } from "react-router-dom";
+import { useParams, useLocation, useNavigate } from "react-router-dom";
 import {
-  ChevronRight,
-  ArrowLeft,
-  CheckCircle2,
-  Lock,
-  Building2,
-  Stethoscope,
-  MapPin,
-  Loader2,
+  ChevronRight, ArrowLeft, CheckCircle2, Lock, Building2, Stethoscope, MapPin, Loader2,
 } from "lucide-react";
 
 const API_BASE = "http://localhost:5000/api";
 
+/** * INDUSTRY BEST PRACTICE: 
+ * Move validation and normalization outside the component 
+ * to prevent re-allocation on every render.
+ */
+const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+const validatePhone = (phone) => {
+  const digits = String(phone).replace(/\D/g, "");
+  return digits.length >= 10 && digits.length <= 15;
+};
+
 const AppointmentPage = () => {
-  const { id } = useParams(); // /appointment/:id  => clinicId
-  const location = useLocation(); // doctorId comes via state
-
-  const preselectedClinicId = id || location.state?.clinicId || null;
-  const preselectedDoctorId = location.state?.doctorId || null;
-
-  const [step, setStep] = useState(1);
+  const { id: urlClinicId } = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
   const containerRef = useRef(null);
 
-  // --- DATA STATE ---
-  const [clinics, setClinics] = useState([]);
-  const [availableDoctors, setAvailableDoctors] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDoctorsLoading, setIsDoctorsLoading] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  // --- UI STATE ---
+  const [step, setStep] = useState(1);
+  const [isLoading, setIsLoading] = useState({ clinics: true, doctors: false, submit: false });
   const [error, setError] = useState(null);
 
-  // --- SELECTION STATE ---
-  const [selectedClinic, setSelectedClinic] = useState(null);
-  const [selectedDoctor, setSelectedDoctor] = useState(null);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedSlot, setSelectedSlot] = useState(null);
-
-  // --- PATIENT DOSSIER STATE ---
-  const [patientData, setPatientData] = useState({
-    name: "",
-    email: "",
-    notes: "",
+  // --- DATA STATE ---
+  const [data, setData] = useState({ clinics: [], doctors: [] });
+  const [selection, setSelection] = useState({
+    clinic: null,
+    doctor: location.state?.doctor || null,
+    date: null,
+    slot: null,
   });
 
-  // Stable IDs for comparisons
-  const selectedClinicId = useMemo(
-    () => (selectedClinic?._id || selectedClinic?.id ? String(selectedClinic?._id || selectedClinic?.id) : null),
-    [selectedClinic],
-  );
-
-  const selectedDoctorId = useMemo(
-    () => (selectedDoctor?._id || selectedDoctor?.id ? String(selectedDoctor?._id || selectedDoctor?.id) : null),
-    [selectedDoctor],
-  );
+  const [patient, setPatient] = useState({ name: "", email: "", phone: "", notes: "" });
 
   // --- CONSTANTS ---
   const timeSlots = useMemo(() => ["09:00", "10:30", "13:00", "14:30", "16:00"], []);
-
-  // --- DYNAMIC DAYS (memoized) ---
-  const dynamicDays = useMemo(() => {
+  const weekDays = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
-      const date = new Date();
-      date.setDate(date.getDate() + i);
+      const d = new Date();
+      d.setDate(d.getDate() + i);
       return {
-        fullDate: date.toISOString().split("T")[0],
-        dayName: ["S", "M", "T", "W", "T", "F", "S"][date.getDay()],
-        dayNumber: date.getDate(),
-        monthName: date.toLocaleString("default", { month: "short" }),
+        fullDate: d.toISOString().split("T")[0],
+        dayName: ["S", "M", "T", "W", "T", "F", "S"][d.getDay()],
+        dayNumber: d.getDate(),
+        monthName: d.toLocaleString("default", { month: "short" }),
       };
     });
   }, []);
 
-  // ✅ Smooth step change (prevents “teleport” feeling)
-  const smoothStepTo = useCallback((nextStep) => {
-    // double RAF = let React paint + GSAP hook properly
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => setStep(nextStep));
-    });
-  }, []);
-
-  // ----------------------------
-  // 1) FETCH ALL CLINICS + AUTO SELECT CLINIC
-  // ----------------------------
+  /* ----------------------- 1) Fetch Clinics (Public) ----------------------- */
   useEffect(() => {
-    let alive = true;
-
     const fetchClinics = async () => {
       try {
-        setIsLoading(true);
-        setError(null);
-
-        const res = await axios.get(`${API_BASE}/tenants/all`);
-        if (!alive) return;
-
-        if (res.data?.success) {
-          const formatted = (res.data.data || []).map((c) => ({
-            ...c,
-            id: c._id || c.id,
-          }));
-
-          setClinics(formatted);
-
-          // ✅ Auto-select clinic if passed
-          if (preselectedClinicId) {
-            const target = String(preselectedClinicId);
-            const matched = formatted.find(
-              (c) => String(c.id || c._id || "") === target
-            );
-            if (matched) setSelectedClinic(matched);
+        const { data: res } = await axios.get(`${API_BASE}/tenants/all`);
+        if (res.success) {
+          setData(prev => ({ ...prev, clinics: res.data }));
+          
+          // Auto-select clinic if ID is in URL
+          if (urlClinicId) {
+            const found = res.data.find(c => (c._id || c.id) === urlClinicId);
+            if (found) setSelection(prev => ({ ...prev, clinic: found }));
           }
-        } else {
-          setClinics([]);
         }
-      } catch (e) {
-        if (alive) setError("Failed to load facilities.");
+      } catch (err) {
+        setError("System registry offline. Please try again later.");
       } finally {
-        if (alive) setIsLoading(false);
+        setIsLoading(prev => ({ ...prev, clinics: false }));
       }
     };
-
     fetchClinics();
-    return () => {
-      alive = false;
-    };
-  }, [preselectedClinicId]);
+  }, [urlClinicId]);
 
-  // ✅ Prevent “reset flicker” on first auto-select
-  const prevClinicIdRef = useRef(null);
+  /* ----------------------- 2) Fetch Doctors (Public Route Fix) ----------------------- */
   useEffect(() => {
-    if (!selectedClinicId) return;
-
-    // First time selected (auto select): DON'T reset
-    if (prevClinicIdRef.current === null) {
-      prevClinicIdRef.current = selectedClinicId;
-      return;
-    }
-
-    // Actual user change: reset downstream cleanly
-    if (prevClinicIdRef.current !== selectedClinicId) {
-      prevClinicIdRef.current = selectedClinicId;
-      setSelectedDoctor(null);
-      setAvailableDoctors([]);
-      setSelectedDate(null);
-      setSelectedSlot(null);
-    }
-  }, [selectedClinicId]);
-
-  // ----------------------------
-  // 2) FETCH DOCTORS FOR SELECTED CLINIC
-  // ----------------------------
-  useEffect(() => {
-    let alive = true;
+    const clinicId = selection.clinic?._id || selection.clinic?.id;
+    if (!clinicId) return;
 
     const fetchDoctors = async () => {
-      if (!selectedClinicId) return;
-
+      setIsLoading(prev => ({ ...prev, doctors: true }));
       try {
-        setIsDoctorsLoading(true);
-        setError(null);
-
-        const token = localStorage.getItem("token");
-
-        const res = await axios.get(`${API_BASE}/doctors/clinic/${selectedClinicId}`, {
-          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-        });
-
-        if (!alive) return;
-
-        if (res.data?.success) {
-          const formatted = (res.data.data || []).map((doc) => ({
-            ...doc,
-            id: (doc._id || doc.id)?.toString(),
-            fee: doc.consultationFee ?? doc.fee,
-          }));
-          setAvailableDoctors(formatted);
-        } else {
-          setAvailableDoctors([]);
+        // ✅ CHANGED TO PUBLIC ROUTE to avoid "Access Denied"
+        const { data: res } = await axios.get(`${API_BASE}/tenants/doctors/public/${clinicId}`);
+        if (res.success) {
+          setData(prev => ({ ...prev, doctors: res.data }));
+          
+          // If we came from a specific doctor profile, auto-select them
+          if (location.state?.doctorId) {
+            const foundDoc = res.data.find(d => (d._id || d.id) === location.state.doctorId);
+            if (foundDoc) {
+              setSelection(prev => ({ ...prev, doctor: foundDoc }));
+              setStep(3); // Skip to date selection
+            } else if (step === 1) setStep(2);
+          } else if (step === 1) setStep(2);
         }
-      } catch (e) {
-        if (alive) {
-          setError("Failed to load faculty.");
-          setAvailableDoctors([]);
-        }
+      } catch (err) {
+        setError("Unable to synchronize faculty data.");
       } finally {
-        if (alive) setIsDoctorsLoading(false);
+        setIsLoading(prev => ({ ...prev, doctors: false }));
       }
     };
-
     fetchDoctors();
-    return () => {
-      alive = false;
-    };
-  }, [selectedClinicId]);
+  }, [selection.clinic, location.state?.doctorId]);
 
-  // ✅ Auto-select doctor once doctors arrive (DoctorProfile flow)
-  useEffect(() => {
-    if (!preselectedDoctorId) return;
-    if (!availableDoctors.length) return;
+  /* ----------------------- 3) Handlers ----------------------- */
+  const handleSubmission = useCallback(async () => {
+    setIsLoading(prev => ({ ...prev, submit: true }));
+    setError(null);
 
-    const target = String(preselectedDoctorId);
-    const matched = availableDoctors.find(
-      (d) => String(d.id || d._id || "") === target
-    );
-
-    if (matched) setSelectedDoctor(matched);
-  }, [preselectedDoctorId, availableDoctors]);
-
-  // ✅ When doctor changes (user selection), reset date/time
-  const prevDoctorIdRef = useRef(null);
-  useEffect(() => {
-    if (!selectedDoctorId) {
-      prevDoctorIdRef.current = null;
+    const token = localStorage.getItem("token")?.replace(/['"]+/g, '');
+    if (!token) {
+      setError("Authentication required to finalize protocol.");
+      setIsLoading(prev => ({ ...prev, submit: false }));
       return;
     }
 
-    if (prevDoctorIdRef.current === null) {
-      prevDoctorIdRef.current = selectedDoctorId;
-      return;
-    }
-
-    if (prevDoctorIdRef.current !== selectedDoctorId) {
-      prevDoctorIdRef.current = selectedDoctorId;
-      setSelectedDate(null);
-      setSelectedSlot(null);
-    }
-  }, [selectedDoctorId]);
-
-  // ----------------------------
-  // 3) AUTO STEP CONTROL (smooth + once)
-  // ----------------------------
-  const didAutoStepRef = useRef(false);
-
-  useEffect(() => {
-    if (didAutoStepRef.current) return;
-
-    // Flow A: from ClinicProfile => clinic selected, doctor NOT preselected => go to Step 2
-    if (selectedClinicId && !preselectedDoctorId) {
-      didAutoStepRef.current = true;
-      smoothStepTo(2);
-      return;
-    }
-
-    // Flow B: from DoctorProfile => clinic + doctor preselected => go to Step 3
-    if (preselectedDoctorId && selectedClinicId && selectedDoctorId) {
-      didAutoStepRef.current = true;
-      smoothStepTo(3);
-    }
-  }, [selectedClinicId, selectedDoctorId, preselectedDoctorId, smoothStepTo]);
-
-  // ----------------------------
-  // 4) SUBMIT HANDLER
-  // ----------------------------
-  const handleConfirmProtocol = useCallback(async () => {
     try {
-      setIsSubmitting(true);
-
-      const token = localStorage.getItem("token");
-      const clinicId = selectedClinicId;
-      const doctorId = selectedDoctor?._id || selectedDoctor?.id;
-
       const payload = {
-        tenantId: clinicId,
-        doctorId: doctorId,
-        date: selectedDate?.fullDate,
-        slot: selectedSlot,
-        patientName: patientData.name,
-        patientEmail: patientData.email,
-        notes: patientData.notes,
-        fee: selectedDoctor?.fee,
+        tenantId: selection.clinic?._id || selection.clinic?.id,
+        doctorId: selection.doctor?._id || selection.doctor?.id,
+        date: selection.date.fullDate,
+        slot: selection.slot,
+        patientName: patient.name,
+        patientEmail: patient.email,
+        patientContact: patient.phone,
+        notes: patient.notes,
+        fee: selection.doctor?.fee || selection.doctor?.consultationFee
       };
 
-      const res = await axios.post(`${API_BASE}/appointments`, payload, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
+      const { data: res } = await axios.post(`${API_BASE}/appointments`, payload, {
+        headers: { Authorization: `Bearer ${token}` }
       });
 
-      if (res.data?.success) setStep(5);
+      if (res.success) setStep(5);
     } catch (err) {
-      const msg = err.response?.data?.message || "Failed to synchronize protocol.";
-      console.error("Submission Error:", err.response?.data);
-      alert(msg);
+      setError(err.response?.data?.message || "Protocol synchronization failed.");
     } finally {
-      setIsSubmitting(false);
+      setIsLoading(prev => ({ ...prev, submit: false }));
     }
-  }, [
-    selectedClinicId,
-    selectedDoctor,
-    selectedDate,
-    selectedSlot,
-    patientData,
-  ]);
+  }, [selection, patient]);
 
-  // ----------------------------
-  // 5) GSAP STEP ANIMATION (smooth + correct lifecycle)
-  // ----------------------------
+  // GSAP Step Animation
   useLayoutEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.fromTo(
-        ".step-content",
-        { opacity: 0, x: 20 },
-        { opacity: 1, x: 0, duration: 0.6, ease: "power2.out" }
-      );
-    }, containerRef);
-
-    return () => ctx.revert();
+    gsap.fromTo(".step-anim", 
+      { opacity: 0, y: 10 }, 
+      { opacity: 1, y: 0, duration: 0.4, ease: "power2.out" }
+    );
   }, [step]);
 
-  // ----------------------------
-  // Proceed guard
-  // ----------------------------
-  const canProceed = useCallback(() => {
-    if (step === 1) return !!selectedClinicId;
-    if (step === 2) return !!selectedDoctorId; // ignore loading
-    if (step === 3) return !!selectedDate && !!selectedSlot;
-    if (step === 4) return !!patientData.name && patientData.email.includes("@");
-    return true;
-  }, [step, selectedClinicId, selectedDoctorId, selectedDate, selectedSlot, patientData]);
+  const canProceed = useMemo(() => {
+    if (step === 1) return !!selection.clinic;
+    if (step === 2) return !!selection.doctor;
+    if (step === 3) return !!selection.date && !!selection.slot;
+    if (step === 4) return patient.name && validateEmail(patient.email) && validatePhone(patient.phone);
+    return false;
+  }, [step, selection, patient]);
 
-  // ----------------------------
-  // UI (UNCHANGED)
-  // ----------------------------
+  if (isLoading.clinics) return <div className="h-screen flex items-center justify-center bg-[#FAF9F6]"><Loader2 className="animate-spin text-[#8DAA9D]" /></div>;
+
   return (
-    <div
-      ref={containerRef}
-      className="bg-[#FAF9F6] text-[#2D302D] min-h-screen font-sans selection:bg-[#8DAA9D] selection:text-white"
-    >
-      {/* Navigation */}
+    <div ref={containerRef} className="bg-[#FAF9F6] text-[#2D302D] min-h-screen font-sans selection:bg-[#8DAA9D] selection:text-white">
+      {/* Dynamic Nav */}
       <nav className="fixed w-full z-50 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-[#2D302D]/5 px-8 lg:px-16 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-6">
-          <span className="text-[10px] font-bold tracking-[0.4em] uppercase opacity-40 hidden md:block">
-            Protocol Sequence
-          </span>
-          <div className="flex gap-2">
-            {[1, 2, 3, 4, 5].map((s) => (
-              <div
-                key={s}
-                className={`w-8 h-1 transition-all duration-500 ${
-                  step >= s ? "bg-[#8DAA9D]" : "bg-[#2D302D]/10"
-                }`}
-              />
-            ))}
-          </div>
+        <div className="flex gap-2">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <div key={s} className={`w-8 h-1 transition-all duration-500 ${step >= s ? "bg-[#8DAA9D]" : "bg-[#2D302D]/10"}`} />
+          ))}
         </div>
-        <button
-          onClick={() => window.history.back()}
-          className="text-[10px] font-bold tracking-[0.3em] uppercase flex items-center gap-2 hover:text-[#8DAA9D] transition-colors"
-        >
+        <button onClick={() => navigate(-1)} className="text-[10px] font-bold tracking-[0.3em] uppercase flex items-center gap-2 hover:text-red-500 transition-colors">
           <ArrowLeft size={14} /> Abandon Entry
         </button>
       </nav>
 
       <main className="pt-40 pb-24 px-8 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
-        <div className="lg:col-span-7 min-h-[60vh] flex flex-col justify-between">
-          <div className="step-content">
-            {step === 1 && (
-              <section className="space-y-12">
-                <div>
-                  <h2 className="text-5xl font-light tracking-tighter uppercase mb-6">
-                    Select Facility
-                  </h2>
-                  <p className="text-[#2D302D]/50 text-sm max-w-md">
-                    Identify the certified medical establishment for your protocol initialization.
-                  </p>
-                </div>
-                <div className="grid gap-6">
-                  {isLoading ? (
-                    <div className="flex items-center gap-4 py-10 opacity-40">
-                      <Loader2 className="animate-spin" size={20} />
-                      <span className="text-[10px] uppercase tracking-widest font-bold">
-                        Synchronizing Registry...
-                      </span>
-                    </div>
-                  ) : (
-                    clinics.map((clinic) => (
-                      <button
-                        key={clinic.id}
-                        onClick={() => setSelectedClinic(clinic)}
-                        className={`group p-8 text-left border transition-all duration-500 flex items-center justify-between
-                          ${
-                            String(selectedClinicId || "") === String(clinic.id || clinic._id || "")
-                              ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
-                              : "border-[#2D302D]/10 hover:border-[#8DAA9D]/50"
-                          }`}
-                      >
-                        <div className="flex items-center gap-6">
-                          <div
-                            className={`p-4 rounded-full ${
-                              String(selectedClinicId || "") === String(clinic.id || clinic._id || "")
-                                ? "bg-[#8DAA9D] text-white"
-                                : "bg-[#2D302D]/5 text-[#2D302D]/40"
-                            }`}
-                          >
-                            <Building2 size={20} />
-                          </div>
-                          <div>
-                            <h3 className="text-xl font-light uppercase tracking-tight mb-2">
-                              {clinic.name}
-                            </h3>
-                            <div className="flex items-center gap-3 text-[10px] uppercase tracking-widest opacity-50">
-                              <MapPin size={12} /> {clinic.location}
-                            </div>
-                          </div>
-                        </div>
-                        <div
-                          className={`w-4 h-4 rounded-full border border-[#2D302D]/20 flex items-center justify-center ${
-                            String(selectedClinicId || "") === String(clinic.id || clinic._id || "")
-                              ? "bg-[#8DAA9D] border-[#8DAA9D]"
-                              : ""
-                          }`}
-                        >
-                          {String(selectedClinicId || "") === String(clinic.id || clinic._id || "") && (
-                            <div className="w-1.5 h-1.5 bg-white rounded-full" />
-                          )}
-                        </div>
-                      </button>
-                    ))
-                  )}
-                </div>
-                {error && (
-                  <p className="text-[10px] uppercase tracking-widest opacity-40">{error}</p>
-                )}
-              </section>
-            )}
-
-            {step === 2 && (
-              <section className="space-y-12">
-                <div>
-                  <h2 className="text-5xl font-light tracking-tighter uppercase mb-6">
-                    Select Faculty
-                  </h2>
-                  <p className="text-[#2D302D]/50 text-sm max-w-md">
-                    Choose a verified specialist from the {selectedClinic?.name} registry.
-                  </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {isDoctorsLoading ? (
-                    <div className="col-span-2 flex items-center gap-4 py-10 opacity-40">
-                      <Loader2 className="animate-spin" size={20} />
-                      <span className="text-[10px] uppercase tracking-widest font-bold">
-                        Fetching Faculty Registry...
-                      </span>
-                    </div>
-                  ) : availableDoctors.length > 0 ? (
-                    availableDoctors.map((doc) => (
-                      <button
-                        key={doc.id}
-                        onClick={() => setSelectedDoctor(doc)}
-                        className={`group relative p-6 text-left border transition-all duration-500 overflow-hidden
-                          ${
-                            String(selectedDoctorId || "") === String(doc.id || doc._id || "")
-                              ? "border-[#8DAA9D]"
-                              : "border-[#2D302D]/10 hover:border-[#8DAA9D]/50"
-                          }`}
-                      >
-                        {String(selectedDoctorId || "") === String(doc.id || doc._id || "") && (
-                          <div className="absolute top-0 right-0 p-2 bg-[#8DAA9D] text-white">
-                            <CheckCircle2 size={16} />
-                          </div>
-                        )}
-
-                        <div className="flex items-start gap-4 mb-6">
-                          <img
-                            src={doc.image || "https://via.placeholder.com/400"}
-                            alt={doc.name}
-                            className="w-16 h-16 object-cover grayscale opacity-80 group-hover:grayscale-0 transition-all"
-                          />
-                          <div>
-                            <span className="text-[9px] font-bold uppercase tracking-widest text-[#8DAA9D] block mb-1">
-                              {doc.specialty}
-                            </span>
-                            <h3 className="text-lg font-bold uppercase tracking-tight leading-none">
-                              {doc.name}
-                            </h3>
-                          </div>
-                        </div>
-
-                        <div className="flex justify-between items-end border-t border-[#2D302D]/5 pt-4">
-                          <span className="text-[10px] uppercase tracking-widest opacity-40">
-                            Consultation Fee
-                          </span>
-                          <span className="font-mono text-sm">${doc.fee}</span>
-                        </div>
-                      </button>
-                    ))
-                  ) : (
-                    <p className="text-[10px] uppercase tracking-widest opacity-40 col-span-2">
-                      No faculty members found for this facility.
-                    </p>
-                  )}
-                </div>
-
-                {error && (
-                  <p className="text-[10px] uppercase tracking-widest opacity-40">{error}</p>
-                )}
-              </section>
-            )}
-
-            {step === 3 && (
-              <section className="space-y-12">
-                <div>
-                  <h2 className="text-5xl font-light tracking-tighter uppercase mb-6">
-                    Temporal Slot
-                  </h2>
-                  <p className="text-[#2D302D]/50 text-sm max-w-md">
-                    Initialize the consultation by selecting a opening in the physician's schedule.
-                  </p>
-                </div>
-
-                <div className="space-y-8">
-                  <div className="grid grid-cols-7 gap-2">
-                    {dynamicDays.map((d, i) => (
-                      <div
-                        key={i}
-                        onClick={() => setSelectedDate(d)}
-                        className={`text-center py-4 border transition-all cursor-pointer group 
-                          ${
-                            selectedDate?.fullDate === d.fullDate
-                              ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
-                              : "border-[#2D302D]/5 bg-white hover:border-[#8DAA9D]"
-                          }`}
-                      >
-                        <span className="block text-[10px] opacity-30 font-bold mb-2">
-                          {d.dayName}
-                        </span>
-                        <span className="text-lg font-light">{d.dayNumber}</span>
+        <div className="lg:col-span-7 step-anim">
+          {/* STEP 1: CLINIC */}
+          {step === 1 && (
+            <section className="space-y-12">
+              <h2 className="text-5xl font-light tracking-tighter uppercase">Select Facility</h2>
+              <div className="grid gap-4">
+                {data.clinics.map(c => (
+                  <button key={c._id} onClick={() => setSelection({...selection, clinic: c})} 
+                    className={`p-6 border flex justify-between items-center transition-all ${selection.clinic?._id === c._id ? "border-[#8DAA9D] bg-[#8DAA9D]/5" : "border-[#2D302D]/10"}`}>
+                    <div className="flex items-center gap-4">
+                      <Building2 className="text-[#8DAA9D]" />
+                      <div className="text-left">
+                        <p className="font-bold uppercase text-sm tracking-tight">{c.name}</p>
+                        <p className="text-[10px] opacity-50 uppercase tracking-widest">{c.location || c.address}</p>
                       </div>
-                    ))}
-                  </div>
+                    </div>
+                    {selection.clinic?._id === c._id && <CheckCircle2 size={18} className="text-[#8DAA9D]" />}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
-                  <div
-                    className={`grid grid-cols-2 md:grid-cols-3 gap-4 ${
-                      !selectedDate ? "opacity-20 pointer-events-none" : ""
-                    }`}
-                  >
-                    {timeSlots.map((time, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setSelectedSlot(time)}
-                        className={`py-6 border text-sm font-light transition-all flex justify-center items-center gap-2
-                          ${
-                            selectedSlot === time
-                              ? "bg-[#2D302D] text-white border-[#2D302D]"
-                              : "border-[#2D302D]/10 hover:border-[#8DAA9D] hover:bg-[#8DAA9D]/5"
-                          }`}
-                      >
-                        {time} <span className="text-[10px] opacity-30">EST</span>
-                      </button>
-                    ))}
-                  </div>
+          {/* STEP 2: DOCTOR */}
+          {step === 2 && (
+            <section className="space-y-12">
+              <h2 className="text-5xl font-light tracking-tighter uppercase">Select Faculty</h2>
+              {isLoading.doctors ? <Loader2 className="animate-spin" /> : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {data.doctors.map(d => (
+                    <button key={d._id} onClick={() => setSelection({...selection, doctor: d})}
+                      className={`p-6 border text-left transition-all ${selection.doctor?._id === d._id ? "border-[#8DAA9D] bg-[#8DAA9D]/5" : "border-[#2D302D]/10"}`}>
+                      <img src={d.image} className="w-12 h-12 rounded-full mb-4 grayscale" alt="" />
+                      <p className="font-bold uppercase text-sm">{d.name}</p>
+                      <p className="text-[10px] text-[#8DAA9D] font-bold uppercase">{d.specialty}</p>
+                    </button>
+                  ))}
                 </div>
-              </section>
-            )}
+              )}
+            </section>
+          )}
 
-            {step === 4 && (
-              <section className="space-y-12">
-                <div>
-                  <h2 className="text-5xl font-light tracking-tighter uppercase mb-6">
-                    Patient Dossier
-                  </h2>
-                  <p className="text-[#2D302D]/50 text-sm max-w-md">
-                    Input the primary medical identifiers for the session registry.
-                  </p>
-                </div>
+          {/* STEP 3: DATE & TIME */}
+          {step === 3 && (
+            <section className="space-y-12">
+              <h2 className="text-5xl font-light tracking-tighter uppercase">Temporal Slot</h2>
+              <div className="grid grid-cols-7 gap-2">
+                {weekDays.map(d => (
+                  <button key={d.fullDate} onClick={() => setSelection({...selection, date: d})}
+                    className={`p-4 border text-center transition-all ${selection.date?.fullDate === d.fullDate ? "bg-[#8DAA9D] text-white" : "border-[#2D302D]/10"}`}>
+                    <span className="text-[10px] block opacity-50 uppercase">{d.dayName}</span>
+                    <span className="text-lg">{d.dayNumber}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="grid grid-cols-3 gap-2">
+                {timeSlots.map(t => (
+                  <button key={t} onClick={() => setSelection({...selection, slot: t})}
+                    className={`p-4 border text-sm transition-all ${selection.slot === t ? "bg-[#2D302D] text-white" : "border-[#2D302D]/10"}`}>
+                    {t}
+                  </button>
+                ))}
+              </div>
+            </section>
+          )}
 
-                <form className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                  <div className="space-y-2">
-                    <label className="text-[9px] uppercase tracking-[0.3em] font-bold opacity-40">
-                      Legal Full Name
-                    </label>
-                    <input
-                      type="text"
-                      value={patientData.name}
-                      onChange={(e) => setPatientData((p) => ({ ...p, name: e.target.value }))}
-                      className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 focus:border-[#8DAA9D] outline-none transition-all text-xl font-light"
-                      placeholder="Johnathan Doe"
-                    />
-                  </div>
+          {/* STEP 4: DOSSIER */}
+          {step === 4 && (
+            <section className="space-y-12">
+              <h2 className="text-5xl font-light tracking-tighter uppercase">Patient Dossier</h2>
+              <div className="grid gap-6">
+                <input placeholder="Legal Full Name" className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 outline-none focus:border-[#8DAA9D]" 
+                  onChange={e => setPatient({...patient, name: e.target.value})} />
+                <input placeholder="Email Address" className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 outline-none focus:border-[#8DAA9D]" 
+                  onChange={e => setPatient({...patient, email: e.target.value})} />
+                <input placeholder="Phone / Contact" className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 outline-none focus:border-[#8DAA9D]" 
+                  onChange={e => setPatient({...patient, phone: e.target.value})} />
+                <textarea placeholder="Clinical Notes" className="w-full bg-transparent border border-[#2D302D]/10 p-4 outline-none focus:border-[#8DAA9D] h-32"
+                  onChange={e => setPatient({...patient, notes: e.target.value})} />
+              </div>
+            </section>
+          )}
 
-                  <div className="space-y-2">
-                    <label className="text-[9px] uppercase tracking-[0.3em] font-bold opacity-40">
-                      Contact Identifier
-                    </label>
-                    <input
-                      type="email"
-                      value={patientData.email}
-                      onChange={(e) => setPatientData((p) => ({ ...p, email: e.target.value }))}
-                      className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 focus:border-[#8DAA9D] outline-none transition-all text-xl font-light"
-                      placeholder="j.doe@network.com"
-                    />
-                  </div>
-
-                  <div className="md:col-span-2 space-y-2">
-                    <label className="text-[9px] uppercase tracking-[0.3em] font-bold opacity-40">
-                      Symptoms/Notes (Optional)
-                    </label>
-                    <textarea
-                      value={patientData.notes}
-                      onChange={(e) => setPatientData((p) => ({ ...p, notes: e.target.value }))}
-                      className="w-full bg-transparent border border-[#2D302D]/10 p-6 focus:border-[#8DAA9D] outline-none transition-all text-lg font-light min-h-[150px]"
-                      placeholder="Describe the current clinical state..."
-                    />
-                  </div>
-                </form>
-              </section>
-            )}
-
-            {step === 5 && (
-              <section className="space-y-12 text-center py-20 bg-white border border-[#2D302D]/5">
-                <div className="flex justify-center">
-                  <div className="w-24 h-24 rounded-full bg-[#8DAA9D]/10 flex items-center justify-center text-[#8DAA9D] animate-in zoom-in duration-500">
-                    <CheckCircle2 size={40} strokeWidth={1} />
-                  </div>
-                </div>
-                <div className="space-y-4">
-                  <h2 className="text-4xl font-light tracking-tighter uppercase">
-                    Protocol Validated
-                  </h2>
-                  <p className="text-[#2D302D]/50 text-sm max-w-xs mx-auto italic">
-                    Your consultation with {selectedDoctor?.name} at {selectedClinic?.name} has been synchronized.
-                  </p>
-                </div>
-                <button
-                  onClick={() => (window.location.href = "/")}
-                  className="px-10 py-5 bg-[#2D302D] text-[#FAF9F6] text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-[#8DAA9D] transition-colors"
-                >
-                  Return to Dashboard
-                </button>
-              </section>
-            )}
-          </div>
+          {/* SUCCESS PAGE */}
+          {step === 5 && (
+            <section className="text-center py-20 space-y-6">
+              <div className="w-20 h-20 bg-[#8DAA9D]/10 rounded-full flex items-center justify-center mx-auto text-[#8DAA9D]">
+                <CheckCircle2 size={40} />
+              </div>
+              <h2 className="text-4xl font-light uppercase">Protocol Validated</h2>
+              <button onClick={() => navigate("/")} className="px-8 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-widest">Return Home</button>
+            </section>
+          )}
 
           {step < 5 && (
-            <div className="mt-16 flex items-center gap-8">
-              <button
-                onClick={() => {
-                  if (step === 4) handleConfirmProtocol();
-                  else setStep((prev) => prev + 1);
-                }}
-                disabled={!canProceed() || isSubmitting}
-                className="group px-12 py-8 bg-[#2D302D] text-[#FAF9F6] text-[10px] uppercase tracking-[0.5em] font-bold hover:bg-[#8DAA9D] transition-all duration-700 flex items-center gap-4 disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {isSubmitting ? (
-                  <Loader2 className="animate-spin" size={14} />
-                ) : step === 4 ? (
-                  "Confirm Protocol"
-                ) : (
-                  "Proceed"
-                )}
-                <ChevronRight
-                  size={14}
-                  className="group-hover:translate-x-1 transition-transform"
-                />
+            <div className="mt-12 flex items-center gap-6">
+              <button disabled={!canProceed || isLoading.submit} onClick={() => step === 4 ? handleSubmission() : setStep(s => s + 1)}
+                className="px-12 py-6 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-[#8DAA9D] transition-all disabled:opacity-30 flex items-center gap-2">
+                {isLoading.submit ? <Loader2 className="animate-spin" size={14} /> : (step === 4 ? "Initialize Protocol" : "Proceed")}
+                <ChevronRight size={14} />
               </button>
-
-              <div className="flex items-center gap-3 opacity-20">
-                <Lock size={12} />
-                <span className="text-[9px] uppercase tracking-[0.4em] font-bold">
-                  Encrypted Session
-                </span>
-              </div>
+              {error && <p className="text-[10px] text-red-500 uppercase tracking-widest">{error}</p>}
             </div>
           )}
         </div>
 
-        {/* Sidebar Summary */}
-        <div className="lg:col-span-5 relative hidden lg:block">
-          <aside className="sticky top-40 bg-white border border-[#2D302D]/5 p-12 space-y-10 shadow-sm transition-all duration-500">
-            {selectedDoctor ? (
-              <div className="flex items-center gap-6 animate-in fade-in slide-in-from-right-4 duration-700">
-                <div className="w-20 h-24 bg-gray-100 grayscale overflow-hidden">
-                  <img
-                    src={selectedDoctor.image || "https://via.placeholder.com/400"}
-                    className="w-full h-full object-cover"
-                    alt="Doctor"
-                  />
-                </div>
-                <div>
-                  <span className="text-[9px] uppercase tracking-[0.4em] text-[#8DAA9D] font-bold">
-                    Assigned Faculty
-                  </span>
-                  <h4 className="text-xl font-light tracking-tight uppercase">
-                    {selectedDoctor.name}
-                  </h4>
-                  <p className="text-[10px] opacity-40 uppercase tracking-widest">
-                    {selectedDoctor.specialty}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center gap-6 opacity-30">
-                <div className="w-20 h-24 bg-gray-100 flex items-center justify-center">
-                  <Stethoscope size={24} />
-                </div>
-                <div>
-                  <span className="text-[9px] uppercase tracking-[0.4em] font-bold">
-                    Faculty Member
-                  </span>
-                  <h4 className="text-xl font-light tracking-tight uppercase">
-                    Pending Selection...
-                  </h4>
-                </div>
-              </div>
-            )}
-
-            <div className="space-y-6 border-t border-[#2D302D]/5 pt-8">
-              <div className="flex justify-between items-center text-[11px] uppercase tracking-widest">
-                <span className="opacity-40">Medical Facility</span>
-                <span className={`font-bold ${selectedClinic ? "text-[#2D302D]" : "opacity-30"}`}>
-                  {selectedClinic?.name || "---"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-[11px] uppercase tracking-widest">
-                <span className="opacity-40">Consultation Type</span>
-                <span className="font-bold">Neural Consult (Video)</span>
-              </div>
-
-              <div className="flex justify-between items-center text-[11px] uppercase tracking-widest">
-                <span className="opacity-40">Temporal Slot</span>
-                <span className={`font-bold ${selectedSlot && selectedDate ? "text-[#2D302D]" : "opacity-30"}`}>
-                  {selectedSlot && selectedDate
-                    ? `${selectedDate.monthName} ${selectedDate.dayNumber} // ${selectedSlot}`
-                    : "---"}
-                </span>
-              </div>
-
-              <div className="flex justify-between items-center text-[11px] uppercase tracking-widest border-t border-[#2D302D]/5 pt-6">
-                <span className="opacity-40 font-bold text-[#8DAA9D]">Total Protocol Fee</span>
-                <span className="text-xl font-light">
-                  {selectedDoctor ? `$${selectedDoctor.fee}.00` : "---"}
-                </span>
-              </div>
+        {/* SIDEBAR SUMMARY */}
+        <aside className="lg:col-span-5 h-fit sticky top-40 bg-white border border-[#2D302D]/5 p-10 space-y-8 shadow-sm">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center">
+              {selection.doctor ? <img src={selection.doctor.image} className="rounded-full grayscale" alt="" /> : <Stethoscope className="opacity-20" />}
             </div>
-          </aside>
-        </div>
+            <div>
+              <p className="text-[9px] font-bold text-[#8DAA9D] uppercase tracking-widest">Assigned Faculty</p>
+              <p className="text-sm font-bold uppercase">{selection.doctor?.name || "Pending..."}</p>
+            </div>
+          </div>
+          <div className="space-y-4 border-t pt-6 text-[11px] uppercase tracking-widest">
+            <div className="flex justify-between"><span className="opacity-40">Facility</span><span>{selection.clinic?.name || "---"}</span></div>
+            <div className="flex justify-between"><span className="opacity-40">Temporal Slot</span><span>{selection.slot || "---"}</span></div>
+            <div className="flex justify-between border-t pt-4"><span className="opacity-40 font-bold">Total Fee</span><span className="text-lg">${selection.doctor?.fee || 0}</span></div>
+          </div>
+        </aside>
       </main>
     </div>
   );

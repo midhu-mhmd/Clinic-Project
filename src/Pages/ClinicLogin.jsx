@@ -1,7 +1,17 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react"; // Optional: lucide-react for icons
+import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
+
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+
+const isValidJwt = (t) => {
+  if (!t || typeof t !== "string") return false;
+  const x = t.trim();
+  if (!x || x === "undefined" || x === "null") return false;
+  return x.split(".").length === 3;
+};
 
 const ClinicLogin = () => {
   const navigate = useNavigate();
@@ -12,12 +22,12 @@ const ClinicLogin = () => {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const isFromPayment = location.state?.registered;
+  const isFromPayment = Boolean(location.state?.paymentDone || location.state?.registered);
 
   const handleChange = (e) => {
     const { id, value } = e.target;
     setFormData((prev) => ({ ...prev, [id]: value }));
-    if (error) setError(""); 
+    if (error) setError("");
   };
 
   const validateForm = () => {
@@ -36,24 +46,47 @@ const ClinicLogin = () => {
   const handleLogin = async (e) => {
     e.preventDefault();
     setError("");
-
     if (!validateForm()) return;
+
     setLoading(true);
 
     try {
-      const response = await axios.post("http://localhost:5000/api/tenants/login", formData);
+      const response = await axios.post(`${API_BASE}/api/tenants/login`, {
+        email: formData.email.trim().toLowerCase(),
+        password: formData.password,
+      });
 
-      // Note: Backend returns data inside 'data' object based on our previous controller fix
-      const { token, user } = response.data.data;
+      // ✅ Your API currently returns: { success, token, data: { user } }
+      // but also support old shape: { success, data: { token, user } }
+      const token =
+        response.data?.token || response.data?.data?.token || response.data?.data?.authToken;
 
-      localStorage.setItem("token", token);
-      localStorage.setItem("userRole", user.role);
+      const user =
+        response.data?.data?.user || response.data?.user || response.data?.data?.data?.user;
+
+      if (!isValidJwt(token)) {
+        throw new Error("Invalid token received from server.");
+      }
+
+      // ✅ Store final token ONLY here
+      localStorage.setItem("authToken", token);
+
+      // ✅ Cleanup old token keys to prevent interceptor picking wrong value
+      localStorage.removeItem("token");
+      localStorage.removeItem("paymentToken");
+
+      localStorage.setItem("userRole", user?.role || "CLINIC_ADMIN");
       localStorage.setItem("isLoggedIn", "true");
 
       window.dispatchEvent(new Event("authUpdate"));
-      navigate("/dashboard");
+
+      navigate("/dashboard", { replace: true });
     } catch (err) {
-      setError(err.response?.data?.message || "Authentication sequence failed.");
+      const msg =
+        err?.response?.data?.message ||
+        err?.message ||
+        "Authentication sequence failed.";
+      setError(msg);
     } finally {
       setLoading(false);
     }
@@ -67,10 +100,11 @@ const ClinicLogin = () => {
   return (
     <div className="min-h-screen bg-white flex items-center justify-center p-8 font-sans antialiased text-[#1a1a1a]">
       <div className="w-full max-w-250 grid md:grid-cols-2 gap-20 items-center">
-        
-        {/* Left Side: Branding */}
+        {/* Left Side */}
         <div className="hidden md:block">
-          <h2 className="text-[10px] tracking-[0.5em] text-gray-400 uppercase mb-8">System Access</h2>
+          <h2 className="text-[10px] tracking-[0.5em] text-gray-400 uppercase mb-8">
+            System Access
+          </h2>
           <h1 className="text-[5vw] leading-[1.1] font-light tracking-tighter mb-8">
             Return to <br />
             <span className="italic font-serif text-gray-400">workspace.</span>
@@ -81,19 +115,21 @@ const ClinicLogin = () => {
           </p>
         </div>
 
-        {/* Right Side: Login Form */}
+        {/* Right Side */}
         <div className="w-full max-w-sm mx-auto md:mx-0">
           {isFromPayment && (
             <div className="mb-10 p-4 bg-black text-white border-l-4 border-gray-400 animate-in fade-in slide-in-from-top-4 duration-700">
               <p className="text-[9px] tracking-[0.2em] uppercase font-bold">
-                Account Sequence Activated
+                Payment completed — login to activate your workspace
               </p>
             </div>
           )}
 
           {error && (
             <div className="mb-6 p-4 bg-red-50 border-l-2 border-red-500 animate-in fade-in duration-300">
-              <p className="text-[9px] tracking-widest uppercase font-bold text-red-500">{error}</p>
+              <p className="text-[9px] tracking-widest uppercase font-bold text-red-500">
+                {error}
+              </p>
             </div>
           )}
 
@@ -110,7 +146,9 @@ const ClinicLogin = () => {
                 className={inputStyle}
                 required
               />
-              <label htmlFor="email" className={labelStyle}>Work Email</label>
+              <label htmlFor="email" className={labelStyle}>
+                Work Email
+              </label>
             </div>
 
             <div className="relative group">
@@ -125,10 +163,11 @@ const ClinicLogin = () => {
                 className={inputStyle}
                 required
               />
-              <label htmlFor="password" className={labelStyle}>Access Key</label>
-              
-              {/* Password Toggle */}
-              <button 
+              <label htmlFor="password" className={labelStyle}>
+                Access Key
+              </label>
+
+              <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-0 top-4 text-gray-300 hover:text-black transition-colors"
@@ -158,7 +197,10 @@ const ClinicLogin = () => {
               {loading ? (
                 <Loader2 className="animate-spin" size={18} />
               ) : (
-                <ArrowRight className="group-hover:translate-x-2 transition-transform duration-500" size={18} />
+                <ArrowRight
+                  className="group-hover:translate-x-2 transition-transform duration-500"
+                  size={18}
+                />
               )}
             </button>
           </form>

@@ -13,6 +13,7 @@ import {
   Calendar,
   Zap,
   Loader2,
+  AlertCircle,
 } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
@@ -27,64 +28,93 @@ const ClinicProfile = () => {
 
   const [clinic, setClinic] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
+  // ✅ Fetch clinic
   useEffect(() => {
-    let isMounted = true;
+    const controller = new AbortController();
 
     const fetchClinicDetails = async () => {
       try {
         setLoading(true);
+        setError("");
 
-        const response = await axios.get(`${API_BASE_URL}/tenants/${id}`);
+        if (!id) {
+          setClinic(null);
+          setError("Route param missing: clinic id not found.");
+          return;
+        }
+
+        // ✅ If your endpoint is protected, you MUST send token
+        const token = localStorage.getItem("token");
+
+        const response = await axios.get(`${API_BASE_URL}/tenants/${id}`, {
+          signal: controller.signal,
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+        });
 
         // expected: { success: true, data: clinic }
         const clinicData = response?.data?.data || null;
 
-        if (isMounted) setClinic(clinicData);
-      } catch (error) {
-        console.error("Error fetching clinic:", error);
-        if (isMounted) setClinic(null);
+        if (!clinicData) {
+          setClinic(null);
+          setError("Clinic not found or invalid response from server.");
+          return;
+        }
+
+        setClinic(clinicData);
+      } catch (e) {
+        if (e?.name === "CanceledError") return;
+
+        const msg =
+          e?.response?.data?.message ||
+          e?.message ||
+          "Failed to fetch clinic details.";
+        setError(msg);
+        setClinic(null);
       } finally {
-        if (isMounted) setLoading(false);
+        setLoading(false);
       }
     };
 
-    if (id) fetchClinicDetails();
-
-    return () => {
-      isMounted = false;
-    };
+    fetchClinicDetails();
+    return () => controller.abort();
   }, [id]);
 
+  // ✅ GSAP animations after clinic loaded
   useEffect(() => {
     if (loading || !clinic) return;
+    if (!containerRef.current) return;
 
-    let ctx = gsap.context(() => {
+    const ctx = gsap.context(() => {
       gsap.from(".hero-reveal", {
         y: 120,
         skewY: 5,
         opacity: 0,
-        duration: 1.8,
+        duration: 1.6,
         ease: "expo.out",
-        stagger: 0.1,
+        stagger: 0.08,
+        clearProps: "transform",
       });
 
-      gsap.to(".hero-img", {
-        yPercent: 15,
-        ease: "none",
-        scrollTrigger: {
-          trigger: heroRef.current,
-          start: "top top",
-          end: "bottom top",
-          scrub: 1.2,
-        },
-      });
+      if (heroRef.current) {
+        gsap.to(".hero-img", {
+          yPercent: 15,
+          ease: "none",
+          scrollTrigger: {
+            trigger: heroRef.current,
+            start: "top top",
+            end: "bottom top",
+            scrub: 1.2,
+          },
+        });
+      }
 
       gsap.from(".info-block", {
         opacity: 0,
         y: 40,
-        duration: 1.2,
-        stagger: 0.1,
+        duration: 1.0,
+        stagger: 0.12,
         scrollTrigger: { trigger: ".info-grid", start: "top 85%" },
       });
     }, containerRef);
@@ -92,6 +122,7 @@ const ClinicProfile = () => {
     return () => ctx.revert();
   }, [loading, clinic]);
 
+  // ✅ UI states
   if (loading) {
     return (
       <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6]">
@@ -103,20 +134,44 @@ const ClinicProfile = () => {
     );
   }
 
-  if (!clinic) {
+  if (error) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
-        <p className="text-[10px] uppercase tracking-widest">
-          Facility Not Found
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6] px-6 text-center">
+        <AlertCircle className="text-red-600 mb-3" size={32} />
+        <p className="text-[10px] uppercase tracking-widest text-red-700 font-bold">
+          {error}
         </p>
+        <button
+          onClick={() => navigate(-1)}
+          className="mt-6 text-[10px] uppercase tracking-widest font-bold border-b border-black/30 hover:border-black transition-all"
+        >
+          Go Back
+        </button>
       </div>
     );
   }
 
+  if (!clinic) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
+        <p className="text-[10px] uppercase tracking-widest">Facility Not Found</p>
+      </div>
+    );
+  }
+
+  // ✅ Safe values
   const clinicName = clinic.name || "Unknown Facility";
-  const nameParts = clinicName.split(" ");
-  const firstName = nameParts[0];
+  const nameParts = String(clinicName).trim().split(" ");
+  const firstName = nameParts[0] || "Clinic";
   const remainingName = nameParts.slice(1).join(" ");
+
+  const addressText = clinic.address || clinic.location || "—";
+  const planText =
+    (clinic.subscription?.plan ? `${clinic.subscription.plan} Certified` : "") ||
+    clinic.tier ||
+    "Tier-1 Certified";
+
+  const tags = Array.isArray(clinic.tags) ? clinic.tags : [];
 
   return (
     <div
@@ -129,10 +184,7 @@ const ClinicProfile = () => {
           onClick={() => navigate(-1)}
           className="pointer-events-auto flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold group text-[#FAF9F6] mix-blend-difference"
         >
-          <ArrowLeft
-            size={16}
-            className="group-hover:-translate-x-1 transition-transform"
-          />
+          <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
           Back to Directory
         </button>
       </nav>
@@ -160,9 +212,10 @@ const ClinicProfile = () => {
             <div className="flex items-center gap-4 mb-10 overflow-hidden">
               <Star size={14} className="text-[#8DAA9D] hero-reveal" />
               <span className="hero-reveal text-[10px] uppercase tracking-[0.5em] font-bold text-[#FAF9F6]/60">
-                Official Exhibit — {clinic._id?.slice(-6).toUpperCase()}
+                Official Exhibit — {String(clinic._id || "").slice(-6).toUpperCase()}
               </span>
             </div>
+
             <div className="overflow-hidden mb-2">
               <h1 className="hero-reveal text-[clamp(3.5rem,8vw,10rem)] font-light leading-[0.8] tracking-tighter uppercase italic font-serif text-[#FAF9F6]">
                 {firstName}
@@ -177,7 +230,7 @@ const ClinicProfile = () => {
 
           <div className="flex flex-col items-end gap-10 text-[#FAF9F6] text-right">
             <p className="max-w-70 text-[11px] uppercase tracking-widest font-bold opacity-70 leading-relaxed">
-              Established in {clinic.address || clinic.location}. <br />{" "}
+              Established in {addressText}. <br />
               Verified Premium Clinical Infrastructure.
             </p>
             <div className="w-16 h-16 rounded-full border border-[#FAF9F6]/20 flex items-center justify-center hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-700 cursor-pointer animate-bounce">
@@ -198,44 +251,22 @@ const ClinicProfile = () => {
               <h2 className="text-[clamp(2.5rem,5vw,5rem)] font-light tracking-tighter uppercase mb-12 leading-none">
                 Specialized in <br />
                 <span className="italic font-serif text-[#8DAA9D]">
-                  {clinic.tags?.[0] || "Advanced Medicine"}
+                  {tags?.[0] || "Advanced Medicine"}
                 </span>{" "}
                 <br />
                 clinical excellence.
               </h2>
               <p className="text-xl text-[#2D302D]/60 font-light leading-relaxed italic max-w-2xl">
-                "
-                {clinic.description ||
-                  "Medical facility focused on clinical excellence."}
-                "
+                "{clinic.description || "Medical facility focused on clinical excellence."}"
               </p>
             </section>
 
             <div className="info-block grid grid-cols-1 sm:grid-cols-2 gap-px bg-[#2D302D]/10 border border-[#2D302D]/10">
               {[
-                {
-                  label: "Address",
-                  val: clinic.address || clinic.location,
-                  icon: <MapPin size={14} />,
-                },
-                {
-                  label: "Availability",
-                  val: "By Appointment",
-                  icon: <Clock size={14} />,
-                },
-                {
-                  label: "Standard",
-                  val:
-                    (clinic.subscription?.plan
-                      ? clinic.subscription.plan + " Certified"
-                      : null) || "Tier-1 Certified",
-                  icon: <ShieldCheck size={14} />,
-                },
-                {
-                  label: "Contact",
-                  val: "Secure Channel",
-                  icon: <Zap size={14} />,
-                },
+                { label: "Address", val: addressText, icon: <MapPin size={14} /> },
+                { label: "Availability", val: "By Appointment", icon: <Clock size={14} /> },
+                { label: "Standard", val: planText, icon: <ShieldCheck size={14} /> },
+                { label: "Contact", val: "Secure Channel", icon: <Zap size={14} /> },
               ].map((item, i) => (
                 <div
                   key={i}
@@ -259,7 +290,7 @@ const ClinicProfile = () => {
             <div className="info-block sticky top-32 bg-[#2D302D] text-[#FAF9F6] p-12 space-y-12 rounded-sm shadow-2xl">
               <div className="flex justify-between items-center border-b border-[#FAF9F6]/10 pb-8">
                 <span className="text-[10px] uppercase tracking-[0.4em] font-bold opacity-50 font-mono">
-                  Access Protocol — {clinic._id?.slice(-4).toUpperCase()}
+                  Access Protocol — {String(clinic._id || "").slice(-4).toUpperCase()}
                 </span>
                 <Calendar size={18} className="text-[#8DAA9D]" />
               </div>
@@ -269,17 +300,14 @@ const ClinicProfile = () => {
                   Reserve Slot
                 </h3>
                 <p className="text-sm text-[#FAF9F6]/40 font-light italic leading-relaxed">
-                  Instant scheduling is active for this facility. Please ensure
-                  you have your medical ID ready for verification.
+                  Instant scheduling is active for this facility. Please ensure you have
+                  your medical ID ready for verification.
                 </p>
               </div>
 
               <div className="space-y-4">
                 <button
-                  onClick={() => {
-                    // ✅ URL param = reliable + auto-select source of truth
-                    navigate(`/appointment/${id}`, { state: { clinicId: id } });
-                  }}
+                  onClick={() => navigate(`/appointment/${id}`, { state: { clinicId: id } })}
                   className="w-full bg-[#8DAA9D] text-[#FAF9F6] py-8 text-[10px] uppercase tracking-[0.5em] font-bold hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-700"
                 >
                   Book Appointment
@@ -297,14 +325,20 @@ const ClinicProfile = () => {
       {/* TAGS FOOTER */}
       <section className="px-8 lg:px-16 py-20 border-t border-[#2D302D]/5">
         <div className="flex flex-wrap gap-4">
-          {clinic.tags?.map((tag, i) => (
-            <span
-              key={i}
-              className="text-[10px] uppercase tracking-[0.3em] font-bold px-6 py-3 border border-[#2D302D]/10 rounded-full"
-            >
-              {tag}
+          {tags.length > 0 ? (
+            tags.map((tag, i) => (
+              <span
+                key={`${tag}-${i}`}
+                className="text-[10px] uppercase tracking-[0.3em] font-bold px-6 py-3 border border-[#2D302D]/10 rounded-full"
+              >
+                {tag}
+              </span>
+            ))
+          ) : (
+            <span className="text-[10px] uppercase tracking-[0.3em] font-bold opacity-40">
+              No tags
             </span>
-          ))}
+          )}
         </div>
       </section>
     </div>

@@ -11,16 +11,65 @@ import {
   User,
   Mail,
   Phone,
-  ShieldCheck,
-  ShieldAlert,
   Calendar,
-  Hash,
+  FileText,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:5000/api";
+const API_BASE =
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+
+const API_APPOINTMENTS = `${API_BASE}/api/appointments/my-appointments`;
+
+/* =========================================================
+   ✅ AUTH HELPERS (authToken-first)
+========================================================= */
+const cleanToken = (t) => {
+  if (!t || typeof t !== "string") return null;
+  const x = t.replace(/['"]+/g, "").trim();
+  if (!x || x === "undefined" || x === "null") return null;
+  return x;
+};
+
+const isValidJwt = (t) => {
+  const x = cleanToken(t);
+  if (!x) return false;
+  return x.split(".").length === 3;
+};
+
+const readAuthToken = () => {
+  const t1 = cleanToken(localStorage.getItem("authToken"));
+  if (isValidJwt(t1)) return t1;
+
+  const t2 = cleanToken(localStorage.getItem("token")); // legacy fallback
+  if (isValidJwt(t2)) return t2;
+
+  return null;
+};
+
+const getAuthHeaders = () => {
+  const token = readAuthToken();
+  if (!token) return null;
+  return { Authorization: `Bearer ${token}` };
+};
+
+const normalizeApiError = (err) => {
+  const status = err?.response?.status;
+  const msg =
+    err?.response?.data?.message ||
+    err?.message ||
+    "Failed to synchronize patient database.";
+
+  if (status === 401) {
+    localStorage.removeItem("authToken");
+    localStorage.removeItem("token");
+    return "Session expired. Please login again.";
+  }
+
+  return msg;
+};
 
 const Patients = () => {
-  const [patients, setPatients] = useState([]);
+  const [rows, setRows] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -31,7 +80,7 @@ const Patients = () => {
 
   const closeModal = useCallback(() => {
     setIsModalOpen(false);
-    setTimeout(() => setActivePatient(null), 150);
+    window.setTimeout(() => setActivePatient(null), 150);
   }, []);
 
   useEffect(() => {
@@ -40,62 +89,6 @@ const Patients = () => {
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [isModalOpen, closeModal]);
-
-  const normalizePatients = useCallback((payload) => {
-    // accepts: { success, data: [...] } OR { data: [...] } OR [...]
-    if (Array.isArray(payload?.data)) return payload.data;
-    if (Array.isArray(payload?.patients)) return payload.patients;
-    if (Array.isArray(payload)) return payload;
-    return [];
-  }, []);
-
-  const fetchPatients = useCallback(async (signal) => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const token = localStorage.getItem("token");
-      if (!token) {
-        setPatients([]);
-        setError("AUTH_ERROR: No token found in local storage.");
-        return;
-      }
-
-      const res = await axios.get(`${API_BASE}/patients`, {
-        signal,
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      const list = normalizePatients(res.data);
-
-      // optional: show only PATIENT role (in case API returns mixed users)
-      const onlyPatients = (list || []).filter(
-        (u) => String(u?.role || "").toUpperCase() === "PATIENT"
-      );
-
-      // sort by newest
-      onlyPatients.sort((a, b) => {
-        const ta = a?.createdAt ? new Date(a.createdAt).getTime() : 0;
-        const tb = b?.createdAt ? new Date(b.createdAt).getTime() : 0;
-        return tb - ta;
-      });
-
-      setPatients(onlyPatients);
-    } catch (err) {
-      if (axios.isCancel?.(err) || err?.name === "CanceledError") return;
-      console.error("Fetch Patients Error:", err);
-      setPatients([]);
-      setError(err.response?.data?.message || "Failed to synchronize patient database.");
-    } finally {
-      setLoading(false);
-    }
-  }, [normalizePatients]);
-
-  useEffect(() => {
-    const controller = new AbortController();
-    fetchPatients(controller.signal);
-    return () => controller.abort();
-  }, [fetchPatients]);
 
   const dateFmt = useMemo(
     () =>
@@ -107,55 +100,171 @@ const Patients = () => {
     []
   );
 
-  const viewRows = useMemo(() => {
-    return (patients || []).map((p) => {
-      const id = p?._id || "";
-      const name = p?.name || "Unknown";
-      const email = p?.email || "";
-      const role = p?.role || "PATIENT";
-      const tenantId = p?.tenantId || null;
+  const normalizeAppointments = useCallback((payload) => {
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.appointments)) return payload.appointments;
+    if (Array.isArray(payload)) return payload;
+    return [];
+  }, []);
 
-      // optional fields if you add later
-      const contact = p?.phone || p?.contact || "";
+  /**
+   * ✅ We treat patientInfo snapshot as patient identity
+   * because your patientId is the booking account (often same for all).
+   */
+  const resolvePatientFromAppointment = useCallback((app) => {
+    const snap =
+      app?.patientInfo && typeof app.patientInfo === "object"
+        ? app.patientInfo
+        : null;
 
-      const isVerified = Boolean(p?.isVerified);
-      const isActive = p?.isActive !== false;
+    const name = (snap?.name || "").trim() || "Unknown";
+    const email = (snap?.email || "").trim().toLowerCase() || "";
+    const contact = (snap?.contact || snap?.phone || "").trim() || "";
 
-      const createdAtStr = p?.createdAt ? dateFmt.format(new Date(p.createdAt)) : "N/A";
+    const symptoms =
+      (snap?.symptoms || "").trim() ||
+      String(app?.symptoms || app?.notes || app?.patientNotes || "").trim() ||
+      "";
 
-      const searchBlob = [name, email, id, String(tenantId || "")]
-        .filter(Boolean)
-        .join(" ")
-        .toLowerCase();
+    return {
+      name,
+      email,
+      contact,
+      symptoms,
+      hasSnapshot: Boolean(snap),
+    };
+  }, []);
 
-      return {
-        p,
-        id,
-        name,
-        email,
-        role,
-        tenantId,
-        contact,
-        isVerified,
-        isActive,
-        createdAtStr,
-        searchBlob,
-      };
-    });
-  }, [patients, dateFmt]);
+  /**
+   * ✅ Unique patient rows derived from patientInfo snapshot
+   * Key priority: email > phone > name
+   * If snapshot missing, keep unique per appointment to avoid collapsing.
+   */
+  const buildPatientRowsFromAppointments = useCallback(
+    (appointments) => {
+      const map = new Map();
+
+      for (const app of appointments || []) {
+        const patient = resolvePatientFromAppointment(app);
+
+        const key = patient.hasSnapshot
+          ? patient.email
+            ? `email:${patient.email}`
+            : patient.contact
+            ? `phone:${patient.contact}`
+            : `name:${patient.name}`
+          : `missing:${app?._id || Math.random()}`;
+
+        const createdAt = app?.createdAt ? new Date(app.createdAt).getTime() : 0;
+        const dateTime = app?.dateTime ? new Date(app.dateTime).getTime() : 0;
+        const seenAt = Math.max(createdAt, dateTime);
+
+        const existing = map.get(key);
+
+        if (!existing) {
+          map.set(key, {
+            id: key,
+            name: patient.hasSnapshot ? patient.name : "Unknown (missing patientInfo)",
+            email: patient.hasSnapshot ? patient.email : "",
+            contact: patient.hasSnapshot ? patient.contact : "",
+            symptoms: patient.symptoms || "",
+            tenantId: app?.tenantId || null,
+            firstSeenAt: seenAt || 0,
+            lastSeenAt: seenAt || 0,
+            createdAtStr: seenAt ? dateFmt.format(new Date(seenAt)) : "N/A",
+          });
+          continue;
+        }
+
+        const isNewer = seenAt > (existing.lastSeenAt || 0);
+
+        map.set(key, {
+          ...existing,
+          contact: isNewer
+            ? patient.contact || existing.contact
+            : existing.contact || patient.contact,
+          symptoms: isNewer
+            ? patient.symptoms || existing.symptoms
+            : existing.symptoms || patient.symptoms,
+          tenantId: existing.tenantId || app?.tenantId || null,
+          firstSeenAt: Math.min(existing.firstSeenAt || seenAt, seenAt || existing.firstSeenAt || 0),
+          lastSeenAt: Math.max(existing.lastSeenAt || 0, seenAt || 0),
+          createdAtStr:
+            existing.firstSeenAt || seenAt
+              ? dateFmt.format(
+                  new Date(
+                    Math.min(existing.firstSeenAt || seenAt, seenAt || existing.firstSeenAt || 0)
+                  )
+                )
+              : "N/A",
+        });
+      }
+
+      return Array.from(map.values()).sort(
+        (a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0)
+      );
+    },
+    [resolvePatientFromAppointment, dateFmt]
+  );
+
+  const fetchPatients = useCallback(
+    async (signal) => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const headers = getAuthHeaders();
+        if (!headers) {
+          setRows([]);
+          setError("AUTH_ERROR: Session missing. Please login again.");
+          return;
+        }
+
+        const res = await axios.get(API_APPOINTMENTS, {
+          signal,
+          headers,
+        });
+
+        const appts = normalizeAppointments(res.data);
+        const patientRows = buildPatientRowsFromAppointments(appts);
+        setRows(patientRows);
+      } catch (err) {
+        if (axios.isCancel?.(err) || err?.name === "CanceledError") return;
+        console.error("Fetch Patients Error:", err);
+        setRows([]);
+        setError(normalizeApiError(err));
+      } finally {
+        setLoading(false);
+      }
+    },
+    [normalizeAppointments, buildPatientRowsFromAppointments]
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    fetchPatients(controller.signal);
+    return () => controller.abort();
+  }, [fetchPatients]);
 
   const filteredPatients = useMemo(() => {
     const q = searchQuery.toLowerCase().trim();
-    if (!q) return viewRows;
-    return viewRows.filter((row) => row.searchBlob.includes(q));
-  }, [searchQuery, viewRows]);
+    if (!q) return rows;
+
+    return rows.filter((p) => {
+      const blob = [p.name, p.email, p.contact, p.id, p.tenantId]
+        .filter(Boolean)
+        .join(" ")
+        .toLowerCase();
+      return blob.includes(q);
+    });
+  }, [rows, searchQuery]);
 
   const totals = useMemo(() => {
-    const total = viewRows.length;
-    const verified = viewRows.filter((x) => x.isVerified).length;
-    const active = viewRows.filter((x) => x.isActive).length;
-    return { total, verified, active };
-  }, [viewRows]);
+    const total = rows.length;
+    const withContact = rows.filter((x) => x.contact).length;
+    const withSymptoms = rows.filter((x) => x.symptoms).length;
+    return { total, withContact, withSymptoms };
+  }, [rows]);
 
   const openModal = useCallback((row) => {
     setActivePatient(row);
@@ -171,14 +280,14 @@ const Patients = () => {
             Patient Registry
           </h2>
           <p className="text-gray-400 text-[11px] uppercase tracking-[0.2em]">
-            Comprehensive patient accounts (tenant scoped)
+            Derived from appointment.patientInfo (snapshot)
           </p>
         </div>
 
         <button
           type="button"
           className="flex items-center gap-3 bg-black text-white px-6 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-gray-800 transition-all duration-500"
-          onClick={() => console.log("Register Patient (open modal / navigate)")}
+          onClick={() => console.log("Register Patient")}
         >
           <UserPlus size={16} />
           Register Patient
@@ -206,7 +315,7 @@ const Patients = () => {
         <div className="border border-gray-100 p-6 flex items-center justify-between">
           <div>
             <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">
-              Total Registry
+              Total Patients
             </p>
             <p className="text-xl font-semibold">{totals.total}</p>
           </div>
@@ -216,21 +325,21 @@ const Patients = () => {
         <div className="border border-gray-100 p-6 flex items-center justify-between">
           <div>
             <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">
-              Verified
+              With Contact
             </p>
-            <p className="text-xl font-semibold">{totals.verified}</p>
+            <p className="text-xl font-semibold">{totals.withContact}</p>
           </div>
-          <ShieldCheck className="text-black opacity-10" size={32} />
+          <Phone className="text-black opacity-10" size={32} />
         </div>
 
         <div className="border border-gray-100 p-6 flex items-center justify-between">
           <div>
             <p className="text-[9px] text-gray-400 uppercase tracking-widest mb-1">
-              Active
+              With Symptoms
             </p>
-            <p className="text-xl font-semibold">{totals.active}</p>
+            <p className="text-xl font-semibold">{totals.withSymptoms}</p>
           </div>
-          <ShieldAlert className="text-black opacity-10" size={32} />
+          <FileText className="text-black opacity-10" size={32} />
         </div>
       </div>
 
@@ -243,7 +352,7 @@ const Patients = () => {
           />
           <input
             type="text"
-            placeholder="Search by name, email, id..."
+            placeholder="Search by name, email, contact..."
             className="w-full bg-white border border-gray-100 py-4 pl-12 pr-4 text-[10px] tracking-widest uppercase outline-none focus:border-black transition-all"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
@@ -261,38 +370,30 @@ const Patients = () => {
             </p>
           </div>
         ) : filteredPatients.length > 0 ? (
-          filteredPatients.map((row) => (
+          filteredPatients.map((p) => (
             <div
-              key={row.id}
+              key={p.id}
               className="group bg-white border border-gray-100 p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-6 hover:shadow-2xl hover:border-black/5 transition-all duration-500 cursor-pointer"
-              onClick={() => openModal(row)}
+              onClick={() => openModal(p)}
             >
               <div className="flex items-center gap-6 lg:w-1/3">
                 <div className="w-14 h-14 bg-gray-50 flex items-center justify-center font-serif italic text-lg text-gray-400 group-hover:bg-black group-hover:text-white transition-colors uppercase">
-                  {row.name?.charAt(0)}
+                  {p.name?.charAt(0)}
                 </div>
                 <div>
                   <h3 className="text-sm font-bold uppercase tracking-tight">
-                    {row.name}
+                    {p.name}
                   </h3>
                   <p className="text-[10px] text-gray-400 uppercase tracking-widest">
-                    {row.email || "—"} • {row.createdAtStr}
+                    {p.email || "—"} {p.contact ? `• ${p.contact}` : ""}
                   </p>
                 </div>
               </div>
 
               <div className="flex items-center gap-12 text-[10px] uppercase tracking-widest font-bold">
                 <div className="hidden sm:block">
-                  <p className="text-gray-300 mb-1 font-normal">Verified</p>
-                  <p>{row.isVerified ? "YES" : "NO"}</p>
-                </div>
-                <div className="hidden sm:block">
-                  <p className="text-gray-300 mb-1 font-normal">Active</p>
-                  <p>{row.isActive ? "YES" : "NO"}</p>
-                </div>
-                <div>
-                  <p className="text-gray-300 mb-1 font-normal">User ID</p>
-                  <p className="font-mono">{row.id.slice(-8)}</p>
+                  <p className="text-gray-300 mb-1 font-normal">First Seen</p>
+                  <p className="font-mono">{p.createdAtStr || "N/A"}</p>
                 </div>
               </div>
 
@@ -301,7 +402,7 @@ const Patients = () => {
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
-                    openModal(row);
+                    openModal(p);
                   }}
                   className="flex items-center gap-2 bg-gray-50 px-5 py-3 text-[9px] uppercase tracking-[0.2em] font-bold group-hover:bg-black group-hover:text-white transition-all"
                 >
@@ -329,7 +430,6 @@ const Patients = () => {
             className="w-full max-w-2xl bg-white border border-gray-200 shadow-2xl"
             onMouseDown={(e) => e.stopPropagation()}
           >
-            {/* Header */}
             <div className="flex items-start justify-between p-6 border-b border-gray-100">
               <div className="space-y-1">
                 <p className="text-[10px] uppercase tracking-[0.35em] font-bold text-gray-400">
@@ -339,7 +439,7 @@ const Patients = () => {
                   {activePatient.name}
                 </h3>
                 <p className="text-[10px] uppercase tracking-widest text-gray-400 font-mono">
-                  ID: {activePatient.id}
+                  Key: {String(activePatient.id)}
                 </p>
               </div>
               <button
@@ -351,7 +451,6 @@ const Patients = () => {
               </button>
             </div>
 
-            {/* Content */}
             <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="space-y-5">
                 <div className="flex items-center gap-3">
@@ -391,57 +490,34 @@ const Patients = () => {
 
               <div className="space-y-5">
                 <div className="flex items-center gap-3">
-                  <ShieldCheck size={16} className="text-gray-400" />
-                  <div>
-                    <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">
-                      Verified
-                    </p>
-                    <p className="text-sm font-medium">
-                      {activePatient.isVerified ? "YES" : "NO"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <ShieldAlert size={16} className="text-gray-400" />
-                  <div>
-                    <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">
-                      Active
-                    </p>
-                    <p className="text-sm font-medium">
-                      {activePatient.isActive ? "YES" : "NO"}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
                   <Calendar size={16} className="text-gray-400" />
                   <div>
                     <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">
-                      Created At
+                      First Seen
                     </p>
-                    <p className="text-sm font-medium">{activePatient.createdAtStr}</p>
+                    <p className="text-sm font-medium">
+                      {activePatient.createdAtStr || "N/A"}
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-3">
-                  <Hash size={16} className="text-gray-400" />
+                <div className="flex items-start gap-3">
+                  <FileText size={16} className="text-gray-400 mt-0.5" />
                   <div>
                     <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">
-                      Tenant
+                      Symptoms / Notes
                     </p>
-                    <p className="text-sm font-medium font-mono">
-                      {activePatient.tenantId ? String(activePatient.tenantId) : "NULL"}
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                      {activePatient.symptoms || "---"}
                     </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Footer */}
             <div className="p-6 border-t border-gray-100 flex items-center justify-between">
               <span className="text-[9px] uppercase tracking-widest font-bold text-gray-400">
-                Role: {activePatient.role}
+                Source: patientInfo snapshot
               </span>
               <button
                 onClick={closeModal}
