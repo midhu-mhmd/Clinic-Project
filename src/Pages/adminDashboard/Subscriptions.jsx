@@ -21,15 +21,15 @@ const API_BASE_URL = "http://localhost:5000/api";
 const PLAN_CATALOG = {
   PRO: {
     name: "Standard",
-    price: { monthly: 199, yearly: 1990 },
+    price: { monthly: 1999, yearly: 19990 },
   },
   ENTERPRISE: {
     name: "Institutional",
-    price: { monthly: 999, yearly: 9990 },
+    price: { monthly: 4999, yearly: 49990 },
   },
   PROFESSIONAL: {
     name: "Professional",
-    price: { monthly: 499, yearly: 4990 },
+    price: { monthly: 7999, yearly: 79990 },
   },
 };
 

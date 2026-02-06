@@ -137,9 +137,9 @@ const BillingSubscription = () => {
   const displayPrice = useMemo(() => {
     // replace these with DB later if needed
     const priceMap = {
-      PRO: { monthly: 499, yearly: 4999 },
-      ENTERPRISE: { monthly: 1499, yearly: 14999 },
-      PROFESSIONAL: { monthly: 0, yearly: 0 },
+      PRO: { monthly: 1999, yearly: 19990 },
+      ENTERPRISE: { monthly: 4999, yearly: 49990 },
+      PROFESSIONAL: { monthly: 7999, yearly: 79990 },
     };
     const p = priceMap[planName] || priceMap.PRO;
     return billingCycle === "monthly" ? p.monthly : p.yearly;
