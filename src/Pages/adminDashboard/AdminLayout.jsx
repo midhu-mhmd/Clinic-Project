@@ -1,8 +1,14 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { 
-  Users, Building2, DollarSign, Activity, 
-  Search, Bell, LayoutDashboard, LogOut 
+import {
+  Users,
+  Building2,
+  DollarSign,
+  Activity,
+  Search,
+  Bell,
+  LayoutDashboard,
+  LogOut,
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -18,7 +24,28 @@ const AdminLayout = () => {
     { icon: <Activity size={18} />, label: "System Logs", path: "/admin/system-logs" },
   ];
 
-  const currentPage = menuItems.find(m => m.path === location.pathname)?.label || "Control";
+  const currentPage = menuItems.find((m) => m.path === location.pathname)?.label || "Control";
+
+  // ✅ SIGN OUT (works with your JWT-based guards)
+  const handleLogout = useCallback(() => {
+    // remove all possible auth keys (defensive)
+    const keys = [
+      "token",
+      "role",
+      "authToken",
+      "clinicToken",
+      "adminToken",
+      "tenantToken",
+      "user",
+      "tenant",
+    ];
+
+    keys.forEach((k) => localStorage.removeItem(k));
+    sessionStorage.clear();
+
+    // hard redirect resets React state and prevents "back" into /admin
+    window.location.replace("/login");
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#FAF9F6] flex text-[#2D302D]">
@@ -28,10 +55,10 @@ const AdminLayout = () => {
           <h2 className="text-xl font-serif italic tracking-tighter">SuperAdmin.</h2>
           <p className="text-[9px] uppercase tracking-[0.3em] opacity-40">Platform Control</p>
         </div>
-        
+
         <nav className="space-y-6 flex-1">
           {menuItems.map((item) => (
-            <div 
+            <div
               key={item.path}
               onClick={() => navigate(item.path)}
               className={`flex items-center gap-4 cursor-pointer transition-all duration-300 group ${
@@ -47,7 +74,10 @@ const AdminLayout = () => {
         </nav>
 
         <div className="pt-8 border-t border-[#FAF9F6]/10">
-          <button onClick={() => navigate("/login")} className="flex items-center gap-4 text-xs uppercase tracking-widest font-bold opacity-40 hover:text-red-400 hover:opacity-100 transition-all">
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-4 text-xs uppercase tracking-widest font-bold opacity-40 hover:text-red-400 hover:opacity-100 transition-all"
+          >
             <LogOut size={18} />
             <span>Sign Out</span>
           </button>
@@ -60,18 +90,27 @@ const AdminLayout = () => {
             <h1 className="text-2xl font-light uppercase tracking-tighter">{currentPage}</h1>
             <p className="text-[10px] uppercase tracking-widest opacity-40 italic">System v2.0</p>
           </div>
+
           <div className="flex items-center gap-6">
             <div className="relative hidden md:block">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-20" size={14} />
-              <input type="text" placeholder="Search data..." className="pl-10 pr-4 py-2 bg-[#2D302D]/5 rounded-sm text-xs outline-none w-64 border-none focus:ring-1 ring-[#8DAA9D]" />
+              <input
+                type="text"
+                placeholder="Search data..."
+                className="pl-10 pr-4 py-2 bg-[#2D302D]/5 rounded-sm text-xs outline-none w-64 border-none focus:ring-1 ring-[#8DAA9D]"
+              />
             </div>
+
             <Bell size={20} className="opacity-40 cursor-pointer hover:opacity-100" />
-            <div className="w-10 h-10 rounded-full bg-[#8DAA9D] flex items-center justify-center text-white text-xs font-bold ring-2 ring-white">SA</div>
+
+            <div className="w-10 h-10 rounded-full bg-[#8DAA9D] flex items-center justify-center text-white text-xs font-bold ring-2 ring-white">
+              SA
+            </div>
           </div>
         </header>
 
         <main className="p-8 lg:p-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
-          <Outlet /> {/* This is where sub-pages render */}
+          <Outlet />
         </main>
       </div>
     </div>
