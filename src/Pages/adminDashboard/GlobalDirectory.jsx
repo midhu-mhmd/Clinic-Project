@@ -1,282 +1,169 @@
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import {
-  ArrowUpRight,
-  Search,
-  Zap,
-  Crosshair,
-  Users,
-  SlidersHorizontal,
-} from "lucide-react";
+import { Search, ArrowRight, ArrowLeft, Clock, Calendar, IndianRupee, ChevronRight } from "lucide-react";
 
-// --- DYNAMIC DATA FETCHING LOGIC ---
 const GlobalDirectory = () => {
   const [faculty, setFaculty] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
-  const [activeFilter, setActiveFilter] = useState("All");
-  const containerRef = useRef(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
-    const controller = new AbortController();
-
     const fetchFaculty = async () => {
       try {
         setLoading(true);
-        const response = await axios.get(
-          "http://localhost:5000/api/doctors/directory",
-          {
-            signal: controller.signal,
-          },
-        );
-
-        // --- LOGIC: Smart Normalization ---
-        // This checks if data is in: response.data, response.data.doctors, or response.data.data
-        const rawData = response.data;
-        const extractedDoctors = Array.isArray(rawData)
-          ? rawData
-          : rawData.doctors || rawData.data || [];
-
-        console.log("Synchronized Faculty Data:", extractedDoctors); // Debug this in console
-        setFaculty(extractedDoctors);
+        const { data } = await axios.get("http://localhost:5000/api/doctors/directory");
+        const extracted = Array.isArray(data) ? data : data.doctors || data.data || [];
+        setFaculty(extracted);
       } catch (err) {
-        if (!axios.isCancel(err)) {
-          console.error("Connection Interrupted:", err);
-          // Fallback stays here so the UI doesn't break during dev
-          setFaculty([
-            {
-              id: "01",
-              name: "Dr. Julian Voss",
-              specialty: "Neural Restoration",
-              clinic: "Zenith Zurich",
-              image:
-                "https://images.unsplash.com/photo-1612349317150-e413f6a5b1f8?q=80&w=1000",
-            },
-            {
-              id: "02",
-              name: "Dr. Elena Thorne",
-              specialty: "Cardiac Architecture",
-              clinic: "Nova London",
-              image:
-                "https://images.unsplash.com/photo-1594824476967-48c8b964273f?q=80&w=1000",
-            },
-          ]);
-        }
+        console.error("Fetch error:", err);
+        setFaculty([
+          { id: "01", name: "Dr. Julian Voss", specialty: "Neural Restoration", clinic: "Zurich", fee: "2,500", duty: "Mon - Wed", time: "09:00 - 14:00" },
+          { id: "02", name: "Dr. Elena Thorne", specialty: "Cardiac Architecture", clinic: "London", fee: "3,000", duty: "Tue - Fri", time: "11:00 - 17:00" },
+        ]);
       } finally {
         setLoading(false);
       }
     };
-
     fetchFaculty();
-    return () => controller.abort();
   }, []);
 
-  // --- DERIVED STATES & SEARCH ---
-  const filteredFaculty = useMemo(() => {
-    return faculty.filter((f) => {
-      const matchesSearch =
-        f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        f.specialty?.toLowerCase().includes(searchQuery.toLowerCase());
-      const matchesFilter =
-        activeFilter === "All" || f.specialty === activeFilter;
-      return matchesSearch && matchesFilter;
-    });
-  }, [faculty, searchQuery, activeFilter]);
+  const filtered = useMemo(() => {
+    return faculty.filter(f => 
+      f.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      f.specialty?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  }, [faculty, searchQuery]);
 
-  const specialties = useMemo(
-    () => ["All", ...new Set(faculty.map((f) => f.specialty))],
-    [faculty],
-  );
+  const totalPages = Math.ceil(filtered.length / itemsPerPage);
+  const paginatedItems = filtered.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
-  if (loading) return <DirectoryLoader />;
+  if (loading) return <MinimalLoader />;
 
   return (
-    <div
-      ref={containerRef}
-      className="min-h-screen bg-[#FBFBF9] text-[#1A1A1A] selection:bg-[#8DAA9D] selection:text-white pb-32"
-    >
-      {/* 01. NAVIGATION & METRICS OVERLAY */}
-      <div className="sticky top-0 z-40 bg-[#FBFBF9]/80 backdrop-blur-xl border-b border-[#1A1A1A]/5 px-6 md:px-16 py-6 flex justify-between items-center">
-        <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <Users size={14} className="opacity-40" />
-            <span className="text-[10px] font-mono font-bold uppercase tracking-widest">
-              {faculty.length} Faculty
-            </span>
-          </div>
-          <div className="h-4 w-px bg-[#1A1A1A]/10 hidden md:block" />
-          <div className="hidden md:flex gap-4">
-            {specialties.slice(0, 4).map((s) => (
-              <button
-                key={s}
-                onClick={() => setActiveFilter(s)}
-                className={`text-[9px] uppercase tracking-widest font-bold transition-all ${activeFilter === s ? "text-[#8DAA9D]" : "opacity-30 hover:opacity-100"}`}
-              >
-                {s}
-              </button>
-            ))}
-          </div>
-        </div>
-        <div className="flex items-center gap-4">
-          <SlidersHorizontal
-            size={14}
-            className="opacity-40 cursor-pointer hover:text-[#8DAA9D] transition-colors"
-          />
-        </div>
-      </div>
-
-      <main className="px-6 md:px-16 pt-24">
-        {/* 02. HEADER */}
-        <header className="mb-32 flex flex-col lg:flex-row justify-between items-end gap-12">
-          <motion.div
-            initial={{ y: 30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="space-y-4"
-          >
-            <div className="flex items-center gap-3">
-              <Zap size={14} className="text-[#8DAA9D] fill-[#8DAA9D]" />
-              <span className="text-[10px] font-bold uppercase tracking-[0.5em] opacity-40">
-                System Protocol / Directory
-              </span>
-            </div>
-            <h1 className="text-7xl md:text-9xl font-light tracking-tighter leading-[0.85] uppercase italic font-serif">
-              Master <br />{" "}
-              <span className="not-italic text-[#1A1A1A]/20">Archive.</span>
-            </h1>
-          </motion.div>
-
-          <div className="w-full lg:max-w-md group pb-2 border-b border-[#1A1A1A]/10 focus-within:border-[#8DAA9D] transition-all">
-            <div className="relative flex items-center">
-              <Search className="opacity-20 mr-4" size={18} />
-              <input
-                type="text"
-                placeholder="FIND SPECIALIST..."
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-transparent py-4 text-[11px] font-bold uppercase tracking-[0.3em] outline-none placeholder:opacity-20"
+    <div className="min-h-screen bg-white text-zinc-900 selection:bg-zinc-100 font-sans">
+      {/* 01. UTILITY BAR */}
+      <div className="border-b border-zinc-100">
+        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <span className="text-xs font-bold tracking-tighter border-r border-zinc-200 pr-4 uppercase">Registry</span>
+            <div className="flex items-center gap-2 text-zinc-400">
+              <Search size={14} />
+              <input 
+                type="text" 
+                placeholder="Filter by name..." 
+                onChange={(e) => { setSearchQuery(e.target.value); setCurrentPage(1); }}
+                className="bg-transparent text-xs outline-none w-48 placeholder:text-zinc-300"
               />
             </div>
           </div>
-        </header>
+        </div>
+      </div>
 
-        {/* 03. THE INTERACTIVE LIST */}
-        {/* --- UPDATED LIST SECTION --- */}
-        <div className="relative border-t border-[#1A1A1A]/10">
-          <AnimatePresence mode="popLayout">
-            {filteredFaculty.length > 0 ? (
-              filteredFaculty.map((doc, index) => {
-                /** * FIX: We create a stable key.
-                 * We prioritize the database ID, but if that's missing,
-                 * we use a combination of name and index to guarantee uniqueness.
-                 */
-                const stableKey =
-                  doc._id ||
-                  doc.id ||
-                  `faculty-ref-${doc.name || "anon"}-${index}`;
+      <main className="max-w-7xl mx-auto px-6 py-5">
+        {/* 02. TABLE HEADER */}
+        <div className="grid grid-cols-12 px-3 py-3 bg-zinc-50/50 border border-zinc-100 rounded-t-lg text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+          <div className="col-span-1">Ref</div>
+          <div className="col-span-4">Practitioner</div>
+          <div className="col-span-2">Consultation</div>
+          <div className="col-span-3">Availability</div>
+          <div className="col-span-2 text-right">Location</div>
+        </div>
 
-                return <FacultyRow key={stableKey} doc={doc} index={index} />;
-              })
-            ) : (
-              /* Fallback if no doctors are found after filtering */
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="py-40 text-center opacity-20 text-[10px] uppercase tracking-[1em]"
-              >
-                No matching records found.
-              </motion.div>
-            )}
+        {/* 03. DATA ROWS */}
+        <div className="border-x border-b border-zinc-100 rounded-b-lg divide-y divide-zinc-50">
+          <AnimatePresence mode="wait">
+            {paginatedItems.map((doc, index) => (
+              <FacultyRow key={doc.id || index} doc={doc} index={index} />
+            ))}
           </AnimatePresence>
         </div>
+
+        {/* 04. PAGINATION */}
+        <footer className="mt-8 flex items-center justify-between">
+          <p className="text-[11px] text-zinc-400">
+            Showing <span className="text-zinc-900 font-medium">{paginatedItems.length}</span> of {filtered.length}
+          </p>
+          <div className="flex gap-1">
+            <NavBtn onClick={() => setCurrentPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>
+              <ArrowLeft size={14} />
+            </NavBtn>
+            <div className="flex items-center px-4 text-[11px] font-medium border border-zinc-100 rounded-md bg-white">
+              {currentPage} / {totalPages || 1}
+            </div>
+            <NavBtn onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>
+              <ArrowRight size={14} />
+            </NavBtn>
+          </div>
+        </footer>
       </main>
     </div>
   );
 };
 
-// --- COMPONENT: ROW INTERACTION ---
-const FacultyRow = ({ doc, index }) => {
-  const [isHovered, setIsHovered] = useState(false);
-
-  return (
-    <motion.div
-      layout
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.05 }}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
-      className="group relative grid grid-cols-1 lg:grid-cols-12 items-center py-12 border-b border-[#1A1A1A]/10 cursor-pointer transition-all duration-700 hover:px-8"
-    >
-      {/* CINEMATIC FLOATING IMAGE */}
-      <AnimatePresence>
-        {isHovered && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.8, rotate: 5 }}
-            animate={{ opacity: 1, scale: 1, rotate: 0 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            className="absolute right-[20%] top-[-50%] w-56 h-72 z-20 pointer-events-none overflow-hidden hidden lg:block shadow-2xl"
-          >
-            <img
-              src={doc.image}
-              alt={doc.name}
-              className="w-full h-full object-cover grayscale brightness-90 hover:grayscale-0 transition-all duration-1000"
-            />
-            <div className="absolute inset-0 border-[12px] border-white/10" />
-          </motion.div>
-        )}
-      </AnimatePresence>
-
-      <div className="col-span-1 text-[10px] font-mono opacity-20 group-hover:opacity-100 group-hover:text-[#8DAA9D] transition-all">
-        [{doc.id || `0${index + 1}`}]
-      </div>
-
-      <div className="col-span-5 relative z-10">
-        <h2 className="text-4xl md:text-6xl font-light tracking-tighter uppercase leading-none group-hover:pl-4 transition-all duration-500">
-          {doc.name}
-        </h2>
-        <div className="flex items-center gap-2 mt-3 opacity-0 group-hover:opacity-100 transition-all duration-700 translate-y-2 group-hover:translate-y-0">
-          <Crosshair size={10} className="text-[#8DAA9D]" />
-          <span className="text-[9px] font-bold uppercase tracking-widest text-[#8DAA9D]">
-            {doc.clinic}
-          </span>
-        </div>
-      </div>
-
-      <div className="col-span-4 mt-8 lg:mt-0 relative z-10">
-        <p className="text-[9px] uppercase tracking-[0.4em] font-bold opacity-30 mb-2">
-          Technical Domain
-        </p>
-        <p className="text-lg md:text-xl font-medium tracking-tight group-hover:text-[#8DAA9D] transition-colors">
-          {doc.specialty}
-        </p>
-      </div>
-
-      <div className="col-span-2 flex justify-end relative z-10 mt-8 lg:mt-0">
-        <div className="w-16 h-16 border border-[#1A1A1A]/10 rounded-full flex items-center justify-center transition-all duration-700 group-hover:bg-[#1A1A1A] group-hover:rotate-45">
-          <ArrowUpRight
-            size={24}
-            className="group-hover:text-white transition-colors"
-            strokeWidth={1}
-          />
-        </div>
-      </div>
-    </motion.div>
-  );
-};
-
-// --- COMPONENT: LOADING STATE ---
-const DirectoryLoader = () => (
-  <div className="h-screen w-full bg-[#FBFBF9] flex flex-col items-center justify-center gap-6">
-    <div className="w-12 h-[1px] bg-[#1A1A1A]/20 relative overflow-hidden">
-      <motion.div
-        animate={{ x: ["-100%", "100%"] }}
-        transition={{ repeat: Infinity, duration: 1 }}
-        className="absolute inset-0 bg-[#8DAA9D]"
-      />
+const FacultyRow = ({ doc, index }) => (
+  <motion.div
+    initial={{ opacity: 0 }}
+    animate={{ opacity: 1 }}
+    className="grid grid-cols-1 md:grid-cols-12 items-center py-4 px-3 hover:bg-zinc-50/50 transition-colors group"
+  >
+    <div className="hidden md:block col-span-1 text-[11px] font-mono text-zinc-400">
+      {String(index + 1).padStart(2, '0')}
     </div>
-    <span className="text-[9px] uppercase tracking-[0.5em] font-bold opacity-30">
-      Decrypting Faculty Archive
-    </span>
+
+    <div className="col-span-4 flex items-center gap-3">
+      <div className="w-8 h-8 rounded-md bg-zinc-100 overflow-hidden border border-zinc-200">
+        <img src={doc.image || `https://api.dicebear.com/7.x/initials/svg?seed=${doc.name}`} alt="" className="w-full h-full object-cover grayscale" />
+      </div>
+      <div>
+        <h3 className="text-[13px] font-semibold text-zinc-900 leading-none">{doc.name}</h3>
+        <p className="text-[10px] text-zinc-400 mt-1 uppercase tracking-tight">{doc.specialty}</p>
+      </div>
+    </div>
+
+    <div className="col-span-2 flex items-center gap-1">
+      <IndianRupee size={11} className="text-zinc-400" />
+      <span className="text-xs font-medium text-zinc-900">{doc.fee || '--'}</span>
+      <span className="text-[9px] text-zinc-400 ml-1">/ visit</span>
+    </div>
+
+    <div className="col-span-3">
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-1.5 text-[11px] text-zinc-600">
+          <Calendar size={12} className="text-zinc-300" />
+          {doc.duty}
+        </div>
+        <div className="flex items-center gap-1.5 text-[11px] text-zinc-600">
+          <Clock size={12} className="text-zinc-300" />
+          {doc.time}
+        </div>
+      </div>
+    </div>
+
+    <div className="col-span-2 text-right">
+      <div className="flex items-center justify-end gap-2 group-hover:translate-x-1 transition-transform">
+        <span className="text-[11px] font-medium text-zinc-500">{doc.clinic}</span>
+        <ChevronRight size={14} className="text-zinc-300" />
+      </div>
+    </div>
+  </motion.div>
+);
+
+const NavBtn = ({ children, onClick, disabled }) => (
+  <button 
+    onClick={onClick} 
+    disabled={disabled}
+    className="p-2 border border-zinc-100 rounded-md bg-white text-zinc-500 hover:text-zinc-900 hover:border-zinc-300 disabled:opacity-30 disabled:hover:border-zinc-100 transition-all"
+  >
+    {children}
+  </button>
+);
+
+const MinimalLoader = () => (
+  <div className="h-screen w-full flex items-center justify-center bg-white">
+    <div className="w-4 h-4 border-2 border-zinc-200 border-t-zinc-900 rounded-full animate-spin" />
   </div>
 );
 

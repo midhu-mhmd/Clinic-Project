@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   Activity,
   Loader2,
@@ -8,44 +8,29 @@ import {
   ChevronLeft,
   ChevronRight,
   Building2,
+  MapPin,
+  CreditCard,
+  ArrowRight
 } from "lucide-react";
 
 const API_BASE_URL = "http://localhost:5000/api";
 
-/**
- * ✅ Backend plans (enum):
- * PRO, ENTERPRISE, PROFESSIONAL
- *
- * ✅ UI prices in INR
- */
 const PLAN_CATALOG = {
-  PRO: {
-    name: "Standard",
-    price: { monthly: 1999, yearly: 19990 },
-  },
-  ENTERPRISE: {
-    name: "Institutional",
-    price: { monthly: 4999, yearly: 49990 },
-  },
-  PROFESSIONAL: {
-    name: "Professional",
-    price: { monthly: 7999, yearly: 79990 },
-  },
+  PRO: { name: "Standard", price: { monthly: 1999, yearly: 19990 } },
+  ENTERPRISE: { name: "Institutional", price: { monthly: 4999, yearly: 49990 } },
+  PROFESSIONAL: { name: "Professional", price: { monthly: 7999, yearly: 79990 } },
 };
 
 const Subscriptions = () => {
   const [billing, setBilling] = useState("monthly");
-
-  // ✅ clinics list state
   const [clinicPage, setClinicPage] = useState(1);
-  const [clinicLimit] = useState(20);
+  const [clinicLimit] = useState(12);
   const [clinicSearch, setClinicSearch] = useState("");
   const [clinics, setClinics] = useState([]);
   const [clinicsMeta, setClinicsMeta] = useState({ total: 0, totalPages: 1 });
   const [clinicsLoading, setClinicsLoading] = useState(false);
   const [clinicsError, setClinicsError] = useState("");
 
-  // ✅ INR formatter (en-IN grouping + ₹)
   const formatINR = useMemo(() => {
     return new Intl.NumberFormat("en-IN", {
       style: "currency",
@@ -60,45 +45,29 @@ const Subscriptions = () => {
       timeout: 15000,
       headers: { "Content-Type": "application/json" },
     });
-
     instance.interceptors.request.use((config) => {
       const token = localStorage.getItem("token");
       if (token) config.headers.Authorization = `Bearer ${token}`;
       return config;
     });
-
     return instance;
   }, []);
 
-  /**
-   * ✅ Helper: get display plan & price from backend plan
-   */
-  const getPlanDisplay = useCallback(
-    (backendPlanRaw) => {
-      const backend = String(backendPlanRaw || "PRO").toUpperCase();
-      const plan = PLAN_CATALOG[backend] || PLAN_CATALOG.PRO;
+  const getPlanDisplay = useCallback((backendPlanRaw) => {
+    const backend = String(backendPlanRaw || "PRO").toUpperCase();
+    const plan = PLAN_CATALOG[backend] || PLAN_CATALOG.PRO;
+    return {
+      backend,
+      name: plan.name,
+      price: Number(plan.price[billing] ?? 0),
+    };
+  }, [billing]);
 
-      return {
-        backend,
-        name: plan.name,
-        price: Number(plan.price[billing] ?? 0),
-      };
-    },
-    [billing]
-  );
-
-  /**
-   * ✅ Fetch clinics (paginated)
-   * Endpoint: GET /api/tenants/all?page=1&limit=20&search=abc
-   */
   useEffect(() => {
     const controller = new AbortController();
-
     const fetchClinics = async () => {
       try {
         setClinicsLoading(true);
-        setClinicsError("");
-
         const res = await api.get("/tenants/all", {
           signal: controller.signal,
           params: {
@@ -107,216 +76,141 @@ const Subscriptions = () => {
             search: clinicSearch.trim() || undefined,
           },
         });
-
-        const list = Array.isArray(res.data?.data) ? res.data.data : [];
-        const meta = res.data?.meta || {};
-
-        setClinics(list);
+        setClinics(res.data?.data || []);
         setClinicsMeta({
-          total: Number(meta.total || 0),
-          totalPages: Number(meta.totalPages || 1),
+          total: Number(res.data?.meta?.total || 0),
+          totalPages: Number(res.data?.meta?.totalPages || 1),
         });
       } catch (err) {
         if (err?.name === "CanceledError") return;
-
-        setClinicsError(
-          err?.response?.data?.message || err.message || "Failed to load clinics."
-        );
-        setClinics([]);
+        setClinicsError(err?.response?.data?.message || "Connection failed.");
       } finally {
         setClinicsLoading(false);
       }
     };
-
     fetchClinics();
     return () => controller.abort();
   }, [api, clinicPage, clinicLimit, clinicSearch]);
 
   return (
-    <div className="w-full bg-[#FBFBF9] text-[#1A1A1A] py-24 px-6 md:px-16 selection:bg-[#8DAA9D] selection:text-white">
-      {/* HEADER */}
-      <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-8">
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <Activity size={14} className="text-[#8DAA9D]" />
-            <span className="text-[10px] font-bold uppercase tracking-[0.4em] opacity-40">
-              Clinics • Plans • Pricing
-            </span>
-          </div>
-
-          <h2 className="text-4xl md:text-6xl font-light tracking-tighter uppercase leading-[0.95]">
-            Clinics{" "}
-            <span className="italic font-serif opacity-50">Directory.</span>
-          </h2>
-
-          <p className="text-sm opacity-60">
-            Total: {clinicsMeta.total.toLocaleString("en-IN")} clinics
-          </p>
-
-          {clinicsError && (
-            <div className="text-[10px] uppercase tracking-widest font-bold text-red-600">
-              {clinicsError}
-            </div>
-          )}
-        </div>
-
-        {/* BILLING TOGGLE */}
-        <div className="flex items-center gap-6 bg-white border border-[#1A1A1A]/5 p-2 rounded-full">
-          <span
-            className={`text-[10px] uppercase font-bold tracking-widest ${
-              billing === "monthly" ? "opacity-100" : "opacity-30"
-            }`}
-          >
-            Monthly
-          </span>
-
-          <button
-            onClick={() =>
-              setBilling((b) => (b === "monthly" ? "yearly" : "monthly"))
-            }
-            className="w-12 h-6 bg-[#1A1A1A]/5 rounded-full relative p-1 transition-colors hover:bg-[#1A1A1A]/10"
-            aria-label="Toggle billing"
-          >
-            <motion.div
-              layout
-              transition={{ type: "spring", stiffness: 700, damping: 30 }}
-              className={`w-4 h-4 rounded-full bg-[#1A1A1A] shadow-lg ${
-                billing === "yearly" ? "ml-auto" : "ml-0"
-              }`}
-            />
-          </button>
-
-          <span
-            className={`text-[10px] uppercase font-bold tracking-widest ${
-              billing === "yearly" ? "opacity-100" : "opacity-30"
-            }`}
-          >
-            Yearly
-          </span>
-        </div>
-      </div>
-
-      {/* SEARCH + TITLE */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-6">
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.4em] font-bold opacity-40 flex items-center gap-2">
-            <Building2 size={14} className="text-[#8DAA9D]" />
-            All Clinics • Plan & Price
-          </p>
-        </div>
-
-        <div className="relative w-full md:w-[360px]">
-          <Search
-            className="absolute left-4 top-1/2 -translate-y-1/2 opacity-30"
-            size={16}
-          />
+    <div className="min-h-screen bg-[#FDFDFD] text-[#1A1A1A] font-sans selection:bg-zinc-900 selection:text-white">
+      {/* SECTION 02: UTILITY BAR */}
+      <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative group w-full md:w-96">
+          <Search size={14} className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-zinc-900 transition-colors" />
           <input
             value={clinicSearch}
-            onChange={(e) => {
-              setClinicPage(1);
-              setClinicSearch(e.target.value);
-            }}
-            placeholder="Search clinic name / reg id..."
-            className="w-full border border-black/10 rounded-xl py-3 pl-11 pr-4 text-sm outline-none focus:border-black"
+            onChange={(e) => { setClinicPage(1); setClinicSearch(e.target.value); }}
+            placeholder="Filter by institution or ID..."
+            className="w-full bg-transparent border-none py-2 pl-7 text-sm outline-none placeholder:text-zinc-300"
           />
         </div>
       </div>
 
-      {/* CLINICS LIST */}
-      <div className="bg-white border border-black/10 rounded-2xl overflow-hidden">
-        {clinicsLoading ? (
-          <div className="py-16 flex items-center justify-center gap-2 text-sm opacity-60">
-            <Loader2 size={18} className="animate-spin" />
-            Loading clinics...
-          </div>
-        ) : clinics.length === 0 ? (
-          <div className="p-10 text-center text-[10px] uppercase tracking-[0.4em] font-bold opacity-30">
-            No clinics found
-          </div>
-        ) : (
-          <div className="divide-y divide-black/5">
-            {clinics.map((c) => {
-              const planRaw = c.subscription?.plan || c.tier || "PRO";
-              const statusRaw =
-                c.subscription?.status ||
-                c.subscriptionStatus ||
-                "PENDING_VERIFICATION";
+      {/* SECTION 03: THE GRID */}
+      <main className="max-w-7xl mx-auto px-6">
+        <div className="grid grid-cols-12 px-4 py-3 bg-zinc-50 border border-zinc-100 rounded-t-sm text-[10px] font-bold uppercase tracking-widest text-zinc-400">
+          <div className="col-span-5">Clinical Entity</div>
+          <div className="col-span-2">Tier</div>
+          <div className="col-span-2">Status</div>
+          <div className="col-span-3 text-right">Revenue ({billing})</div>
+        </div>
 
-              const { name, price, backend } = getPlanDisplay(planRaw);
-              const status = String(statusRaw).toUpperCase();
+        <div className="border-x border-b border-zinc-100 divide-y divide-zinc-50 bg-white">
+          <AnimatePresence mode="wait">
+            {clinicsLoading ? (
+              <div className="py-20 flex flex-col items-center justify-center gap-3">
+                <Loader2 size={20} className="animate-spin text-zinc-200" />
+                <span className="text-[10px] uppercase tracking-widest text-zinc-400">Fetching Records</span>
+              </div>
+            ) : clinics.length === 0 ? (
+              <div className="py-20 text-center text-xs text-zinc-400 italic">No entities match your current filter.</div>
+            ) : (
+              clinics.map((c, idx) => (
+                <ClinicRow 
+                  key={c._id} 
+                  clinic={c} 
+                  idx={idx} 
+                  getPlanDisplay={getPlanDisplay} 
+                  formatINR={formatINR} 
+                />
+              ))
+            )}
+          </AnimatePresence>
+        </div>
 
-              return (
-                <div
-                  key={c._id}
-                  className="p-6 flex flex-col md:flex-row md:items-center justify-between gap-4"
-                >
-                  <div>
-                    <p className="text-lg font-medium">{c.name}</p>
-                    <p className="text-sm opacity-60">
-                      {c.location || c.address || "—"}
-                    </p>
-
-                    <div className="mt-2 flex flex-wrap gap-2">
-                      <span className="px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-black/10 bg-black/5">
-                        {backend}
-                      </span>
-
-                      <span
-                        className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border ${
-                          status === "ACTIVE"
-                            ? "border-green-600/20 bg-green-600/10 text-green-700"
-                            : "border-orange-600/20 bg-orange-600/10 text-orange-700"
-                        }`}
-                      >
-                        {status}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="md:text-right">
-                    <p className="text-[10px] uppercase tracking-widest font-bold opacity-50">
-                      {name} price ({billing})
-                    </p>
-
-                    {/* ✅ INR display */}
-                    <p className="text-2xl font-light">
-                      {formatINR.format(price)}
-                    </p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
+        {/* SECTION 04: PAGINATION */}
+        {!clinicsLoading && (
+          <footer className="py-10 flex items-center justify-between">
+            <button
+              className="p-2 border border-zinc-100 rounded-md hover:border-zinc-900 transition-colors disabled:opacity-20"
+              onClick={() => setClinicPage((p) => Math.max(1, p - 1))}
+              disabled={clinicPage === 1}
+            >
+              <ChevronLeft size={16} />
+            </button>
+            <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-400">
+              {clinicPage} <span className="mx-2 opacity-20">/</span> {clinicsMeta.totalPages}
+            </span>
+            <button
+              className="p-2 border border-zinc-100 rounded-md hover:border-zinc-900 transition-colors disabled:opacity-20"
+              onClick={() => setClinicPage((p) => Math.min(clinicsMeta.totalPages, p + 1))}
+              disabled={clinicPage >= clinicsMeta.totalPages}
+            >
+              <ChevronRight size={16} />
+            </button>
+          </footer>
         )}
-      </div>
-
-      {/* PAGINATION */}
-      <div className="mt-6 flex items-center justify-between">
-        <button
-          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold opacity-60 hover:opacity-100 disabled:opacity-30"
-          onClick={() => setClinicPage((p) => Math.max(1, p - 1))}
-          disabled={clinicPage === 1 || clinicsLoading}
-        >
-          <ChevronLeft size={16} />
-          Prev
-        </button>
-
-        <span className="text-[10px] uppercase tracking-[0.35em] font-bold opacity-40">
-          Page {clinicPage} / {clinicsMeta.totalPages}
-        </span>
-
-        <button
-          className="inline-flex items-center gap-2 text-[10px] uppercase tracking-widest font-bold opacity-60 hover:opacity-100 disabled:opacity-30"
-          onClick={() =>
-            setClinicPage((p) => Math.min(clinicsMeta.totalPages, p + 1))
-          }
-          disabled={clinicsLoading || clinicPage >= clinicsMeta.totalPages}
-        >
-          Next
-          <ChevronRight size={16} />
-        </button>
-      </div>
+      </main>
     </div>
+  );
+};
+
+const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR }) => {
+  const planRaw = clinic.subscription?.plan || clinic.tier || "PRO";
+  const statusRaw = clinic.subscription?.status || clinic.subscriptionStatus || "PENDING";
+  const { name, price, backend } = getPlanDisplay(planRaw);
+  const status = String(statusRaw).toUpperCase();
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ delay: idx * 0.03 }}
+      className="grid grid-cols-12 items-center py-5 px-4 hover:bg-zinc-50 transition-colors group cursor-pointer"
+    >
+      <div className="col-span-5 flex items-center gap-4">
+        <div className="w-8 h-8 rounded bg-zinc-100 flex items-center justify-center text-zinc-400 group-hover:bg-white transition-colors border border-zinc-200/50">
+          <Building2 size={14} />
+        </div>
+        <div>
+          <h3 className="text-[13px] font-semibold text-zinc-900">{clinic.name}</h3>
+          <div className="flex items-center gap-1.5 text-zinc-400 mt-0.5">
+            <MapPin size={10} />
+            <span className="text-[10px] truncate max-w-[200px]">{clinic.location || "Undisclosed"}</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="col-span-2">
+        <span className="text-[10px] font-mono font-bold text-zinc-400 px-2 py-0.5 border border-zinc-100 rounded-sm">
+          {backend}
+        </span>
+      </div>
+
+      <div className="col-span-2 flex items-center gap-2">
+        <div className={`w-1.5 h-1.5 rounded-full ${status === "ACTIVE" ? "bg-emerald-500" : "bg-orange-400 animate-pulse"}`} />
+        <span className="text-[10px] font-bold uppercase tracking-widest text-zinc-600">{status}</span>
+      </div>
+
+      <div className="col-span-3 text-right group-hover:translate-x-[-4px] transition-transform">
+        <div className="flex items-center justify-end gap-1.5">
+          <span className="text-sm font-medium text-zinc-900">{formatINR.format(price)}</span>
+          <ArrowRight size={12} className="text-zinc-200 group-hover:text-zinc-900 transition-colors" />
+        </div>
+        <p className="text-[9px] text-zinc-400 uppercase tracking-tighter mt-0.5">{name} Rate</p>
+      </div>
+    </motion.div>
   );
 };
 

@@ -5,15 +5,17 @@ import {
   Building2,
   Users,
   Activity,
-  TrendingUp,
   ArrowRight,
   Loader2,
-  ShieldCheck,
-  IndianRupee,
+  TrendingUp,
+  CreditCard,
+  Plus,
+  ArrowUpRight,
+  AlertCircle
 } from "lucide-react";
 import {
-  BarChart,
-  Bar,
+  AreaChart,
+  Area,
   XAxis,
   YAxis,
   CartesianGrid,
@@ -21,8 +23,8 @@ import {
   ResponsiveContainer,
 } from "recharts";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000/api";
+// --- API CONFIGURATION ---
+const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000/api";
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -30,87 +32,75 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+// Request Interceptor: Attach Token
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token")?.replace(/['"]+/g, "");
-  if (token) config.headers.Authorization = `Bearer ${token}`;
+  const rawToken = localStorage.getItem("token");
+  if (rawToken) {
+    // Clean token (removes extra quotes often added by JSON.stringify)
+    const cleanToken = rawToken.replace(/['"]+/g, "");
+    config.headers.Authorization = `Bearer ${cleanToken}`;
+  }
   return config;
-});
+}, (error) => Promise.reject(error));
 
+// Response Interceptor: Handle Global Errors (like 401 Unauthorized)
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login"; // Force redirect on auth failure
+    }
+    return Promise.reject(error);
+  }
+);
 
+// --- HELPERS ---
 const safeNum = (v, fallback = 0) => {
   const n = Number(v);
   return Number.isFinite(n) ? n : fallback;
 };
 
-const safeStr = (v, fallback = "") => {
-  const s = String(v ?? "").trim();
-  return s || fallback;
-};
-
-const normalizeRevenueChart = (raw) => {
-  if (!raw || !Array.isArray(raw)) return [];
-  return raw.map((x) => ({
-    month: safeStr(x.month || x.label || x.name, "—"),
-    amount: safeNum(x.amount ?? x.value ?? 0),
-  }));
-};
-
+// --- COMPONENT ---
 const SuperAdminDashboard = () => {
   const navigate = useNavigate();
-
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [stats, setStats] = useState({}); 
+  const [stats, setStats] = useState({});
   const [recentTenants, setRecentTenants] = useState([]);
   const [revenueData, setRevenueData] = useState([]);
 
-  const formatCurrency = useMemo(() => {
-    try {
-      return new Intl.NumberFormat("en-IN", {
-        style: "currency",
-        currency: "INR",
-        maximumFractionDigits: 0,
-        notation: "compact",
-        compactDisplay: "short",
-      });
-    } catch (e) {
-      return { format: (v) => `₹${v}` };
-    }
-  }, []);
-
-  const formatNumber = useMemo(() => {
-    try {
-      return new Intl.NumberFormat("en-IN", {
-        notation: "compact",
-        compactDisplay: "short",
-      });
-    } catch (e) {
-      return { format: (v) => v };
-    }
-  }, []);
+  const formatCurrency = useMemo(() => new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    maximumFractionDigits: 0,
+    notation: "compact",
+  }), []);
 
   const fetchDashboardData = useCallback(async (signal) => {
     setLoading(true);
-    setError("");
-
+    setError(""); // Clear previous errors
     try {
       const response = await api.get("/admin/stats", { signal });
       const payload = response.data?.data;
       
-      if (!payload) throw new Error("Invalid response format from server");
+      if (response.data?.success === false) {
+          throw new Error(response.data?.message || "Internal Server Error");
+      }
 
-      setStats(payload.overview || {});
-      setRecentTenants(payload.recentTenants || []);
-      setRevenueData(payload.revenueChart ? normalizeRevenueChart(payload.revenueChart) : [
-        { month: "Jan", amount: 45000 },
-        { month: "Feb", amount: 52000 },
-        { month: "Mar", amount: 48000 }
+      setStats(payload?.overview || {});
+      setRecentTenants(payload?.recentTenants || []);
+      setRevenueData(payload?.revenueChart || [
+        { month: "Jan", amount: 32000 },
+        { month: "Feb", amount: 45000 },
+        { month: "Mar", amount: 41000 },
+        { month: "Apr", amount: 52000 },
       ]);
     } catch (err) {
-      if (err?.name === "CanceledError") return;
-      const msg = err?.response?.data?.message || err.message || "Failed to fetch metrics.";
-      setError(`Server Error: ${msg}`);
-      setStats({});
+      if (err?.name !== "CanceledError") {
+        const msg = err.response?.data?.message || err.message || "Failed to load metrics";
+        setError(msg);
+      }
     } finally {
       setLoading(false);
     }
@@ -122,125 +112,128 @@ const SuperAdminDashboard = () => {
     return () => controller.abort();
   }, [fetchDashboardData]);
 
-  if (loading) {
-    return (
-      <div className="flex h-screen flex-col items-center justify-center gap-4 bg-[#FAF9F6]">
-        <Loader2 className="animate-spin text-[#8DAA9D]" size={40} />
-        <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">
-          Synchronizing Platform Metrics
-        </span>
-      </div>
-    );
-  }
+  if (loading) return (
+    <div className="flex h-[80vh] flex-col items-center justify-center gap-4">
+      <Loader2 className="animate-spin text-zinc-300" size={32} />
+      <p className="text-[10px] uppercase tracking-widest text-zinc-400 font-medium">Securing Session...</p>
+    </div>
+  );
 
   return (
-    <div className="p-6 lg:p-10 space-y-12 max-w-400 mx-auto animate-in fade-in duration-700">
-      <header className="flex flex-col md:flex-row md:items-end justify-between gap-4">
-        <div>
-          <h1 className="text-4xl font-light tracking-tight text-[#2D302D]">Platform Overview</h1>
-          <p className="text-[10px] uppercase tracking-[0.2em] text-gray-400 mt-2 flex items-center gap-2">
-            <ShieldCheck size={12} className="text-[#8DAA9D]" /> Super Admin Command Center
-          </p>
+    <div className="max-w-7xl mx-auto space-y-10 animate-in fade-in duration-1000 px-4 py-8">
+      
+      {/* --- HEADER --- */}
+      <header className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 pb-2">
+        <div className="space-y-1">
+          <h1 className="text-2xl font-medium tracking-tight text-zinc-900">Platform Overview</h1>
+          <p className="text-sm text-zinc-500">Real-time health of your multi-tenant ecosystem.</p>
         </div>
-        <div className="text-right">
-          <p className="text-[10px] font-mono text-gray-400 uppercase">
-            System Status: <span className="text-green-600 font-bold underline underline-offset-4">Optimal</span>
-          </p>
+        <div className="flex items-center gap-2 px-3 py-1 bg-emerald-50 rounded-full border border-emerald-100">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-700">All Systems Operational</span>
         </div>
       </header>
 
+      {/* --- ERROR STATE --- */}
       {error && (
-        <div className="border-l-4 border-red-500 bg-red-50 px-4 py-3 text-xs text-red-700 font-mono">
-          ⚠️ {error}
-          <p className="mt-1 opacity-70 italic">Check backend middleware for Intl.NumberFormat issues.</p>
+        <div className="p-4 rounded-xl bg-red-50 border border-red-100 flex items-center justify-between text-sm text-red-600">
+          <div className="flex items-center gap-3">
+            <AlertCircle size={18} />
+            <span>{error}</span>
+          </div>
+          <button 
+            onClick={() => fetchDashboardData()} 
+            className="text-xs font-bold uppercase tracking-tighter underline underline-offset-4"
+          >
+            Retry Connection
+          </button>
         </div>
       )}
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <StatCard
-          icon={<Building2 size={20} />}
-          label="Global Clinics"
-          value={formatNumber.format(safeNum(stats?.totalClinics))}
-          trend="+12% MoM"
-        />
-        <StatCard
-          icon={<Users size={20} />}
-          label="Total Patients"
-          value={formatNumber.format(safeNum(stats?.totalPatients))}
-          trend="+5.4% MoM"
-        />
-        <StatCard
-          icon={<IndianRupee size={20} />}
-          label="Estimated Revenue"
-          value={formatCurrency.format(safeNum(stats?.totalRevenue))}
-          trend="INR Context"
-        />
-        <StatCard
-          icon={<Activity size={20} />}
-          label="Premium Nodes"
-          value={formatNumber.format(safeNum(stats?.activeSubscriptions))}
-          trend="Live"
-        />
+      {/* --- KPI GRID --- */}
+      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <StatCard label="Total Clinics" value={stats?.totalClinics} icon={<Building2 size={18}/>} trend="+12%" />
+        <StatCard label="Active Patients" value={stats?.totalPatients} icon={<Users size={18}/>} trend="+5%" />
+        <StatCard label="Revenue" value={formatCurrency.format(safeNum(stats?.totalRevenue))} icon={<CreditCard size={18}/>} />
+        <StatCard label="Premium Nodes" value={stats?.activeSubscriptions} icon={<Activity size={18}/>} />
       </section>
 
+      {/* --- MAIN CONTENT --- */}
       <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 bg-white p-8 border border-[#2D302D]/5 rounded-sm shadow-sm">
-          <div className="flex justify-between items-center mb-10">
-            <div>
-              <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold text-gray-800">Growth Velocity</h3>
-              <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">Platform Revenue (INR)</p>
-            </div>
-            <TrendingUp size={16} className="text-[#8DAA9D]" />
+        
+        {/* Growth Chart */}
+        <div className="lg:col-span-2 bg-white border border-zinc-200 rounded-2xl overflow-hidden shadow-sm">
+          <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+            <h3 className="text-sm font-medium text-zinc-900">Revenue Velocity</h3>
+            <TrendingUp size={16} className="text-zinc-400" />
           </div>
-
-          <div className="h-80 w-full">
+          <div className="p-6 h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={revenueData}>
-                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f0f0f0" />
-                <XAxis dataKey="month" axisLine={false} tickLine={false} tick={{ fontSize: 10, fill: "#999" }} dy={10} />
-                <YAxis 
-                  axisLine={false} 
-                  tickLine={false} 
-                  tick={{ fontSize: 10, fill: "#999" }} 
-                  tickFormatter={(val) => formatCurrency.format(val)}
+              <AreaChart data={revenueData}>
+                <defs>
+                  <linearGradient id="colorAmount" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor="#18181b" stopOpacity={0.05}/>
+                    <stop offset="95%" stopColor="#18181b" stopOpacity={0}/>
+                  </linearGradient>
+                </defs>
+                <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f4f4f5" />
+                <XAxis 
+                    dataKey="month" 
+                    axisLine={false} 
+                    tickLine={false} 
+                    tick={{ fontSize: 11, fill: "#a1a1aa" }} 
+                    dy={10} 
                 />
+                <YAxis hide />
                 <Tooltip 
-                   cursor={{ fill: "#f8f9fa" }}
-                   contentStyle={{ borderRadius: "0px", border: "none", boxShadow: "0 4px 20px rgba(0,0,0,0.05)" }}
-                   formatter={(val) => [formatCurrency.format(val), "Revenue"]}
+                  cursor={{ stroke: '#e4e4e7', strokeWidth: 1 }}
+                  contentStyle={{ borderRadius: '12px', border: 'none', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)' }}
                 />
-                <Bar dataKey="amount" fill="#8DAA9D" radius={[2, 2, 0, 0]} barSize={40} />
-              </BarChart>
+                <Area 
+                    type="monotone" 
+                    dataKey="amount" 
+                    stroke="#18181b" 
+                    strokeWidth={2} 
+                    fillOpacity={1} 
+                    fill="url(#colorAmount)" 
+                />
+              </AreaChart>
             </ResponsiveContainer>
           </div>
         </div>
 
-        <div className="bg-[#1A1A1A] p-8 text-[#FAF9F6] rounded-sm flex flex-col justify-between">
-          <div>
-            <h3 className="text-[10px] uppercase tracking-[0.3em] font-bold opacity-60 mb-8 flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
-              New Clinic Onboarding
-            </h3>
-            <div className="space-y-7 mb-8">
-              {recentTenants.length > 0 ? (
-                recentTenants.map((tenant) => (
-                  <RecentEntry
-                    key={tenant._id}
-                    name={tenant.name}
-                    sub={tenant.email}
-                    status={tenant.isActive}
-                  />
-                ))
-              ) : (
-                <p className="text-xs text-gray-500 italic text-center py-10">No recent signups.</p>
-              )}
-            </div>
+        {/* Recent Tenants */}
+        <div className="bg-white border border-zinc-200 rounded-2xl flex flex-col shadow-sm">
+          <div className="p-6 border-b border-zinc-100 flex items-center justify-between">
+            <h3 className="text-sm font-medium text-zinc-900">Recent Onboarding</h3>
+            <Plus size={16} className="text-zinc-400 cursor-pointer hover:text-zinc-900 transition-colors" onClick={() => navigate("/admin/tenants")} />
           </div>
-          <button
+          <div className="flex-1 overflow-y-auto p-2">
+            {recentTenants.length > 0 ? recentTenants.map((tenant) => (
+              <div 
+                key={tenant._id} 
+                className="flex items-center justify-between p-4 rounded-xl hover:bg-zinc-50 transition-all group cursor-pointer"
+              >
+                <div className="space-y-0.5 overflow-hidden">
+                  <p className="text-sm font-medium text-zinc-900 truncate">{tenant.name}</p>
+                  <p className="text-xs text-zinc-400 truncate w-full lowercase">{tenant.email}</p>
+                </div>
+                <div className="flex items-center gap-3 shrink-0">
+                   <span className={`h-1.5 w-1.5 rounded-full ${tenant.isActive ? 'bg-emerald-500' : 'bg-amber-400'}`} />
+                   <ArrowRight size={14} className="text-zinc-300 opacity-0 group-hover:opacity-100 group-hover:translate-x-1 transition-all" />
+                </div>
+              </div>
+            )) : (
+              <div className="h-full flex flex-col items-center justify-center p-8 text-center">
+                 <p className="text-xs text-zinc-400 italic">No recent registrations found.</p>
+              </div>
+            )}
+          </div>
+          <button 
             onClick={() => navigate("/admin/tenants")}
-            className="group w-full py-4 border border-[#FAF9F6]/10 text-[9px] uppercase tracking-widest hover:bg-[#FAF9F6] hover:text-[#1A1A1A] transition-all flex items-center justify-center gap-3"
+            className="m-4 p-3 text-xs font-semibold uppercase tracking-widest text-zinc-500 bg-zinc-50 rounded-xl hover:bg-zinc-900 hover:text-white transition-all duration-300"
           >
-            Open Tenant Directory <ArrowRight size={12} className="group-hover:translate-x-1 transition-transform" />
+            View Directory
           </button>
         </div>
       </section>
@@ -248,28 +241,23 @@ const SuperAdminDashboard = () => {
   );
 };
 
+// --- SUB-COMPONENTS ---
 const StatCard = ({ icon, label, value, trend }) => (
-  <div className="bg-white p-8 border border-[#2D302D]/5 rounded-sm hover:border-[#8DAA9D]/30 transition-all duration-500 group">
-    <div className="flex justify-between items-start mb-4">
-      <div className="p-2 bg-[#F5F7F6] text-[#2D302D] rounded-sm group-hover:bg-[#8DAA9D] group-hover:text-white transition-colors">
+  <div className="bg-white p-6 border border-zinc-200 rounded-2xl shadow-sm hover:shadow-md transition-shadow">
+    <div className="flex justify-between items-start">
+      <div className="p-2.5 bg-zinc-50 rounded-xl text-zinc-900">
         {icon}
       </div>
-      <span className="text-[10px] font-bold text-green-600">{trend}</span>
+      {trend && (
+        <span className="flex items-center gap-1 text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">
+           <ArrowUpRight size={10} /> {trend}
+        </span>
+      )}
     </div>
-    <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mb-2">{label}</p>
-    <h4 className="text-3xl font-light tracking-tight text-[#2D302D]">{value}</h4>
-  </div>
-);
-
-const RecentEntry = ({ name, sub, status }) => (
-  <div className="flex justify-between items-center group cursor-pointer border-b border-white/5 pb-3 last:border-0 last:pb-0">
-    <div>
-      <p className="text-xs font-bold uppercase tracking-wide text-gray-200 group-hover:text-[#8DAA9D] transition-colors">{name}</p>
-      <p className="text-[9px] text-gray-500 lowercase tracking-wider mt-1">{sub}</p>
+    <div className="mt-4">
+      <p className="text-[11px] font-bold uppercase tracking-widest text-zinc-400">{label}</p>
+      <h4 className="text-2xl font-medium text-zinc-900 mt-1">{value || 0}</h4>
     </div>
-    <span className={`text-[8px] uppercase px-2 py-1 rounded-full border ${status ? 'border-green-900 text-green-500' : 'border-red-900 text-red-500'}`}>
-      {status ? 'Active' : 'Pending'}
-    </span>
   </div>
 );
 

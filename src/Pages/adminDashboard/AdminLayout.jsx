@@ -3,115 +3,138 @@ import { useNavigate, useLocation, Outlet } from "react-router-dom";
 import {
   Users,
   Building2,
-  DollarSign,
+  CreditCard,
   Activity,
   Search,
   Bell,
-  LayoutDashboard,
+  LayoutGrid,
   LogOut,
+  ChevronRight,
+  Settings,
+  PieChart
 } from "lucide-react";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Updated icons to be more uniform
   const menuItems = [
-    { icon: <LayoutDashboard size={18} />, label: "Overview", path: "/admin/dashboard" },
-    { icon: <Building2 size={18} />, label: "Tenants / Clinics", path: "/admin/tenants" },
-    { icon: <Users size={18} />, label: "Patient Registry", path: "/admin/patients" },
-    { icon: <Users size={18} />, label: "Global Directory", path: "/admin/global-directory" },
-    { icon: <DollarSign size={18} />, label: "Subscriptions", path: "/admin/subscriptions" },
-    { icon: <Activity size={18} />, label: "System Logs", path: "/admin/system-logs" },
+    { icon: <PieChart size={20} />, label: "Overview", path: "/admin/dashboard" },
+    { icon: <Building2 size={20} />, label: "Tenants", path: "/admin/tenants" },
+    { icon: <Users size={20} />, label: "Patients", path: "/admin/patients" },
+    { icon: <LayoutGrid size={20} />, label: "Directory", path: "/admin/global-directory" },
+    { icon: <CreditCard size={20} />, label: "Billing", path: "/admin/subscriptions" },
+    { icon: <Activity size={20} />, label: "Logs", path: "/admin/system-logs" },
   ];
 
-  const currentPage = menuItems.find((m) => m.path === location.pathname)?.label || "Control";
+  const currentPage = menuItems.find((m) => m.path === location.pathname)?.label || "Dashboard";
 
-  // ✅ SIGN OUT (works with your JWT-based guards)
   const handleLogout = useCallback(() => {
-    // remove all possible auth keys (defensive)
-    const keys = [
-      "token",
-      "role",
-      "authToken",
-      "clinicToken",
-      "adminToken",
-      "tenantToken",
-      "user",
-      "tenant",
-    ];
-
+    const keys = ["token", "role", "user", "tenant"];
     keys.forEach((k) => localStorage.removeItem(k));
     sessionStorage.clear();
-
-    // hard redirect resets React state and prevents "back" into /admin
     window.location.replace("/login");
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex text-[#2D302D]">
-      {/* Sidebar */}
-      <aside className="w-72 bg-[#2D302D] text-[#FAF9F6] hidden lg:flex flex-col p-8 sticky top-0 h-screen z-50">
-        <div className="mb-12">
-          <h2 className="text-xl font-serif italic tracking-tighter">SuperAdmin.</h2>
-          <p className="text-[9px] uppercase tracking-[0.3em] opacity-40">Platform Control</p>
+    <div className="flex min-h-screen w-full bg-[#FAFAFA] font-sans text-zinc-900 selection:bg-zinc-200">
+      
+      {/* --- SIDEBAR --- */}
+      <aside className="hidden h-screen w-64 flex-col border-r border-zinc-200 bg-white lg:flex sticky top-0 z-50">
+        
+        {/* Brand */}
+        <div className="flex h-16 items-center px-6 border-b border-zinc-100">
+          <div className="flex items-center gap-2">
+            <div className="h-6 w-6 rounded-md bg-zinc-900"></div>
+            <span className="font-semibold tracking-tight text-lg">Nexus.</span>
+          </div>
         </div>
 
-        <nav className="space-y-6 flex-1">
-          {menuItems.map((item) => (
-            <div
-              key={item.path}
-              onClick={() => navigate(item.path)}
-              className={`flex items-center gap-4 cursor-pointer transition-all duration-300 group ${
-                location.pathname === item.path ? "text-[#8DAA9D]" : "opacity-40 hover:opacity-100"
-              }`}
-            >
-              {item.icon}
-              <span className="text-xs uppercase tracking-widest font-bold group-hover:translate-x-1 transition-transform">
-                {item.label}
-              </span>
-            </div>
-          ))}
+        {/* Navigation */}
+        <nav className="flex-1 space-y-1 px-3 py-6">
+          <p className="px-3 text-[11px] font-medium text-zinc-400 uppercase tracking-wider mb-2">Platform</p>
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`group flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm font-medium transition-all duration-200 ${
+                  isActive
+                    ? "bg-zinc-100 text-zinc-900"
+                    : "text-zinc-500 hover:bg-zinc-50 hover:text-zinc-900"
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <span className={isActive ? "text-zinc-900" : "text-zinc-400 group-hover:text-zinc-600"}>
+                    {item.icon}
+                  </span>
+                  <span>{item.label}</span>
+                </div>
+                {isActive && <ChevronRight size={14} className="text-zinc-400" />}
+              </button>
+            );
+          })}
         </nav>
 
-        <div className="pt-8 border-t border-[#FAF9F6]/10">
+        {/* Footer / Logout */}
+        <div className="border-t border-zinc-100 p-3">
           <button
             onClick={handleLogout}
-            className="flex items-center gap-4 text-xs uppercase tracking-widest font-bold opacity-40 hover:text-red-400 hover:opacity-100 transition-all"
+            className="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-zinc-500 hover:bg-red-50 hover:text-red-600 transition-colors"
           >
-            <LogOut size={18} />
+            <LogOut size={20} />
             <span>Sign Out</span>
           </button>
         </div>
       </aside>
 
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="px-8 lg:px-12 py-8 flex justify-between items-center border-b border-[#2D302D]/5 bg-white/80 backdrop-blur-md sticky top-0 z-40">
-          <div>
-            <h1 className="text-2xl font-light uppercase tracking-tighter">{currentPage}</h1>
-            <p className="text-[10px] uppercase tracking-widest opacity-40 italic">System v2.0</p>
+      {/* --- MAIN CONTENT WRAPPER --- */}
+      <div className="flex flex-1 flex-col min-w-0">
+        
+        {/* --- HEADER --- */}
+        <header className="sticky top-0 z-40 flex h-16 items-center justify-between border-b border-zinc-200/60 bg-[#FAFAFA]/80 px-8 backdrop-blur-xl">
+          <div className="flex items-center gap-2 text-sm text-zinc-500">
+            <span>Admin</span>
+            <span className="text-zinc-300">/</span>
+            <span className="font-medium text-zinc-900">{currentPage}</span>
           </div>
 
-          <div className="flex items-center gap-6">
-            <div className="relative hidden md:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 opacity-20" size={14} />
+          <div className="flex items-center gap-4">
+            {/* Search Pill */}
+            <div className="hidden md:flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1.5 shadow-sm focus-within:ring-2 focus-within:ring-zinc-100 transition-shadow">
+              <Search size={14} className="text-zinc-400" />
               <input
                 type="text"
-                placeholder="Search data..."
-                className="pl-10 pr-4 py-2 bg-[#2D302D]/5 rounded-sm text-xs outline-none w-64 border-none focus:ring-1 ring-[#8DAA9D]"
+                placeholder="Search..."
+                className="w-48 bg-transparent text-sm text-zinc-800 placeholder-zinc-400 outline-none"
               />
+              <kbd className="hidden rounded border border-zinc-200 bg-zinc-50 px-1.5 py-0.5 text-[10px] font-bold text-zinc-400 lg:block">⌘K</kbd>
             </div>
 
-            <Bell size={20} className="opacity-40 cursor-pointer hover:opacity-100" />
+            {/* Notifications */}
+            <button className="relative rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors">
+              <Bell size={20} />
+              <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#FAFAFA]"></span>
+            </button>
 
-            <div className="w-10 h-10 rounded-full bg-[#8DAA9D] flex items-center justify-center text-white text-xs font-bold ring-2 ring-white">
-              SA
+            {/* User Avatar */}
+            <div className="h-8 w-8 overflow-hidden rounded-full bg-zinc-200 border border-zinc-200 shadow-sm cursor-pointer hover:ring-2 ring-zinc-100 transition-all">
+              <div className="flex h-full w-full items-center justify-center bg-white text-xs font-bold text-zinc-900">
+                SA
+              </div>
             </div>
           </div>
         </header>
 
-        <main className="p-8 lg:p-12 animate-in fade-in slide-in-from-bottom-2 duration-700">
-          <Outlet />
+        {/* --- PAGE CONTENT --- */}
+        <main className="flex-1 p-6 lg:p-10">
+          <div className="mx-auto max-w-7xl animate-in fade-in slide-in-from-bottom-3 duration-500">
+             <Outlet />
+          </div>
         </main>
+
       </div>
     </div>
   );
