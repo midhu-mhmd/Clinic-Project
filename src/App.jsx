@@ -21,6 +21,8 @@ import Payment from "./Pages/Payment.jsx";
 import ClinicLogin from "./Pages/ClinicLogin.jsx";
 import Help from "./Pages/Help.jsx";
 import AppointmentPage from "./Pages/Appointment.jsx";
+import Profile from "./Pages/profile.jsx";
+import MyAppointments from "./Pages/myAppointments.jsx";
 
 // Dashboard / Admin Components
 import TenantDashboard from "./Pages/ClinicDashboard.jsx";
@@ -44,7 +46,7 @@ const App = () => {
 
   return (
     <>
-     
+
       {!isClinicSide && <Navbar />}
 
       <Routes>
@@ -60,6 +62,8 @@ const App = () => {
         <Route path="/clinic/:id" element={<ClinicProfile />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/appointment/:id" element={<AppointmentPage />} />
+        <Route path="/appointments" element={<MyAppointments />} />
+        <Route path="/profile" element={<Profile />} />
 
         {/* --- CLINIC AUTH & ONBOARDING --- */}
         <Route path="/clinic-login" element={<ClinicLogin />} />
@@ -84,10 +88,6 @@ const App = () => {
         <Route
           path="/settings"
           element={<Navigate to="/dashboard/settings" replace />}
-        />
-        <Route
-          path="/appointments"
-          element={<Navigate to="/dashboard/appointments" replace />}
         />
         <Route
           path="/patients"

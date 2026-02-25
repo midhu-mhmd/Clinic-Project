@@ -300,9 +300,8 @@ const AppointmentPage = () => {
           {[1, 2, 3, 4, 5].map((s) => (
             <div
               key={s}
-              className={`w-8 h-1 transition-all duration-500 ${
-                step >= s ? "bg-[#8DAA9D]" : "bg-[#2D302D]/10"
-              }`}
+              className={`w-8 h-1 transition-all duration-500 ${step >= s ? "bg-[#8DAA9D]" : "bg-[#2D302D]/10"
+                }`}
             />
           ))}
         </div>
@@ -332,11 +331,10 @@ const AppointmentPage = () => {
                       onClick={() =>
                         setSelection((prev) => ({ ...prev, clinic: c, doctor: null }))
                       }
-                      className={`p-6 border flex justify-between items-center transition-all ${
-                        active
+                      className={`p-6 border flex justify-between items-center transition-all ${active
                           ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
                           : "border-[#2D302D]/10"
-                      }`}
+                        }`}
                     >
                       <div className="flex items-center gap-4">
                         <Building2 className="text-[#8DAA9D]" />
@@ -374,11 +372,10 @@ const AppointmentPage = () => {
                       <button
                         key={normalizeId(d)}
                         onClick={() => setSelection((prev) => ({ ...prev, doctor: d }))}
-                        className={`p-6 border text-left transition-all ${
-                          active
+                        className={`p-6 border text-left transition-all ${active
                             ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
                             : "border-[#2D302D]/10"
-                        }`}
+                          }`}
                       >
                         <img
                           src={d.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.name || "Doctor")}`}
@@ -390,6 +387,9 @@ const AppointmentPage = () => {
                           {d.specialization || d.specialty || "—"}
                         </p>
                         <p className="text-[10px] opacity-60 uppercase tracking-widest mt-2">
+                          Experience: {d.experience || 0} Years
+                        </p>
+                        <p className="text-[10px] opacity-60 uppercase tracking-widest mt-1">
                           Fee: ₹{Number(d.consultationFee ?? d.fee ?? 0) || 0}
                         </p>
                       </button>
@@ -414,11 +414,10 @@ const AppointmentPage = () => {
                     <button
                       key={d.fullDate}
                       onClick={() => setSelection((prev) => ({ ...prev, date: d }))}
-                      className={`p-4 border text-center transition-all ${
-                        active
+                      className={`p-4 border text-center transition-all ${active
                           ? "bg-[#8DAA9D] text-white"
                           : "border-[#2D302D]/10"
-                      }`}
+                        }`}
                     >
                       <span className="text-[10px] block opacity-50 uppercase">
                         {d.dayName}
@@ -436,11 +435,10 @@ const AppointmentPage = () => {
                     <button
                       key={t}
                       onClick={() => setSelection((prev) => ({ ...prev, slot: t }))}
-                      className={`p-4 border text-sm transition-all ${
-                        active
+                      className={`p-4 border text-sm transition-all ${active
                           ? "bg-[#2D302D] text-white"
                           : "border-[#2D302D]/10"
-                      }`}
+                        }`}
                     >
                       {t}
                     </button>

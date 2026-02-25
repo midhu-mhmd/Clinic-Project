@@ -10,6 +10,7 @@ const Navbar = () => {
   const navigate = useNavigate();
 
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const dropdownRef = useRef(null); // Ref for click-outside detection
   const [isLoggedIn, setIsLoggedIn] = useState(
     localStorage.getItem("isLoggedIn") === "true"
   );
@@ -31,7 +32,7 @@ const Navbar = () => {
   useEffect(() => {
     const handleAuthChange = () => {
       setIsLoggedIn(localStorage.getItem("isLoggedIn") === "true");
-      
+
       // --- FIXED: DEFENSIVE PARSING IN LISTENER ---
       const savedUser = localStorage.getItem("user");
       if (savedUser && savedUser !== "undefined") {
@@ -44,7 +45,7 @@ const Navbar = () => {
         setUserData(null);
       }
     };
-    
+
     window.addEventListener("authUpdate", handleAuthChange);
     window.addEventListener("storage", handleAuthChange);
 
@@ -53,6 +54,25 @@ const Navbar = () => {
       window.removeEventListener("storage", handleAuthChange);
     };
   }, []);
+
+  // --- CLICK OUTSIDE DROPDOWN ---
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    if (isProfileOpen) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [isProfileOpen]);
 
   const handleLogout = () => {
     localStorage.removeItem("isLoggedIn");
@@ -91,13 +111,13 @@ const Navbar = () => {
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(45, 1, 0.1, 10);
     camera.position.z = 2.5;
-    
+
     const renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(42, 42);
     mountRef.current?.appendChild(renderer.domElement);
 
-    const geometry = new THREE.OctahedronGeometry(0.8, 0); 
+    const geometry = new THREE.OctahedronGeometry(0.8, 0);
     const material = new THREE.MeshPhysicalMaterial({
       color: "#8DAA9D",
       roughness: 0.1,
@@ -106,10 +126,10 @@ const Navbar = () => {
       transparent: true,
       opacity: 0.9,
     });
-    
+
     const shape = new THREE.Mesh(geometry, material);
     scene.add(shape);
-    
+
     const wireframe = new THREE.Mesh(
       geometry,
       new THREE.MeshBasicMaterial({ color: "#2D302D", wireframe: true, transparent: true, opacity: 0.15 })
@@ -140,7 +160,7 @@ const Navbar = () => {
   return (
     <nav ref={navRef} className="fixed top-0 left-0 w-full z-100 pointer-events-none">
       <div className="max-w-7xl mx-auto flex items-center justify-between rounded-2xl px-8 py-3 pointer-events-auto">
-        
+
         {/* LOGO SECTION */}
         <div className="logo-trigger flex items-center gap-4 cursor-pointer group" onClick={() => navigate("/")}>
           <div ref={mountRef} className="w-10 h-10 flex items-center justify-center transition-transform duration-500 group-hover:scale-110" />
@@ -181,17 +201,17 @@ const Navbar = () => {
               <button onClick={() => navigate("/appointment/:id")} className="hidden sm:block text-[9px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D] border border-[#8DAA9D]/30 px-5 py-2.5 rounded-full hover:bg-[#8DAA9D] hover:text-[#FAF9F6] transition-all duration-500">
                 Book Appointment
               </button>
-              
-              <div className="relative">
+
+              <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setIsProfileOpen(!isProfileOpen)}
                   className="w-10 h-10 rounded-full border border-[#8DAA9D]/20 flex items-center justify-center bg-white shadow-sm group hover:border-[#8DAA9D] transition-all"
                 >
-                   <svg className="w-5 h-5 text-[#2D302D]/60 group-hover:text-[#8DAA9D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                   </svg>
+                  <svg className="w-5 h-5 text-[#2D302D]/60 group-hover:text-[#8DAA9D]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                  </svg>
                 </button>
-                
+
                 {isProfileOpen && (
                   <div className="absolute right-0 mt-4 w-60 bg-[#FAF9F6] border border-[#2D302D]/5 rounded-2xl shadow-2xl py-3 overflow-hidden z-110">
                     <div className="px-5 py-3 border-b border-[#2D302D]/5">
@@ -202,8 +222,15 @@ const Navbar = () => {
                     </div>
 
                     <div className="py-2">
-                      <Link 
-                        to="/appointments" 
+                      <Link
+                        to="/profile"
+                        onClick={() => setIsProfileOpen(false)}
+                        className="block px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[#2D302D]/60 hover:bg-[#8DAA9D]/10 hover:text-[#2D302D]"
+                      >
+                        My Profile
+                      </Link>
+                      <Link
+                        to="/appointments"
                         onClick={() => setIsProfileOpen(false)}
                         className="block px-5 py-2.5 text-[11px] font-bold uppercase tracking-wider text-[#2D302D]/60 hover:bg-[#8DAA9D]/10 hover:text-[#2D302D]"
                       >

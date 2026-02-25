@@ -147,7 +147,7 @@ const Doctors = () => {
       fd.append("availability", availabilityString);
       if (imageFile) fd.append("image", imageFile);
 
-      const res = editingId 
+      const res = editingId
         ? await axios.put(`${API_DOCTORS}/${editingId}`, fd, { headers })
         : await axios.post(API_DOCTORS, fd, { headers });
 
@@ -218,7 +218,7 @@ const Doctors = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-5">
                 <div className="flex flex-col items-center mb-6">
-                  <div 
+                  <div
                     onClick={() => fileInputRef.current.click()}
                     className="w-24 h-24 rounded-full bg-gray-50 border-2 border-dashed flex items-center justify-center cursor-pointer overflow-hidden hover:border-black transition-colors"
                   >
@@ -247,7 +247,7 @@ const Doctors = () => {
                 ))}
 
                 <div className="grid grid-cols-2 gap-4">
-                   <div>
+                  <div>
                     <label className="text-[9px] uppercase tracking-widest font-bold text-gray-400 block mb-1">Experience (Yrs)</label>
                     <input
                       type="number"
@@ -276,6 +276,19 @@ const Doctors = () => {
                     <label className="text-[9px] uppercase tracking-widest font-bold text-gray-400 block mb-1">Duty End</label>
                     <input type="time" className="w-full border-b border-gray-200 py-2 text-sm" value={formData.availabilityEnd} onChange={(e) => setFormData(p => ({ ...p, availabilityEnd: e.target.value }))} />
                   </div>
+                </div>
+
+                <div>
+                  <label className="text-[9px] uppercase tracking-widest font-bold text-gray-400 block mb-1">Availability Status</label>
+                  <select
+                    className="w-full border-b border-gray-200 py-2 text-sm bg-transparent outline-none cursor-pointer"
+                    value={formData.status}
+                    onChange={(e) => setFormData(p => ({ ...p, status: e.target.value }))}
+                  >
+                    <option value="On Duty">On Duty</option>
+                    <option value="On Break">On Break</option>
+                    <option value="Off Duty">Off Duty</option>
+                  </select>
                 </div>
 
                 <button
@@ -318,7 +331,7 @@ const Doctors = () => {
               <div className="text-[9px] uppercase tracking-widest text-gray-400">Exp <p className="text-sm font-semibold text-black">{doc.experience}Y</p></div>
               <div className="text-[9px] uppercase tracking-widest text-gray-400">Rating <div className="flex items-center gap-1 text-black"><Star size={12} className="fill-black" /> {doc.rating || "5.0"}</div></div>
               <div className="flex justify-end gap-2">
-                <button onClick={() => window.location.href=`mailto:${doc.email}`} className="p-2 border hover:bg-black hover:text-white transition-colors"><Mail size={14} /></button>
+                <button onClick={() => window.location.href = `mailto:${doc.email}`} className="p-2 border hover:bg-black hover:text-white transition-colors"><Mail size={14} /></button>
                 <button className="p-2 border hover:bg-black hover:text-white transition-colors"><ShieldCheck size={14} /></button>
               </div>
             </div>

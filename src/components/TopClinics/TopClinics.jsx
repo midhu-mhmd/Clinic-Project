@@ -11,7 +11,7 @@ function TopClinics() {
   const navigate = useNavigate();
   const scrollRef = useRef(null);
   const containerRef = useRef(null);
-  
+
   const [clinics, setClinics] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -21,7 +21,7 @@ function TopClinics() {
       try {
         // MATCHED TO YOUR BACKEND ROUTE: /api/tenants/all
         const res = await axios.get("http://localhost:5000/api/tenants/all");
-        
+
         // Ensure res.data is the array of formatted clinics from your controller
         const formattedData = res.data.data.map(clinic => ({
           id: clinic._id,
@@ -33,7 +33,7 @@ function TopClinics() {
           img: clinic.img // Controller already maps clinic.image to .img
         }));
 
-        setClinics(formattedData);
+        setClinics(formattedData.slice(0, 5));
       } catch (err) {
         console.error("Failed to fetch clinics", err);
       } finally {
@@ -104,9 +104,9 @@ function TopClinics() {
         >
           {loading ? (
             <div className="flex gap-12">
-               {[1, 2, 3].map((i) => (
-                 <div key={i} className="w-[85vw] md:w-[400px] h-[500px] bg-neutral-100 animate-pulse border border-neutral-200" />
-               ))}
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="w-[85vw] md:w-[400px] h-[500px] bg-neutral-100 animate-pulse border border-neutral-200" />
+              ))}
             </div>
           ) : (
             clinics.map((clinic) => (

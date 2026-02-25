@@ -16,21 +16,35 @@ const ClinicList = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(9);
 
   // 1. DATA SYNC
   useEffect(() => {
     const fetchClinics = async () => {
       try {
         setLoading(true);
-        const { data: response } = await axios.get(`${API_BASE_URL}/tenants/all`);
+        const { data: response } = await axios.get(`${API_BASE_URL}/tenants/all`, {
+          params: {
+            page,
+            limit,
+            search: searchQuery
+          }
+        });
+
         if (response.success) {
           setClinics(response.data.map((c, i) => ({
             ...c,
             id: c._id,
             displayLocation: c.location || "Global Access",
             displayImg: c.img || "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=1200",
-            indexStr: String(i + 1).padStart(2, "0"),
+            indexStr: String((page - 1) * limit + i + 1).padStart(2, "0"),
           })));
+
+          if (response.meta) {
+            setTotalPages(response.meta.totalPages);
+          }
         }
       } catch (err) {
         setError("Network Infrastructure Offline");
@@ -38,8 +52,18 @@ const ClinicList = () => {
         setTimeout(() => setLoading(false), 600);
       }
     };
-    fetchClinics();
-  }, []);
+
+    const debounceTimer = setTimeout(() => {
+      fetchClinics();
+    }, searchQuery ? 500 : 0);
+
+    return () => clearTimeout(debounceTimer);
+  }, [page, limit, searchQuery]);
+
+  // Reset page when searching
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
   // 2. 2025 KINETIC TYPOGRAPHY & REVEALS
   useEffect(() => {
@@ -72,15 +96,12 @@ const ClinicList = () => {
     return () => ctx.revert();
   }, [loading, clinics]);
 
-  const filteredClinics = useMemo(() => {
-    return clinics.filter(c => c.name?.toLowerCase().includes(searchQuery.toLowerCase()));
-  }, [searchQuery, clinics]);
 
   if (error) return <ErrorState message={error} />;
 
   return (
     <div ref={containerRef} className="relative min-h-screen bg-[#FBFBF9] text-[#1A1A1A] font-sans selection:bg-[#8DAA9D] selection:text-white">
-      
+
       {/* 00. FLOATING NAV (Minimalist) */}
       <nav className="fixed top-0 z-50 w-full flex justify-between items-center px-6 py-10 md:px-16">
         <div className="flex items-center gap-2 group cursor-pointer">
@@ -88,15 +109,15 @@ const ClinicList = () => {
           <span className="text-[10px] font-bold uppercase tracking-[0.4em]">Directory v.25</span>
         </div>
         <div className="flex items-center gap-8">
-            <span className="text-[9px] font-bold uppercase tracking-widest opacity-30 hover:opacity-100 cursor-pointer transition-opacity">Contact</span>
-            <div className="h-10 w-10 rounded-full border border-[#1A1A1A]/10 flex items-center justify-center hover:bg-[#1A1A1A] hover:text-white transition-all duration-500">
-                <Plus size={14} />
-            </div>
+          <span className="text-[9px] font-bold uppercase tracking-widest opacity-30 hover:opacity-100 cursor-pointer transition-opacity">Contact</span>
+          <div className="h-10 w-10 rounded-full border border-[#1A1A1A]/10 flex items-center justify-center hover:bg-[#1A1A1A] hover:text-white transition-all duration-500">
+            <Plus size={14} />
+          </div>
         </div>
       </nav>
 
       <main className="px-6 md:px-16 pt-48 pb-40">
-        
+
         {/* 01. HERO (Extreme Minimalist) */}
         <header className="mb-40 md:mb-64">
           <div className="overflow-hidden mb-12">
@@ -105,18 +126,18 @@ const ClinicList = () => {
               Index.
             </h1>
           </div>
-          
+
           <div className="reveal-item flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <p className="max-w-xs text-xs md:text-sm font-medium leading-relaxed opacity-40 uppercase tracking-widest">
               An audited archive of premier healthcare environments. Built for precision.
             </p>
-            
+
             {/* Minimalist Floating Search */}
             <div className="relative w-full md:w-64">
               <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 opacity-20" />
-              <input 
-                type="text" 
-                placeholder="SEARCH ARCHIVE" 
+              <input
+                type="text"
+                placeholder="SEARCH ARCHIVE"
                 className="w-full bg-transparent border-b border-[#1A1A1A]/10 py-3 pl-6 outline-none focus:border-[#8DAA9D] transition-all text-[9px] font-bold tracking-widest"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
@@ -128,22 +149,22 @@ const ClinicList = () => {
         {/* 02. EDITORIAL GRID (Focus on Whitespace) */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-12 gap-y-32">
           {loading ? (
-             <SkeletonLoader />
-          ) : filteredClinics.map((clinic) => (
-            <article 
+            <SkeletonLoader />
+          ) : clinics.map((clinic) => (
+            <article
               key={clinic.id}
               onClick={() => navigate(`/clinic/${clinic.id}`)}
               className="clinic-card group cursor-pointer"
             >
               <div className="relative mb-8 overflow-hidden aspect-[4/5] bg-[#F4F1EE]">
-                <img 
-                  src={clinic.displayImg} 
+                <img
+                  src={clinic.displayImg}
                   className="h-full w-full object-cover transition-transform duration-[2s] ease-out group-hover:scale-110 grayscale group-hover:grayscale-0"
                   alt={clinic.name}
                 />
                 <div className="absolute inset-0 bg-black/0 group-hover:bg-black/5 transition-colors" />
                 <div className="absolute top-6 left-6 mix-blend-difference text-white">
-                    <span className="text-[9px] font-bold tracking-[0.5em]">{clinic.indexStr}</span>
+                  <span className="text-[9px] font-bold tracking-[0.5em]">{clinic.indexStr}</span>
                 </div>
               </div>
 
@@ -153,42 +174,78 @@ const ClinicList = () => {
                   <span className="text-[9px] font-bold uppercase tracking-widest">{clinic.displayLocation}</span>
                 </div>
                 <div className="flex justify-between items-end">
-                    <h2 className="text-3xl md:text-4xl font-light tracking-tighter uppercase leading-none group-hover:italic transition-all">
-                        {clinic.name}
-                    </h2>
-                    <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-500" />
+                  <h2 className="text-3xl md:text-4xl font-light tracking-tighter uppercase leading-none group-hover:italic transition-all">
+                    {clinic.name}
+                  </h2>
+                  <ArrowUpRight size={16} className="opacity-0 group-hover:opacity-100 -translate-y-2 group-hover:translate-y-0 transition-all duration-500" />
                 </div>
               </div>
             </article>
           ))}
         </div>
+
+        {/* 03. PAGINATION CONTROLLER */}
+        {!loading && totalPages > 1 && (
+          <div className="mt-32 flex justify-between items-center border-t border-[#1A1A1A]/10 pt-12">
+            <div className="flex gap-4">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="text-[9px] font-bold uppercase tracking-widest opacity-40 hover:opacity-100 disabled:opacity-10 disabled:cursor-not-allowed transition-all"
+              >
+                Previous
+              </button>
+              <div className="flex gap-2">
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i + 1)}
+                    className={`text-[9px] font-bold w-6 h-6 flex items-center justify-center transition-all ${page === i + 1 ? 'bg-[#1A1A1A] text-white' : 'opacity-30 hover:opacity-100'}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="text-[9px] font-bold uppercase tracking-widest opacity-40 hover:opacity-100 disabled:opacity-10 disabled:cursor-not-allowed transition-all"
+              >
+                Next
+              </button>
+            </div>
+            <div className="text-[9px] font-bold uppercase tracking-widest opacity-20">
+              Page {page} of {totalPages}
+            </div>
+          </div>
+        )}
       </main>
 
       {/* 03. FOOTER (Brutalist Minimalism) */}
       <footer className="py-40 px-6 border-t border-[#1A1A1A]/5 text-center">
-          <div className="max-w-2xl mx-auto space-y-12">
-            <h3 className="text-[10vw] md:text-[6vw] font-light uppercase tracking-tighter leading-none">
-              List your <br />Facility
-            </h3>
-            <button className="text-[10px] font-bold uppercase tracking-[0.5em] border-b border-[#1A1A1A] pb-2 hover:text-[#8DAA9D] hover:border-[#8DAA9D] transition-all">
-                Begin Audit Protocol
-            </button>
-          </div>
+        <div className="max-w-2xl mx-auto space-y-12">
+          <h3 className="text-[10vw] md:text-[6vw] font-light uppercase tracking-tighter leading-none">
+            List your <br />Facility
+          </h3>
+          <button className="text-[10px] font-bold uppercase tracking-[0.5em] border-b border-[#1A1A1A] pb-2 hover:text-[#8DAA9D] hover:border-[#8DAA9D] transition-all">
+            Begin Audit Protocol
+          </button>
+        </div>
       </footer>
     </div>
   );
 };
 
 const SkeletonLoader = () => (
-    <>
-      {[1, 2, 3].map((i) => (
-        <div key={i} className="space-y-6 animate-pulse">
-          <div className="aspect-[4/5] bg-[#1A1A1A]/5" />
-          <div className="h-4 w-24 bg-[#1A1A1A]/5" />
-          <div className="h-12 w-full bg-[#1A1A1A]/5" />
-        </div>
-      ))}
-    </>
+  <>
+    {[1, 2, 3].map((i) => (
+      <div key={i} className="space-y-6 animate-pulse">
+        <div className="aspect-[4/5] bg-[#1A1A1A]/5" />
+        <div className="h-4 w-24 bg-[#1A1A1A]/5" />
+        <div className="h-12 w-full bg-[#1A1A1A]/5" />
+      </div>
+    ))}
+  </>
 );
 
 const ErrorState = ({ message }) => (

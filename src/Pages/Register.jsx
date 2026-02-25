@@ -17,6 +17,10 @@ const Register = () => {
     phone: "",
     password: "",
     confirm: "",
+    dob: "",
+    gender: "",
+    bloodGroup: "",
+    address: "",
   });
 
   const patterns = {
@@ -78,7 +82,7 @@ const Register = () => {
   const handleSendOtp = async (e) => {
     if (e) e.preventDefault();
     if (!validateForm()) return;
-    
+
     setIsSubmitting(true);
     setApiError("");
 
@@ -87,6 +91,11 @@ const Register = () => {
         name: formData.name,
         email: formData.email,
         password: formData.password,
+        dob: formData.dob,
+        gender: formData.gender,
+        bloodGroup: formData.bloodGroup,
+        address: formData.address,
+        phoneNumber: formData.phone,
       });
       setStep("otp");
     } catch (error) {
@@ -184,13 +193,50 @@ const Register = () => {
                 </div>
               </div>
 
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Date of Birth</label>
+                  <input type="date" id="dob" value={formData.dob} onChange={handleChange} className={getInputClass("dob")} />
+                  {errors.dob && <p className="text-[9px] font-bold text-red-500 mt-1 uppercase">{errors.dob}</p>}
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Gender</label>
+                  <select id="gender" value={formData.gender} onChange={handleChange} className={getInputClass("gender")}>
+                    <option value="">Select Gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                    <option value="PREFER_NOT_TO_SAY">Prefer not to say</option>
+                  </select>
+                  {errors.gender && <p className="text-[9px] font-bold text-red-500 mt-1 uppercase">{errors.gender}</p>}
+                </div>
+              </div>
+
+              <div className="grid grid-cols-2 gap-8">
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Blood Group</label>
+                  <input type="text" id="bloodGroup" value={formData.bloodGroup} onChange={handleChange} className={getInputClass("bloodGroup")} placeholder="e.g. O+" />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Phone Number</label>
+                  <input type="text" id="phone" value={formData.phone} onChange={handleChange} className={getInputClass("phone")} placeholder="+1 234 567 890" />
+                  {errors.phone && <p className="text-[9px] font-bold text-red-500 mt-1 uppercase">{errors.phone}</p>}
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Address</label>
+                <textarea id="address" value={formData.address} onChange={handleChange} className={`${getInputClass("address")} min-h-[80px]`} placeholder="Street address, City, State, ZIP" />
+                {errors.address && <p className="text-[9px] font-bold text-red-500 mt-1 uppercase">{errors.address}</p>}
+              </div>
+
               {apiError && <div className="p-4 text-[10px] uppercase tracking-widest font-bold bg-red-50 text-red-600 border border-red-100">{apiError}</div>}
 
               <button type="submit" disabled={isSubmitting} className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700">
                 <span className="text-[10px] uppercase tracking-[0.4em] font-bold">{isSubmitting ? "Sending OTP..." : "Continue"}</span>
                 <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform duration-500" />
               </button>
-              
+
               <div className="mt-8 flex flex-col items-center gap-6">
                 <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setApiError("Google Sign-up Failed")} shape="square" />
                 <button type="button" onClick={() => navigate("/login")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-opacity">

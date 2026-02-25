@@ -106,8 +106,8 @@ const DoctorProfile = () => {
 
         setError(
           err?.response?.data?.message ||
-            err?.message ||
-            "Clinical dossier could not be retrieved."
+          err?.message ||
+          "Clinical dossier could not be retrieved."
         );
       } finally {
         setLoading(false);
@@ -167,20 +167,22 @@ const DoctorProfile = () => {
     return () => ctx.revert();
   }, [loading, doctor]);
 
+  const [selectedConsultType, setSelectedConsultType] = useState("Neural Consult (Video)");
+
   // ✅ Appointment Options Data
   const appointmentOptions = useMemo(
     () => [
       {
+        id: "in-clinic",
         type: "In-Clinic Visit",
-        price: `₹${doctor?.fees || 150}`,
+        price: `₹${doctor?.fees || doctor?.consultationFee || 150}`,
         icon: <MapPin size={16} />,
-        active: false,
       },
       {
+        id: "video",
         type: "Neural Consult (Video)",
-        price: `₹${Math.round((doctor?.fees || 150) * 0.6)}`,
+        price: `₹${Math.round((doctor?.fees || doctor?.consultationFee || 150) * 0.6)}`,
         icon: <MessageSquare size={16} />,
-        active: true,
       },
     ],
     [doctor]
@@ -364,32 +366,34 @@ const DoctorProfile = () => {
               </div>
 
               <div className="space-y-4">
-                {appointmentOptions.map((opt, i) => (
-                  <div
-                    key={i}
-                    className={`p-5 border transition-all cursor-pointer flex justify-between items-center group ${
-                      opt.active
+                {appointmentOptions.map((opt, i) => {
+                  const active = selectedConsultType === opt.type;
+                  return (
+                    <div
+                      key={i}
+                      onClick={() => setSelectedConsultType(opt.type)}
+                      className={`p-5 border transition-all cursor-pointer flex justify-between items-center group ${active
                         ? "border-[#8DAA9D] bg-[#8DAA9D]/10"
                         : "border-[#FAF9F6]/10 hover:border-[#FAF9F6]/30"
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className={opt.active ? "text-[#8DAA9D]" : "opacity-30"}>
-                        {opt.icon}
+                        }`}
+                    >
+                      <div className="flex items-center gap-4">
+                        <div className={active ? "text-[#8DAA9D]" : "opacity-30"}>
+                          {opt.icon}
+                        </div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest">
+                          {opt.type}
+                        </span>
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-widest">
-                        {opt.type}
+                      <span
+                        className={`text-[10px] font-mono ${active ? "text-[#8DAA9D]" : "opacity-30"
+                          }`}
+                      >
+                        {opt.price}
                       </span>
                     </div>
-                    <span
-                      className={`text-[10px] font-mono ${
-                        opt.active ? "text-[#8DAA9D]" : "opacity-30"
-                      }`}
-                    >
-                      {opt.price}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
 
               {/* ✅ BOOK APPOINTMENT (NO SILENT DISABLE) */}
@@ -401,7 +405,13 @@ const DoctorProfile = () => {
                     );
                     return;
                   }
-                  navigate(`/appointment/${clinicId}`, { state: { clinicId, doctorId } });
+                  navigate(`/appointment/${clinicId}`, {
+                    state: {
+                      clinicId,
+                      doctorId,
+                      consultationType: selectedConsultType
+                    }
+                  });
                 }}
                 className="w-full py-6 bg-[#8DAA9D] text-[#FAF9F6] text-[10px] uppercase tracking-[0.5em] font-bold 
                            hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-500 flex items-center 

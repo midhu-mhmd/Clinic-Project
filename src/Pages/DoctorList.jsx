@@ -10,19 +10,31 @@ gsap.registerPlugin(ScrollTrigger);
 const DoctorList = () => {
   const mainRef = useRef(null);
   const navigate = useNavigate();
-  
+
   const [doctors, setDoctors] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [limit] = useState(10);
 
 
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("http://localhost:5000/api/doctors/directory");
-      
+      const { data } = await axios.get("http://localhost:5000/api/doctors/directory", {
+        params: {
+          page,
+          limit,
+          search: searchQuery
+        }
+      });
+
       if (data.success) {
         setDoctors(data.data);
+        if (data.meta) {
+          setTotalPages(data.meta.totalPages);
+        }
       }
     } catch (err) {
       console.error("Directory Error:", err);
@@ -32,8 +44,15 @@ const DoctorList = () => {
   };
 
   useEffect(() => {
-    fetchDoctors();
-  }, []);
+    const debounceTimer = setTimeout(() => {
+      fetchDoctors();
+    }, searchQuery ? 500 : 0);
+    return () => clearTimeout(debounceTimer);
+  }, [page, searchQuery]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchQuery]);
 
 
   const handleDoctorClick = (id) => {
@@ -43,7 +62,7 @@ const DoctorList = () => {
   // GSAP Animations
   useEffect(() => {
     if (loading || doctors.length === 0) return;
-    
+
     const ctx = gsap.context(() => {
       gsap.from(".header-reveal", {
         y: 100, opacity: 0, duration: 1.5, ease: "expo.out", stagger: 0.15,
@@ -59,10 +78,6 @@ const DoctorList = () => {
     return () => ctx.revert();
   }, [loading, doctors]);
 
-  const filteredDoctors = doctors.filter((doc) =>
-    doc.specialization?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    doc.name?.toLowerCase().includes(searchQuery.toLowerCase())
-  );
 
   if (loading) {
     return (
@@ -108,15 +123,15 @@ const DoctorList = () => {
         </header>
 
         <div className="border-t border-[#2D302D]/10">
-          {filteredDoctors.length > 0 ? (
-            filteredDoctors.map((doc, index) => (
+          {doctors.length > 0 ? (
+            doctors.map((doc, index) => (
               <div
                 key={doc._id}
                 onClick={() => handleDoctorClick(doc._id)}
                 className="doctor-row group relative grid grid-cols-1 lg:grid-cols-12 items-center py-10 px-4 border-b border-[#2D302D]/5 hover:bg-[#8DAA9D]/5 transition-all duration-700 cursor-pointer"
               >
                 <div className="hidden lg:block lg:col-span-1 text-[10px] font-mono opacity-20 group-hover:opacity-100 transition-all">
-                  {String(index + 1).padStart(2, "0")}
+                  {String((page - 1) * limit + index + 1).padStart(2, "0")}
                 </div>
 
                 <div className="lg:col-span-4 flex items-center gap-8">
@@ -180,6 +195,42 @@ const DoctorList = () => {
             </div>
           )}
         </div>
+
+        {/* 04. PAGINATION CONTROLLER */}
+        {!loading && totalPages > 1 && (
+          <div className="mt-20 flex justify-between items-center border-t border-[#2D302D]/10 pt-12">
+            <div className="flex gap-4">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="text-[10px] font-bold uppercase tracking-widest opacity-40 hover:opacity-100 disabled:opacity-10 disabled:cursor-not-allowed transition-all"
+              >
+                Previous
+              </button>
+              <div className="flex gap-2">
+                {[...Array(totalPages)].map((_, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setPage(i + 1)}
+                    className={`text-[10px] font-bold w-8 h-8 flex items-center justify-center transition-all rounded-full ${page === i + 1 ? 'bg-[#8DAA9D] text-white' : 'opacity-30 hover:opacity-100 hover:bg-[#8DAA9D]/10'}`}
+                  >
+                    {i + 1}
+                  </button>
+                ))}
+              </div>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="text-[10px] font-bold uppercase tracking-widest opacity-40 hover:opacity-100 disabled:opacity-10 disabled:cursor-not-allowed transition-all"
+              >
+                Next
+              </button>
+            </div>
+            <div className="text-[10px] font-bold uppercase tracking-widest opacity-30 italic font-serif">
+              Page {page} of {totalPages}
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );
