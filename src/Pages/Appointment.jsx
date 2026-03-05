@@ -16,6 +16,8 @@ import {
   Building2,
   Stethoscope,
   Loader2,
+  MapPin,
+  Video,
 } from "lucide-react";
 
 const API_BASE = "http://localhost:5000/api";
@@ -28,6 +30,13 @@ const validatePhone = (phone) => {
 
 const normalizeId = (x) => (x?._id || x?.id || "").toString();
 const safeStr = (v) => String(v ?? "").trim();
+
+const formatTo12h = (time24) => {
+  const [hh, mm] = time24.split(":").map(Number);
+  const period = hh >= 12 ? "PM" : "AM";
+  const h12 = hh % 12 || 12;
+  return `${h12}:${String(mm).padStart(2, "0")} ${period}`;
+};
 
 const AppointmentPage = () => {
   const { id: urlClinicId } = useParams();
@@ -51,24 +60,38 @@ const AppointmentPage = () => {
     phone: "",
   });
 
+  // --- PATIENT FORM ---
+  const [patient, setPatient] = useState({ name: "", email: "", phone: "", notes: "" });
+
   // --- DATA STATE ---
   const [data, setData] = useState({ clinics: [], doctors: [] });
+  const [createdAppointment, setCreatedAppointment] = useState(null);
   const [selection, setSelection] = useState({
     clinic: null,
     doctor: location.state?.doctor || null,
+    consultationType: null, // "in-clinic" | "video"
     date: null,
     slot: null,
   });
 
-  const [patient, setPatient] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    notes: "",
-  });
-
   // --- CONSTANTS ---
   const timeSlots = useMemo(() => ["09:00", "10:30", "13:00", "14:30", "16:00"], []);
+  const [bookedSlots, setBookedSlots] = useState([]);
+
+  const consultationTypes = useMemo(() => [
+    {
+      id: "in-clinic",
+      label: "In-Clinic Visit",
+      desc: "Visit the facility in person for your consultation",
+      icon: <MapPin size={20} />,
+    },
+    {
+      id: "video",
+      label: "Video Consultation",
+      desc: "Connect via secure video call from anywhere",
+      icon: <Video size={20} />,
+    },
+  ], []);
 
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
@@ -170,12 +193,49 @@ const AppointmentPage = () => {
     return () => controller.abort();
   }, [selection.clinic, location.state?.doctorId]);
 
-  /* ----------------------- 3) Derived Fee ----------------------- */
+  /* ----------------------- 3) Fetch Booked Slots ----------------------- */
+  useEffect(() => {
+    const doctorId = normalizeId(selection.doctor);
+    const dateStr = selection.date?.fullDate;
+    if (!doctorId || !dateStr) {
+      setBookedSlots([]);
+      return;
+    }
+
+    const controller = new AbortController();
+
+    const fetchBooked = async () => {
+      try {
+        const { data: res } = await axios.get(
+          `${API_BASE}/appointments/booked-slots`,
+          { params: { doctorId, date: dateStr }, signal: controller.signal }
+        );
+        if (res?.success) {
+          setBookedSlots(res.data || []);
+        }
+      } catch (err) {
+        if (err?.name === "CanceledError") return;
+        setBookedSlots([]);
+      }
+    };
+
+    fetchBooked();
+    return () => controller.abort();
+  }, [selection.doctor, selection.date]);
+
+  const availableSlots = useMemo(
+    () => timeSlots.filter((t) => !bookedSlots.includes(t)),
+    [timeSlots, bookedSlots]
+  );
+
+  /* ----------------------- 4) Derived Fee ----------------------- */
   const totalFee = useMemo(() => {
     const d = selection.doctor;
     const fee = Number(d?.consultationFee ?? d?.fee ?? 0);
-    return Number.isFinite(fee) ? fee : 0;
-  }, [selection.doctor]);
+    const base = Number.isFinite(fee) ? fee : 0;
+    // Video consultation at 60% of in-clinic fee
+    return selection.consultationType === "video" ? Math.round(base * 0.6) : base;
+  }, [selection.doctor, selection.consultationType]);
 
   /* ----------------------- 4) GSAP Step Animation ----------------------- */
   useLayoutEffect(() => {
@@ -206,8 +266,9 @@ const AppointmentPage = () => {
   const canProceed = useMemo(() => {
     if (step === 1) return Boolean(selection.clinic);
     if (step === 2) return Boolean(selection.doctor);
-    if (step === 3) return Boolean(selection.date && selection.slot);
-    if (step === 4) return Boolean(patient.name) && validateEmail(patient.email) && validatePhone(patient.phone);
+    if (step === 3) return Boolean(selection.consultationType);
+    if (step === 4) return Boolean(selection.date && selection.slot);
+    if (step === 5) return Boolean(patient.name) && validateEmail(patient.email) && validatePhone(patient.phone);
     return false;
   }, [step, selection, patient]);
 
@@ -219,8 +280,8 @@ const AppointmentPage = () => {
     const clinicId = normalizeId(selection.clinic);
     const doctorId = normalizeId(selection.doctor);
 
-    if (!clinicId || !doctorId || !selection?.date?.fullDate || !selection?.slot) {
-      setError("Selection incomplete. Please verify clinic/doctor/date/slot.");
+    if (!clinicId || !doctorId || !selection?.date?.fullDate || !selection?.slot || !selection?.consultationType) {
+      setError("Selection incomplete. Please verify clinic/doctor/type/date/slot.");
       return;
     }
 
@@ -238,6 +299,7 @@ const AppointmentPage = () => {
         doctorId,
         date: selection.date.fullDate,
         slot: selection.slot,
+        consultationType: selection.consultationType,
 
         // patient snapshot
         patientName: safeStr(patient.name),
@@ -255,7 +317,8 @@ const AppointmentPage = () => {
       });
 
       if (res?.success) {
-        setStep(5);
+        setCreatedAppointment(res.data || null);
+        setStep(6);
         return;
       }
 
@@ -292,12 +355,12 @@ const AppointmentPage = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-[#FAF9F6] text-[#2D302D] min-h-screen font-sans selection:bg-[#8DAA9D] selection:text-white"
+      className="bg-[#FAF9F6] text-[#2D302D] min-h-screen font-sans selection:bg-[#8DAA9D] selection:text-white pt-20"
     >
-      {/* Nav */}
-      <nav className="fixed w-full z-50 bg-[#FAF9F6]/90 backdrop-blur-md border-b border-[#2D302D]/5 px-8 lg:px-16 py-6 flex justify-between items-center">
+      {/* Step Progress Bar */}
+      <div className="bg-[#FAF9F6] border-b border-[#2D302D]/5 px-8 lg:px-16 py-6 flex justify-between items-center">
         <div className="flex gap-2">
-          {[1, 2, 3, 4, 5].map((s) => (
+          {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
               key={s}
               className={`w-8 h-1 transition-all duration-500 ${step >= s ? "bg-[#8DAA9D]" : "bg-[#2D302D]/10"
@@ -311,9 +374,9 @@ const AppointmentPage = () => {
         >
           <ArrowLeft size={14} /> Abandon Entry
         </button>
-      </nav>
+      </div>
 
-      <main className="pt-40 pb-24 px-8 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <main className="pb-24 px-8 lg:px-16 pt-12 grid grid-cols-1 lg:grid-cols-12 gap-16">
         <div className="lg:col-span-7 step-anim">
           {/* STEP 1 */}
           {step === 1 && (
@@ -400,8 +463,50 @@ const AppointmentPage = () => {
             </section>
           )}
 
-          {/* STEP 3 */}
+          {/* STEP 3 — Consultation Type */}
           {step === 3 && (
+            <section className="space-y-12">
+              <h2 className="text-5xl font-light tracking-tighter uppercase">
+                Consultation Type
+              </h2>
+              <p className="text-sm opacity-50 uppercase tracking-widest">
+                Choose how you'd like to consult with your doctor
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {consultationTypes.map((ct) => {
+                  const active = selection.consultationType === ct.id;
+                  return (
+                    <button
+                      key={ct.id}
+                      onClick={() =>
+                        setSelection((prev) => ({ ...prev, consultationType: ct.id }))
+                      }
+                      className={`p-8 border text-left transition-all flex flex-col gap-4 ${
+                        active
+                          ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
+                          : "border-[#2D302D]/10 hover:border-[#2D302D]/30"
+                      }`}
+                    >
+                      <div className={`${active ? "text-[#8DAA9D]" : "opacity-40"}`}>
+                        {ct.icon}
+                      </div>
+                      <div>
+                        <p className="font-bold uppercase text-sm tracking-tight">{ct.label}</p>
+                        <p className="text-[10px] opacity-50 uppercase tracking-widest mt-1">
+                          {ct.desc}
+                        </p>
+                      </div>
+                      {active && <CheckCircle2 size={18} className="text-[#8DAA9D]" />}
+                    </button>
+                  );
+                })}
+              </div>
+            </section>
+          )}
+
+          {/* STEP 4 — Date & Slot */}
+          {step === 4 && (
             <section className="space-y-12">
               <h2 className="text-5xl font-light tracking-tighter uppercase">
                 Temporal Slot
@@ -413,7 +518,7 @@ const AppointmentPage = () => {
                   return (
                     <button
                       key={d.fullDate}
-                      onClick={() => setSelection((prev) => ({ ...prev, date: d }))}
+                      onClick={() => setSelection((prev) => ({ ...prev, date: d, slot: null }))}
                       className={`p-4 border text-center transition-all ${active
                           ? "bg-[#8DAA9D] text-white"
                           : "border-[#2D302D]/10"
@@ -429,27 +534,34 @@ const AppointmentPage = () => {
               </div>
 
               <div className="grid grid-cols-3 gap-2">
-                {timeSlots.map((t) => {
-                  const active = selection.slot === t;
-                  return (
-                    <button
-                      key={t}
-                      onClick={() => setSelection((prev) => ({ ...prev, slot: t }))}
-                      className={`p-4 border text-sm transition-all ${active
-                          ? "bg-[#2D302D] text-white"
-                          : "border-[#2D302D]/10"
+                {availableSlots.length === 0 ? (
+                  <p className="col-span-3 text-sm opacity-50 uppercase tracking-widest py-4">
+                    No available slots for this date
+                  </p>
+                ) : (
+                  availableSlots.map((t) => {
+                    const active = selection.slot === t;
+                    return (
+                      <button
+                        key={t}
+                        onClick={() => setSelection((prev) => ({ ...prev, slot: t }))}
+                        className={`p-4 border text-sm transition-all ${
+                          active
+                            ? "bg-[#2D302D] text-white"
+                            : "border-[#2D302D]/10"
                         }`}
-                    >
-                      {t}
-                    </button>
-                  );
-                })}
+                      >
+                        {formatTo12h(t)}
+                      </button>
+                    );
+                  })
+                )}
               </div>
             </section>
           )}
 
-          {/* STEP 4 */}
-          {step === 4 && (
+          {/* STEP 5 — Patient Info */}
+          {step === 5 && (
             <section className="space-y-12">
               <h2 className="text-5xl font-light tracking-tighter uppercase">
                 Patient Dossier
@@ -511,32 +623,52 @@ const AppointmentPage = () => {
             </section>
           )}
 
-          {/* SUCCESS */}
-          {step === 5 && (
+          {/* STEP 6 — SUCCESS */}
+          {step === 6 && (
             <section className="text-center py-20 space-y-6">
               <div className="w-20 h-20 bg-[#8DAA9D]/10 rounded-full flex items-center justify-center mx-auto text-[#8DAA9D]">
                 <CheckCircle2 size={40} />
               </div>
               <h2 className="text-4xl font-light uppercase">Protocol Validated</h2>
-              <button
-                onClick={() => navigate("/")}
-                className="px-8 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-widest"
-              >
-                Return Home
-              </button>
+              <p className="text-sm opacity-50 uppercase tracking-widest">
+                {selection.consultationType === "video"
+                  ? "Your video consultation has been booked. Join the call below."
+                  : "Your in-clinic appointment has been confirmed."}
+              </p>
+
+              <div className="flex items-center justify-center gap-4 mt-8">
+                <button
+                  onClick={() => navigate("/")}
+                  className="px-8 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-widest"
+                >
+                  Return Home
+                </button>
+                {selection.consultationType === "video" && createdAppointment?.meetingLink && (
+                  <button
+                    onClick={() => {
+                      const token = createdAppointment.meetingLink.split("/consultation/")[1];
+                      if (token) navigate(`/consultation/${token}`);
+                    }}
+                    className="px-8 py-4 bg-[#8DAA9D] text-white text-[10px] uppercase tracking-widest flex items-center gap-3 hover:bg-[#8DAA9D]/80 transition-colors"
+                  >
+                    <Video size={14} />
+                    Join Video Call
+                  </button>
+                )}
+              </div>
             </section>
           )}
 
-          {step < 5 && (
+          {step < 6 && (
             <div className="mt-12 flex items-center gap-6">
               <button
                 disabled={!canProceed || isLoading.submit}
-                onClick={() => (step === 4 ? handleSubmission() : setStep((s) => s + 1))}
+                onClick={() => (step === 5 ? handleSubmission() : setStep((s) => s + 1))}
                 className="px-12 py-6 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-[#8DAA9D] transition-all disabled:opacity-30 flex items-center gap-2"
               >
                 {isLoading.submit ? (
                   <Loader2 className="animate-spin" size={14} />
-                ) : step === 4 ? (
+                ) : step === 5 ? (
                   "Initialize Protocol"
                 ) : (
                   "Proceed"
@@ -586,8 +718,18 @@ const AppointmentPage = () => {
               <span>{selection.clinic?.name || "---"}</span>
             </div>
             <div className="flex justify-between">
+              <span className="opacity-40">Type</span>
+              <span>
+                {selection.consultationType === "video"
+                  ? "Video Call"
+                  : selection.consultationType === "in-clinic"
+                  ? "In-Clinic"
+                  : "---"}
+              </span>
+            </div>
+            <div className="flex justify-between">
               <span className="opacity-40">Temporal Slot</span>
-              <span>{selection.slot || "---"}</span>
+              <span>{selection.slot ? formatTo12h(selection.slot) : "---"}</span>
             </div>
             <div className="flex justify-between border-t pt-4">
               <span className="opacity-40 font-bold">Total Fee</span>

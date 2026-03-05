@@ -1,18 +1,37 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
-import { 
-  ShieldCheck, Lock, Smartphone, History, 
-  KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2 
+import {
+  ShieldCheck, Lock, Smartphone, History,
+  KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2
 } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
 
-const SecurityLogin = () => {
+const cleanToken = (t) => {
+  if (!t || typeof t !== "string") return null;
+  const x = t.replace(/['"]+/g, "").trim();
+  if (!x || x === "undefined" || x === "null") return null;
+  return x;
+};
+const readAuthToken = () => {
+  const t1 = cleanToken(localStorage.getItem("authToken"));
+  if (t1 && t1.split(".").length === 3) return t1;
+  const t2 = cleanToken(localStorage.getItem("token"));
+  if (t2 && t2.split(".").length === 3) return t2;
+  return null;
+};
+const authHeaders = () => {
+  const token = readAuthToken();
+  if (!token) throw new Error("Session missing.");
+  return { Authorization: `Bearer ${token}` };
+};
+
+const SecurityLogin = ({ data, onUpdate }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
-  
+
   const [passwords, setPasswords] = useState({
     currentPassword: "",
     newPassword: "",
@@ -30,17 +49,15 @@ const SecurityLogin = () => {
   // 1. DATA INITIALIZATION: Fetch active sessions and current settings
   const fetchSecurityData = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
-      const config = { headers: { Authorization: `Bearer ${token}` } };
-      
-      const [sessionsRes, prefsRes] = await Promise.all([
-        axios.get(`${API_BASE_URL}/users/sessions`, config),
-        axios.get(`${API_BASE_URL}/users/security-settings`, config)
-      ]);
+      const config = { headers: authHeaders() };
 
-      if (sessionsRes.data.success) setActiveSessions(sessionsRes.data.data);
-      if (prefsRes.data.success) setSecurityPrefs(prefsRes.data.data);
-      
+      const prefsRes = await axios.get(`${API_BASE_URL}/api/tenants/security`, config);
+
+      if (prefsRes.data.success) {
+        setActiveSessions(prefsRes.data.data.sessions || []);
+        setSecurityPrefs(prev => ({ ...prev, twoFactor: prefsRes.data.data.twoFactor }));
+      }
+
     } catch (err) {
       console.error("Failed to sync security data", err);
     } finally {
@@ -55,15 +72,14 @@ const SecurityLogin = () => {
   // 2. DYNAMIC PREFERENCE UPDATES (Toggles)
   const toggleSecuritySetting = async (key) => {
     const updatedValue = !securityPrefs[key];
-    
+
     // Optimistic Update
     setSecurityPrefs(prev => ({ ...prev, [key]: updatedValue }));
 
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(`${API_BASE_URL}/users/update-security`, 
-        { [key]: updatedValue }, 
-        { headers: { Authorization: `Bearer ${token}` } }
+      await axios.put(`${API_BASE_URL}/api/tenants/security`,
+        { [key]: updatedValue },
+        { headers: authHeaders() }
       );
       setMessage({ type: "success", text: `${key} preference updated.` });
     } catch (err) {
@@ -84,9 +100,8 @@ const SecurityLogin = () => {
 
     setIsSaving(true);
     try {
-      const token = localStorage.getItem("token");
-      await axios.put(`${API_BASE_URL}/users/change-password`, passwords, {
-        headers: { Authorization: `Bearer ${token}` }
+      await axios.put(`${API_BASE_URL}/api/tenants/change-password`, passwords, {
+        headers: authHeaders()
       });
 
       setMessage({ type: "success", text: "Credentials updated." });
@@ -109,9 +124,8 @@ const SecurityLogin = () => {
     <div className="space-y-12 animate-in fade-in duration-700">
       {/* Dynamic Feedback Toast */}
       {message.text && (
-        <div className={`fixed top-8 right-8 z-100 flex items-center gap-3 px-6 py-4 border shadow-2xl ${
-          message.type === "success" ? "bg-white border-emerald-500 text-emerald-700" : "bg-white border-red-500 text-red-700"
-        }`}>
+        <div className={`fixed top-8 right-8 z-100 flex items-center gap-3 px-6 py-4 border shadow-2xl ${message.type === "success" ? "bg-white border-emerald-500 text-emerald-700" : "bg-white border-red-500 text-red-700"
+          }`}>
           {message.type === "success" ? <CheckCircle2 size={12} /> : <AlertTriangle size={12} />}
           <span className="text-[10px] uppercase tracking-[0.2em] font-black">{message.text}</span>
         </div>
@@ -127,15 +141,15 @@ const SecurityLogin = () => {
         <form onSubmit={handlePasswordChange} className="space-y-8 bg-[#FAF9F6] p-10">
           <div className="relative border-b border-gray-200 focus-within:border-black transition-colors">
             <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">Current Signature</label>
-            <input 
+            <input
               type={showPassword ? "text" : "password"}
               required
               className="w-full bg-transparent py-2 text-xs outline-none"
               value={passwords.currentPassword}
-              onChange={(e) => setPasswords({...passwords, currentPassword: e.target.value})}
+              onChange={(e) => setPasswords({ ...passwords, currentPassword: e.target.value })}
             />
             <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-0 bottom-2 opacity-30 hover:opacity-100">
-              {showPassword ? <EyeOff size={14}/> : <Eye size={14}/>}
+              {showPassword ? <EyeOff size={14} /> : <Eye size={14} />}
             </button>
           </div>
 
@@ -144,14 +158,14 @@ const SecurityLogin = () => {
               <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">New Key</label>
               <input type="password" required className="w-full bg-transparent py-2 text-xs outline-none"
                 value={passwords.newPassword}
-                onChange={(e) => setPasswords({...passwords, newPassword: e.target.value})}
+                onChange={(e) => setPasswords({ ...passwords, newPassword: e.target.value })}
               />
             </div>
             <div className="border-b border-gray-200 focus-within:border-black">
               <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">Confirm New Key</label>
               <input type="password" required className="w-full bg-transparent py-2 text-xs outline-none"
                 value={passwords.confirmPassword}
-                onChange={(e) => setPasswords({...passwords, confirmPassword: e.target.value})}
+                onChange={(e) => setPasswords({ ...passwords, confirmPassword: e.target.value })}
               />
             </div>
           </div>
@@ -168,14 +182,14 @@ const SecurityLogin = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="h-10 w-10 bg-gray-50 flex items-center justify-center rounded-full">
-                <Smartphone size={16} className={securityPrefs.twoFactor ? "text-[#8DAA9D]" : "text-gray-300"} />
+              <Smartphone size={16} className={securityPrefs.twoFactor ? "text-[#8DAA9D]" : "text-gray-300"} />
             </div>
             <div>
               <h4 className="text-[10px] font-black uppercase tracking-widest">Two-Factor Authentication</h4>
               <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">Multi-layered clinical access protocol</p>
             </div>
           </div>
-          <button 
+          <button
             onClick={() => toggleSecuritySetting('twoFactor')}
             className={`w-12 h-6 rounded-full p-1 transition-all duration-500 ${securityPrefs.twoFactor ? "bg-[#8DAA9D]" : "bg-gray-200"}`}
           >
@@ -190,7 +204,7 @@ const SecurityLogin = () => {
           <History size={16} className="text-gray-400" />
           <h4 className="text-[10px] font-black uppercase tracking-[0.3em]">Institutional Log</h4>
         </div>
-        
+
         <div className="grid gap-4">
           {activeSessions.length > 0 ? activeSessions.map((session, i) => (
             <div key={i} className="flex items-center justify-between p-6 border border-gray-100 hover:border-[#8DAA9D]/30 transition-all">

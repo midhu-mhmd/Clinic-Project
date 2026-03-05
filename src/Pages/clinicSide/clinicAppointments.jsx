@@ -14,6 +14,8 @@ import {
   Phone,
   Stethoscope,
   Save,
+  Video,
+  MapPin,
 } from "lucide-react";
 
 const API_BASE =
@@ -268,6 +270,10 @@ const Appointments = () => {
       const status = (app?.status || "PENDING").toUpperCase();
       const fee = formatMoney(app?.consultationFee);
 
+      const consultationType = app?.consultationType || "in-clinic";
+      const consultationLabel =
+        consultationType === "video" ? "Online Consultation" : "Clinic Visit";
+
       const searchBlob = [
         patient.name,
         patient.email,
@@ -278,6 +284,7 @@ const Appointments = () => {
         id,
         ref,
         status,
+        consultationLabel,
       ]
         .filter(Boolean)
         .join(" ")
@@ -294,6 +301,8 @@ const Appointments = () => {
         timeStr,
         status,
         fee,
+        consultationType,
+        consultationLabel,
         searchBlob,
       };
     });
@@ -480,6 +489,9 @@ const Appointments = () => {
                 Date & Time
               </th>
               <th className="p-6 text-[9px] uppercase tracking-[0.3em] font-bold text-gray-400">
+                Type
+              </th>
+              <th className="p-6 text-[9px] uppercase tracking-[0.3em] font-bold text-gray-400">
                 Status
               </th>
               <th className="p-6 text-[9px] uppercase tracking-[0.3em] font-bold text-gray-400">
@@ -492,7 +504,7 @@ const Appointments = () => {
           <tbody className="divide-y divide-gray-100">
             {loading ? (
               <tr>
-                <td colSpan="7" className="p-20 text-center">
+                  <td colSpan="8" className="p-20 text-center">
                   <Loader2
                     className="animate-spin inline-block mb-2 opacity-20"
                     size={30}
@@ -562,6 +574,19 @@ const Appointments = () => {
                   </td>
 
                   <td className="p-6">
+                    <div className="flex items-center gap-2">
+                      {row.consultationType === "video" ? (
+                        <Video size={13} className="text-blue-500" />
+                      ) : (
+                        <MapPin size={13} className="text-emerald-500" />
+                      )}
+                      <span className="text-[10px] uppercase tracking-widest font-bold">
+                        {row.consultationLabel}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td className="p-6">
                     <span
                       className={`px-3 py-1 border text-[9px] font-bold uppercase tracking-widest ${getStatusStyle(
                         row.status
@@ -590,7 +615,7 @@ const Appointments = () => {
             ) : (
               <tr>
                 <td
-                  colSpan="7"
+                  colSpan="8"
                   className="p-20 text-center opacity-30 text-[10px] uppercase font-bold tracking-widest"
                 >
                   No appointments found
@@ -673,6 +698,22 @@ const Appointments = () => {
                     </p>
                     <p className="text-sm font-medium">
                       Dr. {activeRow.doctorName} • {activeRow.specialization}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  {activeRow.consultationType === "video" ? (
+                    <Video size={16} className="text-blue-500" />
+                  ) : (
+                    <MapPin size={16} className="text-emerald-500" />
+                  )}
+                  <div>
+                    <p className="text-[9px] uppercase tracking-widest text-gray-400 font-bold">
+                      Consultation Type
+                    </p>
+                    <p className="text-sm font-medium">
+                      {activeRow.consultationLabel}
                     </p>
                   </div>
                 </div>

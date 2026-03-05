@@ -23,6 +23,11 @@ import Help from "./Pages/Help.jsx";
 import AppointmentPage from "./Pages/Appointment.jsx";
 import Profile from "./Pages/profile.jsx";
 import MyAppointments from "./Pages/myAppointments.jsx";
+import Notifications from "./Pages/Notifications.jsx";
+import ConsultationRoom from "./Pages/ConsultationRoom.jsx";
+import SupportTickets from "./Pages/SupportTickets.jsx";
+import MyConsultations from "./Pages/MyConsultations.jsx";
+import AIChatbot from "./Pages/AIChatbot.jsx";
 
 // Dashboard / Admin Components
 import TenantDashboard from "./Pages/ClinicDashboard.jsx";
@@ -33,6 +38,8 @@ import GlobalDirectory from "./Pages/adminDashboard/GlobalDirectory.jsx";
 import Subscriptions from "./Pages/adminDashboard/Subscriptions.jsx";
 import SystemLogs from "./Pages/adminDashboard/SystemLogs.jsx";
 import PatientsPage from "./Pages/adminDashboard/PatientsPage.jsx";
+import AdminSettings from "./Pages/adminDashboard/AdminSettings.jsx";
+import AdminNotifications from "./Pages/adminDashboard/AdminNotifications.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -40,6 +47,7 @@ const App = () => {
   const isClinicSide =
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/admin") ||
+    location.pathname.startsWith("/consultation") ||
     ["/clinic-login", "/clinic-registration", "/plans", "/payment", "/login", "/register"].some(
       (path) => location.pathname.startsWith(path),
     );
@@ -62,7 +70,12 @@ const App = () => {
         <Route path="/clinic/:id" element={<ClinicProfile />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
         <Route path="/appointment/:id" element={<AppointmentPage />} />
+        <Route path="/consultation/:roomToken" element={<ConsultationRoom />} />
         <Route path="/appointments" element={<MyAppointments />} />
+        <Route path="/notifications" element={<Notifications />} />
+        <Route path="/support" element={<SupportTickets />} />
+        <Route path="/my-consultations" element={<MyConsultations />} />
+        <Route path="/ai-assistant" element={<AIChatbot />} />
         <Route path="/profile" element={<Profile />} />
 
         {/* --- CLINIC AUTH & ONBOARDING --- */}
@@ -83,6 +96,8 @@ const App = () => {
           <Route path="subscriptions" element={<Subscriptions />} />
           <Route path="system-logs" element={<SystemLogs />} />
           <Route path="patients" element={<PatientsPage />} />
+          <Route path="settings" element={<AdminSettings />} />
+          <Route path="notifications" element={<AdminNotifications />} />
         </Route>
 
         <Route

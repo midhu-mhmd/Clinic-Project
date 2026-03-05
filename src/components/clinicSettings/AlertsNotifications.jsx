@@ -1,23 +1,43 @@
-import React, { useState } from "react";
-import axios from "axios";
-import { 
-  BellRing, Mail, Smartphone, BellOff, 
+import React, { useState, useEffect, useCallback, useRef } from "react";
+import {
+  BellRing, Mail, Smartphone, BellOff,
   Stethoscope, Calendar, CreditCard, ShieldAlert,
-  Save, CheckCircle2
+  Save, CheckCircle2, AlertCircle, Loader2
 } from "lucide-react";
 
-const AlertsNotifications = () => {
+const DEFAULT_PREFS = {
+  patientBookings: { email: true, push: true },
+  appointmentReminders: { email: true, push: false },
+  billingAlerts: { email: true, push: true },
+  securityLogs: { email: true, push: true },
+  marketingUpdates: { email: false, push: false },
+};
+
+const AlertsNotifications = ({ data, onUpdate }) => {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState({ type: "", text: "" });
+  const [globalMute, setGlobalMute] = useState(false);
+  const timerRef = useRef(null);
 
-  // Grouped notification settings
-  const [prefs, setPrefs] = useState({
-    patientBookings: { email: true, push: true },
-    appointmentReminders: { email: true, push: false },
-    billingAlerts: { email: true, push: true },
-    securityLogs: { email: true, push: true },
-    marketingUpdates: { email: false, push: false }
-  });
+  const [prefs, setPrefs] = useState(DEFAULT_PREFS);
+
+  const showMsg = useCallback((type, text) => {
+    setMessage({ type, text });
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => setMessage({ type: "", text: "" }), 4000);
+  }, []);
+
+  useEffect(() => () => { if (timerRef.current) clearTimeout(timerRef.current); }, []);
+
+  // Seed from parent data
+  useEffect(() => {
+    if (data?.settings?.notifications) {
+      setPrefs((prev) => ({ ...prev, ...data.settings.notifications }));
+    }
+    if (typeof data?.settings?.globalMute === "boolean") {
+      setGlobalMute(data.settings.globalMute);
+    }
+  }, [data]);
 
   const togglePref = (category, channel) => {
     setPrefs(prev => ({
@@ -32,18 +52,38 @@ const AlertsNotifications = () => {
   const handleSave = async () => {
     setIsSaving(true);
     try {
-      const token = localStorage.getItem("token");
-      // Persist to tenant settings
-      await axios.put("http://localhost:5000/api/tenants/update", 
-        { settings: { notifications: prefs } },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-      setMessage({ type: "success", text: "Preferences Synchronized" });
-    } catch (err) {
-      setMessage({ type: "error", text: "Failed to update notification logic." });
+      const payload = { settings: { notifications: prefs, globalMute } };
+      if (typeof onUpdate === "function") {
+        const result = await onUpdate(payload);
+        if (result?.success === false) {
+          showMsg("error", result?.message || "Save failed");
+          return;
+        }
+      }
+      showMsg("success", "Preferences Synchronized");
+    } catch {
+      showMsg("error", "Failed to update notification logic.");
     } finally {
       setIsSaving(false);
-      setTimeout(() => setMessage({ type: "", text: "" }), 3000);
+    }
+  };
+
+  const handleToggleMute = async () => {
+    const newVal = !globalMute;
+    setGlobalMute(newVal);
+    try {
+      if (typeof onUpdate === "function") {
+        const result = await onUpdate({ settings: { globalMute: newVal } });
+        if (result?.success === false) {
+          setGlobalMute(!newVal);
+          showMsg("error", result?.message || "Toggle failed");
+          return;
+        }
+      }
+      showMsg("success", newVal ? "Global Mute Enabled" : "Global Mute Disabled");
+    } catch {
+      setGlobalMute(!newVal);
+      showMsg("error", "Toggle failed.");
     }
   };
 
@@ -144,7 +184,7 @@ const AlertsNotifications = () => {
       {/* DO NOT DISTURB MODE */}
       <section className="p-8 bg-gray-50 border border-gray-100 flex items-center justify-between">
         <div className="flex items-center gap-4">
-          <div className="p-3 bg-white rounded-full text-gray-300">
+          <div className={`p-3 rounded-full ${globalMute ? "bg-black text-white" : "bg-white text-gray-300"}`}>
             <BellOff size={20} />
           </div>
           <div>
@@ -152,8 +192,15 @@ const AlertsNotifications = () => {
             <p className="text-[9px] text-gray-400 uppercase tracking-widest mt-1">Silence all non-critical administrative alerts.</p>
           </div>
         </div>
-        <button className="px-6 py-2 border border-black text-[9px] font-bold uppercase tracking-widest hover:bg-black hover:text-white transition-all">
-          Enable
+        <button
+          onClick={handleToggleMute}
+          className={`px-6 py-2 border text-[9px] font-bold uppercase tracking-widest transition-all ${
+            globalMute
+              ? "bg-black text-white border-black hover:bg-gray-800"
+              : "border-black text-black hover:bg-black hover:text-white"
+          }`}
+        >
+          {globalMute ? "Disable" : "Enable"}
         </button>
       </section>
 

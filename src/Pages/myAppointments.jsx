@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import gsap from "gsap";
-import { Calendar, Clock, User, Building2, ChevronRight, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
+import { Calendar, Clock, User, Building2, ChevronRight, ArrowLeft, Loader2, AlertCircle, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 
 const MyAppointments = () => {
@@ -208,6 +208,17 @@ const MyAppointments = () => {
                                     >
                                         Details <ChevronRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                                     </button>
+                                    {apt.consultationType === "video" && apt.meetingLink && ["PENDING", "CONFIRMED"].includes(apt.status) && (
+                                        <button
+                                            onClick={() => {
+                                                const token = apt.meetingLink.split("/consultation/")[1];
+                                                if (token) navigate(`/consultation/${token}`);
+                                            }}
+                                            className="flex md:w-full items-center justify-center gap-2 text-[9px] uppercase tracking-[0.2em] font-bold text-white bg-[#8DAA9D] px-4 py-2.5 rounded-full hover:bg-[#2D302D] transition-all duration-500"
+                                        >
+                                            <Video size={12} /> Join Video Call
+                                        </button>
+                                    )}
                                 </div>
                             </div>
                         ))}
@@ -331,6 +342,17 @@ const MyAppointments = () => {
 
                             {/* MODAL FOOTER */}
                             <div className="p-8 bg-[#FAF9F6] border-t border-[#2D302D]/5 flex justify-end gap-4">
+                                {selectedAppointment.consultationType === "video" && selectedAppointment.meetingLink && ["PENDING", "CONFIRMED"].includes(selectedAppointment.status) && (
+                                    <button
+                                        onClick={() => {
+                                            const token = selectedAppointment.meetingLink.split("/consultation/")[1];
+                                            if (token) navigate(`/consultation/${token}`);
+                                        }}
+                                        className="px-10 py-4 bg-[#8DAA9D] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#2D302D] transition-all flex items-center gap-2"
+                                    >
+                                        <Video size={14} /> Join Video Call
+                                    </button>
+                                )}
                                 <button
                                     onClick={closeModal}
                                     className="px-10 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#8DAA9D] transition-all"

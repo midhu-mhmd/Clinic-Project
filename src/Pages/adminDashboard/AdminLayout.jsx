@@ -26,6 +26,8 @@ const AdminLayout = () => {
     { icon: <LayoutGrid size={20} />, label: "Directory", path: "/admin/global-directory" },
     { icon: <CreditCard size={20} />, label: "Billing", path: "/admin/subscriptions" },
     { icon: <Activity size={20} />, label: "Logs", path: "/admin/system-logs" },
+    { icon: <Bell size={20} />, label: "Notifications", path: "/admin/notifications" },
+    { icon: <Settings size={20} />, label: "Settings", path: "/admin/settings" },
   ];
 
   const currentPage = menuItems.find((m) => m.path === location.pathname)?.label || "Dashboard";
@@ -114,7 +116,7 @@ const AdminLayout = () => {
             </div>
 
             {/* Notifications */}
-            <button className="relative rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors">
+            <button onClick={() => navigate("/admin/notifications")} className="relative rounded-full p-2 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600 transition-colors">
               <Bell size={20} />
               <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500 ring-2 ring-[#FAFAFA]"></span>
             </button>

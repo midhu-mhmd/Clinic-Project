@@ -7,16 +7,12 @@ import {
   Star,
   Shield,
   Clock,
-  MapPin,
   ArrowRight,
-  MessageSquare,
   Quote,
   Award,
   Loader2,
   AlertCircle,
 } from "lucide-react";
-
-gsap.registerPlugin(ScrollTrigger);
 
 const API_BASE_URL = "http://localhost:5000/api";
 
@@ -167,26 +163,6 @@ const DoctorProfile = () => {
     return () => ctx.revert();
   }, [loading, doctor]);
 
-  const [selectedConsultType, setSelectedConsultType] = useState("Neural Consult (Video)");
-
-  // ✅ Appointment Options Data
-  const appointmentOptions = useMemo(
-    () => [
-      {
-        id: "in-clinic",
-        type: "In-Clinic Visit",
-        price: `₹${doctor?.fees || doctor?.consultationFee || 150}`,
-        icon: <MapPin size={16} />,
-      },
-      {
-        id: "video",
-        type: "Neural Consult (Video)",
-        price: `₹${Math.round((doctor?.fees || doctor?.consultationFee || 150) * 0.6)}`,
-        icon: <MessageSquare size={16} />,
-      },
-    ],
-    [doctor]
-  );
 
   if (loading)
     return (
@@ -365,37 +341,6 @@ const DoctorProfile = () => {
                 </div>
               </div>
 
-              <div className="space-y-4">
-                {appointmentOptions.map((opt, i) => {
-                  const active = selectedConsultType === opt.type;
-                  return (
-                    <div
-                      key={i}
-                      onClick={() => setSelectedConsultType(opt.type)}
-                      className={`p-5 border transition-all cursor-pointer flex justify-between items-center group ${active
-                        ? "border-[#8DAA9D] bg-[#8DAA9D]/10"
-                        : "border-[#FAF9F6]/10 hover:border-[#FAF9F6]/30"
-                        }`}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className={active ? "text-[#8DAA9D]" : "opacity-30"}>
-                          {opt.icon}
-                        </div>
-                        <span className="text-[10px] font-bold uppercase tracking-widest">
-                          {opt.type}
-                        </span>
-                      </div>
-                      <span
-                        className={`text-[10px] font-mono ${active ? "text-[#8DAA9D]" : "opacity-30"
-                          }`}
-                      >
-                        {opt.price}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
-
               {/* ✅ BOOK APPOINTMENT (NO SILENT DISABLE) */}
               <button
                 onClick={() => {
@@ -409,7 +354,6 @@ const DoctorProfile = () => {
                     state: {
                       clinicId,
                       doctorId,
-                      consultationType: selectedConsultType
                     }
                   });
                 }}
@@ -424,7 +368,7 @@ const DoctorProfile = () => {
                 />
               </button>
 
-              <div className="flex items-center justify-center gap-3 opacity-20">
+              <div className="flex items-center justify-center gap-3 opacity-20 mt-8">
                 <Shield size={12} />
                 <span className="text-[8px] lg:text-[9px] uppercase tracking-[0.4em] font-bold">
                   Verified HIPAA Protocol
@@ -434,6 +378,7 @@ const DoctorProfile = () => {
           </div>
         </div>
       </main>
+
     </div>
   );
 };

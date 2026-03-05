@@ -83,12 +83,6 @@ const HeroSection = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-4 items-center">
           {/* LEFT: CONTENT AREA */}
           <div className="lg:col-span-7 xl:col-span-8 order-2 lg:order-1">
-            <div className="fade-up mb-8 lg:mb-12 flex items-center gap-4">
-              <span className="w-8 lg:w-12 h-px bg-[#8DAA9D]"></span>
-              <span className="text-[9px] lg:text-[10px] tracking-[0.4em] lg:tracking-[0.5em] uppercase font-bold text-[#8DAA9D]">
-                The Sovereign Protocol — 2025
-              </span>
-            </div>
 
             {/* Oversized Responsive Typography */}
             <h1 className="text-[12vw] sm:text-[10vw] lg:text-[8vw] xl:text-[8.5rem] leading-[0.85] tracking-[-0.04em] font-light uppercase">

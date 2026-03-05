@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import {
   CreditCard,
@@ -63,7 +64,8 @@ const titleCase = (s) =>
     .replace(/(^|\s)\S/g, (t) => t.toUpperCase());
 
 /* ----------------------------- COMPONENT ----------------------------- */
-const BillingSubscription = () => {
+const BillingSubscription = ({ data, onUpdate }) => {
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tenant, setTenant] = useState(null);
   const [stats, setStats] = useState(null);
@@ -84,16 +86,23 @@ const BillingSubscription = () => {
         return;
       }
 
-      // ✅ Update this invoices route if your backend path differs
-      const [profileRes, statsRes, invoiceRes] = await Promise.all([
+      const invoicePromises = [
         api.get("/api/tenants/profile", { signal }),
         api.get("/api/tenants/stats", { signal }),
-        api.get("/api/payments/invoices?limit=20", { signal }),
-      ]);
+      ];
+
+      const [profileRes, statsRes] = await Promise.all(invoicePromises);
 
       setTenant(profileRes.data?.data ?? profileRes.data);
       setStats(statsRes.data?.data ?? statsRes.data);
-      setInvoices(invoiceRes.data?.data ?? invoiceRes.data ?? []);
+
+      // Invoices endpoint may not exist yet — handle gracefully
+      try {
+        const invoiceRes = await api.get("/api/payments/invoices?limit=20", { signal });
+        setInvoices(invoiceRes.data?.data ?? invoiceRes.data ?? []);
+      } catch {
+        setInvoices([]);
+      }
     } catch (err) {
       if (err?.name === "CanceledError") return;
 
@@ -248,7 +257,7 @@ const BillingSubscription = () => {
           <button
             type="button"
             className="group flex items-center gap-3 bg-white text-black px-8 py-4 text-[10px] font-bold uppercase tracking-widest hover:bg-gray-100 transition-all"
-            onClick={() => console.log("Open subscription change modal")}
+            onClick={() => navigate("/plans")}
           >
             Modify Subscription{" "}
             <ArrowUpRight
@@ -291,7 +300,7 @@ const BillingSubscription = () => {
             <button
               type="button"
               className="text-[10px] uppercase tracking-widest font-bold text-black border-b border-black pb-1"
-              onClick={() => console.log("Edit billing details")}
+              onClick={() => navigate("/plans")}
             >
               Edit Billing Details
             </button>

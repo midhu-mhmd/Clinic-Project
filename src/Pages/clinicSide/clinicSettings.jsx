@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
-import { Globe, Lock, BellRing, CreditCard, Loader2 } from "lucide-react";
+import { Globe, Lock, BellRing, CreditCard, Palette, Loader2 } from "lucide-react";
 
 // Sub-components
 import PublicProfile from "../../components/clinicSettings/PublicProfile.jsx";
+import VisualIdentity from "../../components/clinicSettings/VisualIdentity.jsx";
 import SecurityLogin from "../../components/clinicSettings/SecurityLogin.jsx";
 import AlertsNotifications from "../../components/clinicSettings/AlertsNotifications.jsx";
 import BillingSubscription from "../../components/clinicSettings/BillingSubscription.jsx";
@@ -121,7 +122,7 @@ const ClinicSettings = () => {
           return { success: false, message: "Session missing. Please login again." };
         }
 
-        const res = await axios.put(PROFILE_URL, updatedFields, { headers });
+        const res = await axios.patch(PROFILE_URL, updatedFields, { headers });
         const updated = normalizeProfile(res);
 
         setSettingsData(updated);
@@ -146,6 +147,7 @@ const ClinicSettings = () => {
   const sections = useMemo(
     () => [
       { id: "profile", path: "/dashboard/settings", icon: <Globe size={16} />, label: "Public Profile" },
+      { id: "visual", path: "/dashboard/settings/visual", icon: <Palette size={16} />, label: "Visual Identity" },
       { id: "security", path: "/dashboard/settings/security", icon: <Lock size={16} />, label: "Security & Login" },
       { id: "notifications", path: "/dashboard/settings/notifications", icon: <BellRing size={16} />, label: "Alerts & Notifications" },
       { id: "billing", path: "/dashboard/settings/billing", icon: <CreditCard size={16} />, label: "Subscription" },
@@ -201,11 +203,10 @@ const ClinicSettings = () => {
             <button
               key={section.id}
               onClick={() => navigate(section.path)}
-              className={`w-full flex items-center gap-4 px-4 py-4 text-[10px] uppercase tracking-widest transition-all ${
-                isActive(section.path)
+              className={`w-full flex items-center gap-4 px-4 py-4 text-[10px] uppercase tracking-widest transition-all ${isActive(section.path)
                   ? "bg-black text-white font-bold shadow-md translate-x-1"
                   : "text-gray-400 hover:text-black hover:bg-gray-50"
-              }`}
+                }`}
             >
               {section.icon}
               {section.label}
@@ -218,6 +219,10 @@ const ClinicSettings = () => {
             <Route
               index
               element={<PublicProfile data={settingsData} onUpdate={handleUpdate} />}
+            />
+            <Route
+              path="visual"
+              element={<VisualIdentity data={settingsData} onUpdate={handleUpdate} />}
             />
             <Route
               path="security"

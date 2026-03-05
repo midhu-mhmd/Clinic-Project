@@ -12,6 +12,7 @@ import {
   Search,
   Loader2,
   ArrowUpRight,
+  LifeBuoy,
 } from "lucide-react";
 import {
   AreaChart,
@@ -30,6 +31,7 @@ import Appointments from "./clinicSide/clinicAppointments.jsx";
 import Patients from "./clinicSide/clinicPatients.jsx";
 import ClinicSettings from "./clinicSide/clinicSettings.jsx";
 import Doctors from "./clinicSide/clinicDoctors.jsx";
+import ClinicSupport from "./clinicSide/clinicSupport.jsx";
 
 /* ----------------------------- CONFIG ----------------------------- */
 const API_BASE = "http://localhost:5000/api";
@@ -39,6 +41,7 @@ const MENU_ITEMS = [
   { id: "Appointments", icon: Calendar, label: "Appointments", path: "/dashboard/appointments" },
   { id: "Patients", icon: Users, label: "Patients", path: "/dashboard/patients" },
   { id: "Doctors", icon: Stethoscope, label: "Doctors", path: "/dashboard/doctors-management" },
+  { id: "Support", icon: LifeBuoy, label: "Support", path: "/dashboard/support" },
   { id: "Settings", icon: Settings, label: "Settings", path: "/dashboard/settings" },
 ];
 
@@ -443,6 +446,7 @@ const TenantDashboard = () => {
             <Route path="appointments/*" element={<Appointments />} />
             <Route path="patients/*" element={<Patients />} />
             <Route path="doctors-management/*" element={<Doctors />} />
+            <Route path="support/*" element={<ClinicSupport />} />
             <Route
               path="settings/*"
               element={<ClinicSettings data={tenantData} onProfileUpdate={(d) => setTenantData((prev) => ({ ...prev, ...d }))} />}
