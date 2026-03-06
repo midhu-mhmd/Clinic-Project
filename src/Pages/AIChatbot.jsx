@@ -13,10 +13,13 @@ import {
   AlertTriangle,
   Stethoscope,
   ChevronRight,
+  Calendar,
+  Ticket,
+  Shield,
 } from "lucide-react";
 
 const API_BASE = "http://localhost:5000";
-const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
+const api = axios.create({ baseURL: API_BASE, timeout: 30000 });
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token") || "";
   const clean = t.replace(/['"]+/g, "").trim();
@@ -26,10 +29,34 @@ api.interceptors.request.use((cfg) => {
   return cfg;
 });
 
-const SEVERITY_COLORS = {
-  low: "text-emerald-600 bg-emerald-50",
-  moderate: "text-amber-600 bg-amber-50",
-  high: "text-red-600 bg-red-50",
+/* Simple markdown renderer for bold, bullets, headings, and italic */
+const renderMarkdown = (text) => {
+  if (!text) return null;
+  const lines = text.split("\n");
+  return lines.map((line, i) => {
+    // Bold: **text**
+    let html = line.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text*
+    html = html.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
+    // Bullet points
+    if (/^[•\-]\s/.test(html.trim())) {
+      html = html.replace(/^[•\-]\s*/, "");
+      return <li key={i} className="ml-4 list-disc text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
+    }
+    // Numbered list
+    if (/^\d+\.\s/.test(html.trim())) {
+      html = html.replace(/^\d+\.\s*/, "");
+      return <li key={i} className="ml-4 list-decimal text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
+    }
+    // Heading-like (--- line)
+    if (/^---+$/.test(html.trim())) {
+      return <hr key={i} className="border-[#1E293B]/10 my-2" />;
+    }
+    // Empty line
+    if (!html.trim()) return <br key={i} />;
+    // Normal paragraph
+    return <p key={i} className="text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
+  });
 };
 
 const AIChatbot = () => {
@@ -178,10 +205,10 @@ const AIChatbot = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
+      <div className="h-screen w-full flex items-center justify-center bg-[#F0FDFA]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 text-[#8DAA9D] animate-spin" />
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/40 font-bold">
+          <Loader2 className="w-10 h-10 text-[#0F766E] animate-spin" />
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/40 font-bold">
             Loading AI Assistant...
           </p>
         </div>
@@ -190,23 +217,23 @@ const AIChatbot = () => {
   }
 
   return (
-    <div className="h-screen bg-[#FAF9F6] text-[#2D302D] flex flex-col pt-20">
+    <div className="h-screen bg-[#F0FDFA] text-[#1E293B] flex flex-col pt-20">
       {/* Top Bar */}
-      <div className="border-b border-[#2D302D]/5 px-6 py-4 flex items-center justify-between bg-white/60 backdrop-blur-sm">
+      <div className="border-b border-[#1E293B]/5 px-6 py-4 flex items-center justify-between bg-white/60 backdrop-blur-sm">
         <div className="flex items-center gap-4">
           <button
             onClick={() => navigate(-1)}
-            className="group flex items-center gap-1 text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-all"
+            className="group flex items-center gap-1 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-all"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
           </button>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-[#8DAA9D]/10 flex items-center justify-center">
-              <Bot size={16} className="text-[#8DAA9D]" />
+            <div className="w-8 h-8 rounded-full bg-[#0F766E]/10 flex items-center justify-center">
+              <Bot size={16} className="text-[#0F766E]" />
             </div>
             <div>
               <h1 className="text-sm font-medium uppercase tracking-tight">AI Health Assistant</h1>
-              <p className="text-[8px] uppercase tracking-[0.3em] text-[#8DAA9D] font-bold">
+              <p className="text-[8px] uppercase tracking-[0.3em] text-[#0F766E] font-bold">
                 Symptom Checker
               </p>
             </div>
@@ -214,7 +241,7 @@ const AIChatbot = () => {
         </div>
         <button
           onClick={() => setSidebarOpen(!sidebarOpen)}
-          className="md:hidden text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D]"
+          className="md:hidden text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B]"
         >
           Sessions
         </button>
@@ -225,19 +252,19 @@ const AIChatbot = () => {
         <div
           className={`${
             sidebarOpen ? "flex" : "hidden md:flex"
-          } flex-col w-72 border-r border-[#2D302D]/5 bg-white/40`}
+          } flex-col w-72 border-r border-[#1E293B]/5 bg-white/40`}
         >
-          <div className="p-4 border-b border-[#2D302D]/5">
+          <div className="p-4 border-b border-[#1E293B]/5">
             <button
               onClick={createNewSession}
-              className="w-full flex items-center justify-center gap-2 py-3 bg-[#2D302D] text-white text-[9px] uppercase tracking-[0.2em] font-bold rounded-full hover:bg-[#8DAA9D] transition-all duration-500"
+              className="w-full flex items-center justify-center gap-2 py-3 bg-[#1E293B] text-white text-[9px] uppercase tracking-[0.2em] font-bold rounded-full hover:bg-[#0F766E] transition-all duration-500"
             >
               <Plus size={12} /> New Chat
             </button>
           </div>
           <div className="flex-1 overflow-y-auto p-3 space-y-1">
             {sessions.length === 0 ? (
-              <p className="text-center text-[9px] uppercase tracking-[0.2em] text-[#2D302D]/20 font-bold py-8">
+              <p className="text-center text-[9px] uppercase tracking-[0.2em] text-[#1E293B]/20 font-bold py-8">
                 No sessions yet
               </p>
             ) : (
@@ -250,14 +277,14 @@ const AIChatbot = () => {
                   }}
                   className={`chat-session-item group flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all duration-300 ${
                     activeSessionId === s._id
-                      ? "bg-[#8DAA9D]/10 border border-[#8DAA9D]/20"
-                      : "hover:bg-[#2D302D]/2"
+                      ? "bg-[#0F766E]/10 border border-[#0F766E]/20"
+                      : "hover:bg-[#1E293B]/2"
                   }`}
                 >
                   <div className="flex items-center gap-2 min-w-0">
                     <MessageCircle
                       size={12}
-                      className={activeSessionId === s._id ? "text-[#8DAA9D]" : "text-[#2D302D]/20"}
+                      className={activeSessionId === s._id ? "text-[#0F766E]" : "text-[#1E293B]/20"}
                     />
                     <span className="text-[10px] font-medium truncate">{s.title || "New Chat"}</span>
                   </div>
@@ -279,30 +306,30 @@ const AIChatbot = () => {
             /* Welcome */
             <div className="flex-1 flex items-center justify-center p-8">
               <div className="text-center max-w-md">
-                <div className="w-20 h-20 rounded-full bg-[#8DAA9D]/10 flex items-center justify-center mx-auto mb-6">
-                  <Bot size={36} className="text-[#8DAA9D]" />
+                <div className="w-20 h-20 rounded-full bg-[#0F766E]/10 flex items-center justify-center mx-auto mb-6">
+                  <Bot size={36} className="text-[#0F766E]" />
                 </div>
                 <h2 className="text-3xl font-light tracking-tighter uppercase mb-3">
-                  AI Health <span className="italic font-serif text-[#8DAA9D]">Assistant</span>
+                  AI Health <span className="italic font-serif text-[#0F766E]">Assistant</span>
                 </h2>
-                <p className="text-[10px] uppercase tracking-[0.3em] text-[#2D302D]/30 font-bold mb-8 leading-relaxed">
+                <p className="text-[10px] uppercase tracking-[0.3em] text-[#1E293B]/30 font-bold mb-8 leading-relaxed">
                   Describe your symptoms and get instant guidance on potential causes and recommended
                   specialists.
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
                   {[
                     { icon: <Stethoscope size={16} />, label: "Symptom Analysis" },
-                    { icon: <AlertTriangle size={16} />, label: "Severity Check" },
-                    { icon: <ChevronRight size={16} />, label: "Doctor Guidance" },
+                    { icon: <Calendar size={16} />, label: "Book Appointments" },
+                    { icon: <Shield size={16} />, label: "Emergency Detection" },
                   ].map((item, i) => (
                     <div
                       key={i}
-                      className="bg-white border border-[#2D302D]/5 p-4 text-center"
+                      className="bg-white border border-[#1E293B]/5 p-4 text-center"
                     >
-                      <div className="w-8 h-8 rounded-full bg-[#8DAA9D]/10 flex items-center justify-center mx-auto mb-2 text-[#8DAA9D]">
+                      <div className="w-8 h-8 rounded-full bg-[#0F766E]/10 flex items-center justify-center mx-auto mb-2 text-[#0F766E]">
                         {item.icon}
                       </div>
-                      <span className="text-[8px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/40">
+                      <span className="text-[8px] uppercase tracking-[0.2em] font-bold text-[#1E293B]/40">
                         {item.label}
                       </span>
                     </div>
@@ -310,7 +337,7 @@ const AIChatbot = () => {
                 </div>
                 <button
                   onClick={createNewSession}
-                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#2D302D] text-white text-[9px] uppercase tracking-[0.2em] font-bold rounded-full hover:bg-[#8DAA9D] transition-all duration-500"
+                  className="inline-flex items-center gap-2 px-8 py-3 bg-[#1E293B] text-white text-[9px] uppercase tracking-[0.2em] font-bold rounded-full hover:bg-[#0F766E] transition-all duration-500"
                 >
                   <Plus size={12} /> Start New Chat
                 </button>
@@ -328,28 +355,28 @@ const AIChatbot = () => {
                     <div
                       className={`max-w-[80%] md:max-w-[65%] p-4 ${
                         m.role === "user"
-                          ? "bg-[#2D302D] text-white rounded-[20px] rounded-br-sm"
-                          : "bg-white border border-[#2D302D]/5 rounded-[20px] rounded-bl-sm"
+                          ? "bg-[#1E293B] text-white rounded-[20px] rounded-br-sm"
+                          : "bg-white border border-[#1E293B]/5 rounded-[20px] rounded-bl-sm"
                       }`}
                     >
                       {m.role === "assistant" && (
                         <div className="flex items-center gap-1.5 mb-2">
-                          <Bot size={10} className="text-[#8DAA9D]" />
-                          <span className="text-[8px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D]">
-                            AI Assistant
+                          <Bot size={10} className="text-[#0F766E]" />
+                          <span className="text-[8px] uppercase tracking-[0.2em] font-bold text-[#0F766E]">
+                            HealthBot
                           </span>
                         </div>
                       )}
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{m.content}</p>
+                      <div className="text-sm leading-relaxed whitespace-pre-wrap">{renderMarkdown(m.content)}</div>
                     </div>
                   </div>
                 ))}
                 {sending && (
                   <div className="flex justify-start">
-                    <div className="bg-white border border-[#2D302D]/5 rounded-[20px] rounded-bl-sm p-4">
+                    <div className="bg-white border border-[#1E293B]/5 rounded-[20px] rounded-bl-sm p-4">
                       <div className="flex items-center gap-2">
-                        <Loader2 size={12} className="animate-spin text-[#8DAA9D]" />
-                        <span className="text-[9px] uppercase tracking-[0.2em] text-[#2D302D]/30 font-bold">
+                        <Loader2 size={12} className="animate-spin text-[#0F766E]" />
+                        <span className="text-[9px] uppercase tracking-[0.2em] text-[#1E293B]/30 font-bold">
                           Analyzing...
                         </span>
                       </div>
@@ -360,7 +387,7 @@ const AIChatbot = () => {
               </div>
 
               {/* Input */}
-              <div className="border-t border-[#2D302D]/5 p-4 bg-white/60 backdrop-blur-sm">
+              <div className="border-t border-[#1E293B]/5 p-4 bg-white/60 backdrop-blur-sm">
                 <div className="max-w-3xl mx-auto flex items-end gap-3">
                   <textarea
                     ref={inputRef}
@@ -369,17 +396,17 @@ const AIChatbot = () => {
                     onKeyDown={handleKeyDown}
                     placeholder="Describe your symptoms..."
                     rows={1}
-                    className="flex-1 resize-none bg-[#FAF9F6] border border-[#2D302D]/5 rounded-2xl px-5 py-3 text-sm placeholder:text-[#2D302D]/20 focus:outline-none focus:border-[#8DAA9D]/30 transition-colors"
+                    className="flex-1 resize-none bg-[#F0FDFA] border border-[#1E293B]/5 rounded-2xl px-5 py-3 text-sm placeholder:text-[#1E293B]/20 focus:outline-none focus:border-[#0F766E]/30 transition-colors"
                   />
                   <button
                     onClick={sendMessage}
                     disabled={!input.trim() || sending}
-                    className="w-11 h-11 rounded-full bg-[#2D302D] text-white flex items-center justify-center hover:bg-[#8DAA9D] transition-all duration-500 disabled:opacity-30 disabled:hover:bg-[#2D302D] shrink-0"
+                    className="w-11 h-11 rounded-full bg-[#1E293B] text-white flex items-center justify-center hover:bg-[#0F766E] transition-all duration-500 disabled:opacity-30 disabled:hover:bg-[#1E293B] shrink-0"
                   >
                     <Send size={14} />
                   </button>
                 </div>
-                <p className="text-center text-[8px] uppercase tracking-[0.2em] text-[#2D302D]/15 font-bold mt-2">
+                <p className="text-center text-[8px] uppercase tracking-[0.2em] text-[#1E293B]/15 font-bold mt-2">
                   For informational purposes only — not a substitute for professional medical advice
                 </p>
               </div>

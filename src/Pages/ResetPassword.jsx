@@ -92,29 +92,29 @@ const ResetPassword = () => {
   };
 
   const inputClass =
-    "w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-[#8DAA9D] transition-all duration-500 placeholder:text-[#2D302D]/20";
+    "w-full px-0 py-4 bg-transparent border-b border-[#1E293B]/10 text-sm focus:outline-none focus:border-[#0F766E] transition-all duration-500 placeholder:text-[#1E293B]/20";
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex">
+    <div className="min-h-screen bg-[#F0FDFA] flex">
 
-      <div className="hidden lg:flex w-1/3 bg-[#2D302D] p-16 flex-col justify-between text-[#FAF9F6]">
+      <div className="hidden lg:flex w-1/3 bg-[#1E293B] p-16 flex-col justify-between text-[#F0FDFA]">
         <div className="space-y-6">
-          <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">
+          <div className="w-12 h-12 border border-[#F0FDFA]/20 flex items-center justify-center">
             {success ? (
-              <CheckCircle2 size={20} className="text-[#8DAA9D]" />
+              <CheckCircle2 size={20} className="text-[#0F766E]" />
             ) : (
-              <ShieldCheck size={20} className="text-[#8DAA9D] animate-pulse" />
+              <ShieldCheck size={20} className="text-[#0F766E] animate-pulse" />
             )}
           </div>
           <div className="space-y-2">
             <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
-              Restoration <br /> Sequence.
+              Reset <br /> Password
             </h2>
-            <div className="h-px w-12 bg-[#8DAA9D] mt-4" />
+            <div className="h-px w-12 bg-[#0F766E] mt-4" />
           </div>
           <p className="text-[10px] tracking-[0.2em] leading-loose opacity-50 uppercase max-w-55">
             System Identity: {view === "clinic" ? "Clinic Administrator" : "Patient Portal"} <br />
-            Credential overwrite in progress.
+            Create a new secure password.
           </p>
         </div>
 
@@ -132,18 +132,18 @@ const ResetPassword = () => {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
         <div className="max-w-md w-full">
           <header className="mb-12">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#0F766E] mb-4 block">
               {view === "clinic" ? "Clinic" : "Patient"} Authentication — Step 02
             </span>
-            <h1 className="text-6xl font-light tracking-tighter uppercase text-[#2D302D]">
-              Verify <br /> Identity
+            <h1 className="text-6xl font-light tracking-tighter uppercase text-[#1E293B]">
+              Reset <br /> Password
             </h1>
           </header>
 
           {success ? (
-            <div className="bg-[#8DAA9D]/5 p-8 border border-[#8DAA9D]/20 animate-in fade-in zoom-in duration-700">
-              <ShieldCheck className="text-[#8DAA9D] mb-4" size={32} />
-              <p className="text-sm text-[#2D302D] font-medium uppercase tracking-tight leading-relaxed">
+            <div className="bg-[#0F766E]/5 p-8 border border-[#0F766E]/20 animate-in fade-in zoom-in duration-700">
+              <ShieldCheck className="text-[#0F766E] mb-4" size={32} />
+              <p className="text-sm text-[#1E293B] font-medium uppercase tracking-tight leading-relaxed">
                 Update Successful. <br />
                 Redirecting to <b>{view === "clinic" ? "Clinic Login" : "Patient Login"}</b>...
               </p>
@@ -151,22 +151,22 @@ const ResetPassword = () => {
           ) : (
             <form onSubmit={handleResetPassword} className="space-y-8">
               <div className="space-y-2">
-                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Verification Code</label>
+                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">OTP Code</label>
                 <input type="text" maxLength="6" value={otp} onChange={(e) => setOtp(e.target.value)} className={inputClass} placeholder="000000" required />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">New Access Key</label>
+                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">New Password</label>
                 <input type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputClass} placeholder="••••••••" required />
               </div>
 
               <div className="space-y-2">
-                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Confirm Access Key</label>
+                <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Confirm Password</label>
                 <input type="password" value={confirmPassword} onChange={(e) => setConfirmPassword(e.target.value)} className={inputClass} placeholder="••••••••" required />
               </div>
 
               <div className="space-y-6 pt-4">
-                <button type="submit" disabled={loading || timer === 0} className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700 disabled:opacity-30">
+                <button type="submit" disabled={loading || timer === 0} className="group w-full bg-[#1E293B] text-[#F0FDFA] py-6 flex items-center justify-between px-8 hover:bg-[#0F766E] transition-all duration-700 disabled:opacity-30">
                   <span className="text-[10px] uppercase tracking-[0.4em] font-bold">
                     {loading ? "Verifying..." : "Confirm Update"}
                   </span>

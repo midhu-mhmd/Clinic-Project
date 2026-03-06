@@ -28,15 +28,15 @@ api.interceptors.request.use((cfg) => {
 });
 
 const STATUS_STYLES = {
-  OPEN: { bg: "bg-[#8DAA9D]/10", text: "text-[#8DAA9D]", label: "Open" },
+  OPEN: { bg: "bg-[#0F766E]/10", text: "text-[#0F766E]", label: "Open" },
   IN_PROGRESS: { bg: "bg-amber-50", text: "text-amber-600", label: "In Progress" },
   AWAITING_REPLY: { bg: "bg-blue-50", text: "text-blue-600", label: "Awaiting Reply" },
   RESOLVED: { bg: "bg-emerald-50", text: "text-emerald-600", label: "Resolved" },
-  CLOSED: { bg: "bg-[#2D302D]/5", text: "text-[#2D302D]/40", label: "Closed" },
+  CLOSED: { bg: "bg-[#1E293B]/5", text: "text-[#1E293B]/40", label: "Closed" },
 };
 
 const PRIORITY_STYLES = {
-  LOW: "text-[#2D302D]/30",
+  LOW: "text-[#1E293B]/30",
   MEDIUM: "text-amber-500",
   HIGH: "text-orange-500",
   URGENT: "text-red-500",
@@ -146,10 +146,10 @@ const SupportTickets = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
+      <div className="h-screen w-full flex items-center justify-center bg-[#F0FDFA]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 text-[#8DAA9D] animate-spin" />
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/40 font-bold">
+          <Loader2 className="w-10 h-10 text-[#0F766E] animate-spin" />
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/40 font-bold">
             Loading Tickets...
           </p>
         </div>
@@ -161,20 +161,20 @@ const SupportTickets = () => {
   if (selectedTicket && ticketDetail) {
     const st = STATUS_STYLES[ticketDetail.status] || STATUS_STYLES.OPEN;
     return (
-      <div className="min-h-screen bg-[#FAF9F6] text-[#2D302D] pt-32 pb-20 px-6">
+      <div className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
           <button
             onClick={() => { setSelectedTicket(null); setTicketDetail(null); }}
-            className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-all mb-10"
+            className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-all mb-10"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
             Back to Tickets
           </button>
 
           {/* Ticket Header */}
-          <div className="border-b border-[#2D302D]/5 pb-8 mb-8">
+          <div className="border-b border-[#1E293B]/5 pb-8 mb-8">
             <div className="flex items-center gap-3 mb-3">
-              <span className="text-[9px] font-mono tracking-widest text-[#8DAA9D]">
+              <span className="text-[9px] font-mono tracking-widest text-[#0F766E]">
                 {ticketDetail.ticketNumber}
               </span>
               <span className={`text-[9px] uppercase tracking-[0.2em] font-bold px-3 py-1 rounded-full ${st.bg} ${st.text}`}>
@@ -182,9 +182,9 @@ const SupportTickets = () => {
               </span>
             </div>
             <h1 className="text-3xl font-light tracking-tight uppercase">{ticketDetail.subject}</h1>
-            <p className="text-sm text-[#2D302D]/50 mt-3 leading-relaxed">{ticketDetail.description}</p>
+            <p className="text-sm text-[#1E293B]/50 mt-3 leading-relaxed">{ticketDetail.description}</p>
             <div className="flex gap-4 mt-4">
-              <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/30">
+              <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#1E293B]/30">
                 {ticketDetail.category}
               </span>
               <span className={`text-[9px] uppercase tracking-[0.2em] font-bold ${PRIORITY_STYLES[ticketDetail.priority]}`}>
@@ -196,7 +196,7 @@ const SupportTickets = () => {
           {/* Messages */}
           <div className="space-y-4 mb-10">
             {ticketDetail.messages?.length === 0 && (
-              <p className="text-center text-[10px] uppercase tracking-[0.3em] text-[#2D302D]/20 font-bold py-10">
+              <p className="text-center text-[10px] uppercase tracking-[0.3em] text-[#1E293B]/20 font-bold py-10">
                 No replies yet
               </p>
             )}
@@ -207,15 +207,15 @@ const SupportTickets = () => {
                   key={i}
                   className={`p-5 border ${
                     isAdmin
-                      ? "border-[#8DAA9D]/20 bg-[#8DAA9D]/3"
-                      : "border-[#2D302D]/5 bg-white"
+                      ? "border-[#0F766E]/20 bg-[#0F766E]/3"
+                      : "border-[#1E293B]/5 bg-white"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/40">
+                    <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#1E293B]/40">
                       {isAdmin ? "Support Team" : msg.sender?.name || "You"}
                     </span>
-                    <span className="text-[9px] tracking-widest text-[#2D302D]/20">
+                    <span className="text-[9px] tracking-widest text-[#1E293B]/20">
                       {new Date(msg.createdAt).toLocaleDateString("en-IN", {
                         day: "2-digit",
                         month: "short",
@@ -224,7 +224,7 @@ const SupportTickets = () => {
                       })}
                     </span>
                   </div>
-                  <p className="text-sm text-[#2D302D]/70 leading-relaxed">{msg.content}</p>
+                  <p className="text-sm text-[#1E293B]/70 leading-relaxed">{msg.content}</p>
                 </div>
               );
             })}
@@ -239,12 +239,12 @@ const SupportTickets = () => {
                 onChange={(e) => setReplyText(e.target.value)}
                 onKeyDown={(e) => e.key === "Enter" && handleReply()}
                 placeholder="Type your reply..."
-                className="flex-1 bg-white border border-[#2D302D]/10 px-5 py-4 text-sm outline-none focus:border-[#8DAA9D] transition-colors"
+                className="flex-1 bg-white border border-[#1E293B]/10 px-5 py-4 text-sm outline-none focus:border-[#0F766E] transition-colors"
               />
               <button
                 onClick={handleReply}
                 disabled={replySending || !replyText.trim()}
-                className="px-6 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#8DAA9D] transition-all duration-500 disabled:opacity-30"
+                className="px-6 py-4 bg-[#1E293B] text-white text-[10px] uppercase tracking-[0.2em] font-bold hover:bg-[#0F766E] transition-all duration-500 disabled:opacity-30"
               >
                 {replySending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
               </button>
@@ -258,26 +258,26 @@ const SupportTickets = () => {
   // ──── CREATE TICKET FORM ────
   if (showCreate) {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] text-[#2D302D] pt-32 pb-20 px-6">
+      <div className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-32 pb-20 px-6">
         <div className="max-w-2xl mx-auto">
           <button
             onClick={() => setShowCreate(false)}
-            className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-all mb-10"
+            className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-all mb-10"
           >
             <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
             Cancel
           </button>
 
           <h1 className="text-4xl font-light tracking-tighter uppercase mb-2">
-            New <span className="italic font-serif text-[#8DAA9D]">Ticket</span>
+            New <span className="italic font-serif text-[#0F766E]">Ticket</span>
           </h1>
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/30 font-bold mb-12">
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/30 font-bold mb-12">
             Describe your issue and our team will respond promptly.
           </p>
 
           <form onSubmit={handleCreate} className="space-y-6">
             <div>
-              <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 block mb-2">
+              <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 block mb-2">
                 Subject
               </label>
               <input
@@ -285,14 +285,14 @@ const SupportTickets = () => {
                 value={form.subject}
                 onChange={(e) => setForm({ ...form, subject: e.target.value })}
                 maxLength={200}
-                className="w-full bg-white border border-[#2D302D]/10 px-5 py-4 text-sm outline-none focus:border-[#8DAA9D] transition-colors"
+                className="w-full bg-white border border-[#1E293B]/10 px-5 py-4 text-sm outline-none focus:border-[#0F766E] transition-colors"
                 placeholder="Brief summary of your issue"
                 required
               />
             </div>
 
             <div>
-              <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 block mb-2">
+              <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 block mb-2">
                 Description
               </label>
               <textarea
@@ -300,7 +300,7 @@ const SupportTickets = () => {
                 onChange={(e) => setForm({ ...form, description: e.target.value })}
                 maxLength={3000}
                 rows={5}
-                className="w-full bg-white border border-[#2D302D]/10 px-5 py-4 text-sm outline-none focus:border-[#8DAA9D] transition-colors resize-none"
+                className="w-full bg-white border border-[#1E293B]/10 px-5 py-4 text-sm outline-none focus:border-[#0F766E] transition-colors resize-none"
                 placeholder="Detailed description of the problem"
                 required
               />
@@ -308,13 +308,13 @@ const SupportTickets = () => {
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 block mb-2">
+                <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 block mb-2">
                   Category
                 </label>
                 <select
                   value={form.category}
                   onChange={(e) => setForm({ ...form, category: e.target.value })}
-                  className="w-full bg-white border border-[#2D302D]/10 px-5 py-4 text-sm outline-none focus:border-[#8DAA9D] transition-colors"
+                  className="w-full bg-white border border-[#1E293B]/10 px-5 py-4 text-sm outline-none focus:border-[#0F766E] transition-colors"
                 >
                   {CATEGORIES.map((c) => (
                     <option key={c} value={c}>
@@ -324,13 +324,13 @@ const SupportTickets = () => {
                 </select>
               </div>
               <div>
-                <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 block mb-2">
+                <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 block mb-2">
                   Priority
                 </label>
                 <select
                   value={form.priority}
                   onChange={(e) => setForm({ ...form, priority: e.target.value })}
-                  className="w-full bg-white border border-[#2D302D]/10 px-5 py-4 text-sm outline-none focus:border-[#8DAA9D] transition-colors"
+                  className="w-full bg-white border border-[#1E293B]/10 px-5 py-4 text-sm outline-none focus:border-[#0F766E] transition-colors"
                 >
                   {["LOW", "MEDIUM", "HIGH", "URGENT"].map((p) => (
                     <option key={p} value={p}>
@@ -344,7 +344,7 @@ const SupportTickets = () => {
             <button
               type="submit"
               disabled={creating}
-              className="w-full py-5 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#8DAA9D] transition-all duration-500 disabled:opacity-50"
+              className="w-full py-5 bg-[#1E293B] text-white text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#0F766E] transition-all duration-500 disabled:opacity-50"
             >
               {creating ? "Submitting..." : "Submit Ticket"}
             </button>
@@ -356,28 +356,28 @@ const SupportTickets = () => {
 
   // ──── TICKET LIST ────
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#FAF9F6] text-[#2D302D] pt-32 pb-20 px-6">
+    <div ref={containerRef} className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-32 pb-20 px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
             <button
               onClick={() => navigate(-1)}
-              className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-all mb-6"
+              className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-all mb-6"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
               Back
             </button>
             <h1 className="text-5xl font-light tracking-tighter uppercase leading-none">
-              Support <span className="italic font-serif text-[#8DAA9D]">Tickets</span>
+              Support <span className="italic font-serif text-[#0F766E]">Tickets</span>
             </h1>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/30 font-bold mt-3">
+            <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/30 font-bold mt-3">
               {tickets.length} tickets
             </p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#8DAA9D] transition-all duration-500 shadow-lg"
+            className="flex items-center gap-2 px-8 py-4 bg-[#1E293B] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#0F766E] transition-all duration-500 shadow-lg"
           >
             <Plus size={14} /> New Ticket
           </button>
@@ -385,15 +385,15 @@ const SupportTickets = () => {
 
         {/* Filter */}
         <div className="flex items-center gap-2 mb-8">
-          <Filter size={12} className="text-[#2D302D]/20" />
+          <Filter size={12} className="text-[#1E293B]/20" />
           {["", "OPEN", "IN_PROGRESS", "AWAITING_REPLY", "RESOLVED", "CLOSED"].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
               className={`px-4 py-2 text-[9px] uppercase tracking-[0.2em] font-bold transition-all ${
                 statusFilter === s
-                  ? "bg-[#2D302D] text-white"
-                  : "text-[#2D302D]/30 hover:text-[#2D302D]"
+                  ? "bg-[#1E293B] text-white"
+                  : "text-[#1E293B]/30 hover:text-[#1E293B]"
               }`}
             >
               {s ? (STATUS_STYLES[s]?.label || s) : "All"}
@@ -403,10 +403,10 @@ const SupportTickets = () => {
 
         {/* Ticket Cards */}
         {tickets.length === 0 ? (
-          <div className="py-24 flex flex-col items-center justify-center text-center bg-white border border-[#2D302D]/5 rounded-[40px]">
-            <MessageSquare size={40} className="text-[#2D302D]/10 mb-4" />
+          <div className="py-24 flex flex-col items-center justify-center text-center bg-white border border-[#1E293B]/5 rounded-[40px]">
+            <MessageSquare size={40} className="text-[#1E293B]/10 mb-4" />
             <h3 className="text-base font-light uppercase tracking-tight">No Tickets</h3>
-            <p className="text-[9px] uppercase tracking-[0.2em] text-[#2D302D]/30 font-bold mt-2">
+            <p className="text-[9px] uppercase tracking-[0.2em] text-[#1E293B]/30 font-bold mt-2">
               Create a ticket to get support from our team.
             </p>
           </div>
@@ -418,12 +418,12 @@ const SupportTickets = () => {
                 <div
                   key={t._id}
                   onClick={() => fetchDetail(t._id)}
-                  className="ticket-card group bg-white border border-[#2D302D]/5 p-6 cursor-pointer hover:border-[#8DAA9D]/30 hover:shadow-lg transition-all duration-500"
+                  className="ticket-card group bg-white border border-[#1E293B]/5 p-6 cursor-pointer hover:border-[#0F766E]/30 hover:shadow-lg transition-all duration-500"
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-3 mb-2">
-                        <span className="text-[9px] font-mono tracking-widest text-[#8DAA9D]">
+                        <span className="text-[9px] font-mono tracking-widest text-[#0F766E]">
                           {t.ticketNumber}
                         </span>
                         <span className={`text-[8px] uppercase tracking-[0.2em] font-bold px-2.5 py-0.5 rounded-full ${st.bg} ${st.text}`}>
@@ -433,14 +433,14 @@ const SupportTickets = () => {
                           {t.priority}
                         </span>
                       </div>
-                      <h3 className="text-sm font-medium text-[#2D302D] truncate group-hover:text-[#8DAA9D] transition-colors">
+                      <h3 className="text-sm font-medium text-[#1E293B] truncate group-hover:text-[#0F766E] transition-colors">
                         {t.subject}
                       </h3>
                       <div className="flex items-center gap-4 mt-2">
-                        <span className="text-[9px] uppercase tracking-widest text-[#2D302D]/20 font-bold flex items-center gap-1">
+                        <span className="text-[9px] uppercase tracking-widest text-[#1E293B]/20 font-bold flex items-center gap-1">
                           <Tag size={10} /> {t.category}
                         </span>
-                        <span className="text-[9px] uppercase tracking-widest text-[#2D302D]/20 font-bold flex items-center gap-1">
+                        <span className="text-[9px] uppercase tracking-widest text-[#1E293B]/20 font-bold flex items-center gap-1">
                           <Clock size={10} />
                           {new Date(t.createdAt).toLocaleDateString("en-IN", {
                             day: "2-digit",
@@ -451,7 +451,7 @@ const SupportTickets = () => {
                     </div>
                     <ChevronRight
                       size={16}
-                      className="text-[#2D302D]/10 group-hover:text-[#8DAA9D] transition-colors shrink-0 mt-1"
+                      className="text-[#1E293B]/10 group-hover:text-[#0F766E] transition-colors shrink-0 mt-1"
                     />
                   </div>
                 </div>

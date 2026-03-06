@@ -100,17 +100,17 @@ const ClinicList = () => {
   if (error) return <ErrorState message={error} />;
 
   return (
-    <div ref={containerRef} className="relative min-h-screen bg-[#FBFBF9] text-[#1A1A1A] font-sans selection:bg-[#8DAA9D] selection:text-white">
+    <div ref={containerRef} className="relative min-h-screen bg-[#F0FDFA] text-[#1E293B] font-sans selection:bg-[#0F766E] selection:text-white">
 
       {/* 00. FLOATING NAV (Minimalist) */}
       <nav className="fixed top-0 z-50 w-full flex justify-between items-center px-6 py-10 md:px-16">
         <div className="flex items-center gap-2 group cursor-pointer">
-          <div className="h-1.5 w-1.5 rounded-full bg-[#8DAA9D]" />
-          <span className="text-[10px] font-bold uppercase tracking-[0.4em]">Directory v.25</span>
+          <div className="h-1.5 w-1.5 rounded-full bg-[#0F766E]" />
+          <span className="text-[10px] font-bold uppercase tracking-[0.4em]">Clinic Directory</span>
         </div>
         <div className="flex items-center gap-8">
           <span className="text-[9px] font-bold uppercase tracking-widest opacity-30 hover:opacity-100 cursor-pointer transition-opacity">Contact</span>
-          <div className="h-10 w-10 rounded-full border border-[#1A1A1A]/10 flex items-center justify-center hover:bg-[#1A1A1A] hover:text-white transition-all duration-500">
+          <div className="h-10 w-10 rounded-full border border-[#1E293B]/10 flex items-center justify-center hover:bg-[#1E293B] hover:text-white transition-all duration-500">
             <Plus size={14} />
           </div>
         </div>
@@ -122,14 +122,14 @@ const ClinicList = () => {
         <header className="mb-40 md:mb-64">
           <div className="overflow-hidden mb-12">
             <h1 className="reveal-item text-[12vw] md:text-[9vw] font-light leading-[0.8] tracking-tighter uppercase">
-              The <span className="italic font-serif text-[#8DAA9D] lowercase tracking-normal">Technical</span><br />
-              Index.
+              Find <span className="italic font-serif text-[#0F766E] lowercase tracking-normal">Your</span><br />
+              Clinic.
             </h1>
           </div>
 
           <div className="reveal-item flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
             <p className="max-w-xs text-xs md:text-sm font-medium leading-relaxed opacity-40 uppercase tracking-widest">
-              An audited archive of premier healthcare environments. Built for precision.
+              Browse trusted clinics and hospitals in our network.
             </p>
 
             {/* Minimalist Floating Search */}
@@ -137,8 +137,8 @@ const ClinicList = () => {
               <Search className="absolute left-0 top-1/2 -translate-y-1/2 w-3 h-3 opacity-20" />
               <input
                 type="text"
-                placeholder="SEARCH ARCHIVE"
-                className="w-full bg-transparent border-b border-[#1A1A1A]/10 py-3 pl-6 outline-none focus:border-[#8DAA9D] transition-all text-[9px] font-bold tracking-widest"
+                placeholder="SEARCH CLINICS"
+                className="w-full bg-transparent border-b border-[#1E293B]/10 py-3 pl-6 outline-none focus:border-[#0F766E] transition-all text-[9px] font-bold tracking-widest"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -186,7 +186,7 @@ const ClinicList = () => {
 
         {/* 03. PAGINATION CONTROLLER */}
         {!loading && totalPages > 1 && (
-          <div className="mt-32 flex justify-between items-center border-t border-[#1A1A1A]/10 pt-12">
+          <div className="mt-32 flex justify-between items-center border-t border-[#1E293B]/10 pt-12">
             <div className="flex gap-4">
               <button
                 onClick={() => setPage(p => Math.max(1, p - 1))}
@@ -200,7 +200,7 @@ const ClinicList = () => {
                   <button
                     key={i}
                     onClick={() => setPage(i + 1)}
-                    className={`text-[9px] font-bold w-6 h-6 flex items-center justify-center transition-all ${page === i + 1 ? 'bg-[#1A1A1A] text-white' : 'opacity-30 hover:opacity-100'}`}
+                    className={`text-[9px] font-bold w-6 h-6 flex items-center justify-center transition-all ${page === i + 1 ? 'bg-[#1E293B] text-white' : 'opacity-30 hover:opacity-100'}`}
                   >
                     {i + 1}
                   </button>
@@ -222,13 +222,13 @@ const ClinicList = () => {
       </main>
 
       {/* 03. FOOTER (Brutalist Minimalism) */}
-      <footer className="py-40 px-6 border-t border-[#1A1A1A]/5 text-center">
+      <footer className="py-40 px-6 border-t border-[#1E293B]/5 text-center">
         <div className="max-w-2xl mx-auto space-y-12">
           <h3 className="text-[10vw] md:text-[6vw] font-light uppercase tracking-tighter leading-none">
-            List your <br />Facility
+            Register Your <br />Clinic
           </h3>
-          <button className="text-[10px] font-bold uppercase tracking-[0.5em] border-b border-[#1A1A1A] pb-2 hover:text-[#8DAA9D] hover:border-[#8DAA9D] transition-all">
-            Begin Audit Protocol
+          <button className="text-[10px] font-bold uppercase tracking-[0.5em] border-b border-[#1E293B] pb-2 hover:text-[#0F766E] hover:border-[#0F766E] transition-all">
+            Get Started
           </button>
         </div>
       </footer>
@@ -240,17 +240,17 @@ const SkeletonLoader = () => (
   <>
     {[1, 2, 3].map((i) => (
       <div key={i} className="space-y-6 animate-pulse">
-        <div className="aspect-[4/5] bg-[#1A1A1A]/5" />
-        <div className="h-4 w-24 bg-[#1A1A1A]/5" />
-        <div className="h-12 w-full bg-[#1A1A1A]/5" />
+        <div className="aspect-[4/5] bg-[#1E293B]/5" />
+        <div className="h-4 w-24 bg-[#1E293B]/5" />
+        <div className="h-12 w-full bg-[#1E293B]/5" />
       </div>
     ))}
   </>
 );
 
 const ErrorState = ({ message }) => (
-  <div className="flex h-screen flex-col items-center justify-center bg-[#FBFBF9] text-center">
-    <AlertCircle className="mb-4 text-[#8DAA9D]" size={32} />
+  <div className="flex h-screen flex-col items-center justify-center bg-[#F0FDFA] text-center">
+    <AlertCircle className="mb-4 text-[#0F766E]" size={32} />
     <h3 className="text-[10px] font-bold uppercase tracking-widest opacity-40">{message}</h3>
     <button onClick={() => window.location.reload()} className="mt-8 text-[9px] font-bold uppercase tracking-widest underline">Reset</button>
   </div>

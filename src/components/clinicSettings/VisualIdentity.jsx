@@ -37,7 +37,7 @@ const VisualIdentity = ({ data, onUpdate }) => {
 
   const [branding, setBranding] = useState({
     primaryColor: "#000000",
-    accentColor: "#8DAA9D",
+    accentColor: "#0F766E",
     bannerImage: "",
     fontPreference: "Serif",
   });
@@ -56,7 +56,7 @@ const VisualIdentity = ({ data, onUpdate }) => {
     const b = data.settings.branding;
     setBranding({
       primaryColor: b.primaryColor || "#000000",
-      accentColor: b.accentColor || "#8DAA9D",
+      accentColor: b.accentColor || "#0F766E",
       bannerImage: b.bannerImage || "",
       fontPreference: b.fontPreference || "Serif",
     });

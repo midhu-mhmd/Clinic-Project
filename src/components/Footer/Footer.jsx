@@ -2,22 +2,21 @@ import React from "react";
 
 const Footer = () => {
   return (
-    <footer className="bg-[#FAF9F6] pt-32 pb-12 px-8 border-t border-[#2D302D]/5">
+    <footer className="bg-[#F0FDFA] pt-32 pb-12 px-8 border-t border-[#1E293B]/5">
       <div className="max-w-350 mx-auto">
         {/* TOP ROW: BRANDING STATEMENT */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 mb-24">
           <div className="lg:col-span-6">
-            <h3 className="text-[ clamp(2rem,4vw,3rem)] font-light tracking-tighter text-[#2D302D] leading-none mb-8">
-              Redefining the <br />
-              <span className="italic font-serif text-[#8DAA9D]">
-                patient journey.
+            <h3 className="text-[clamp(2rem,4vw,3rem)] font-light tracking-tighter text-[#1E293B] leading-none mb-8">
+              Simplifying <br />
+              <span className="italic font-serif text-[#0F766E]">
+                healthcare access.
               </span>
             </h3>
             <div className="flex gap-4">
-              <div className="w-2 h-2 rounded-full bg-[#8DAA9D] animate-pulse" />
-              <p className="text-[10px] tracking-[0.2em] uppercase text-[#2D302D]/50 font-bold max-w-60">
-                Currently serving the digital healthcare landscape with clinical
-                precision.
+              <div className="w-2 h-2 rounded-full bg-[#0F766E] animate-pulse" />
+              <p className="text-[10px] tracking-[0.2em] uppercase text-[#1E293B]/50 font-bold max-w-60">
+                A multi-tenant platform connecting patients with trusted clinics and doctors.
               </p>
             </div>
           </div>
@@ -25,88 +24,88 @@ const Footer = () => {
           {/* LINK GROUPS */}
           <div className="lg:col-span-6 grid grid-cols-2 md:grid-cols-3 gap-12">
             <div className="flex flex-col gap-6">
-              <span className="text-[9px] font-mono text-[#8DAA9D] uppercase tracking-[0.3em]">
-                [ Platform ]
+              <span className="text-[9px] font-mono text-[#0F766E] uppercase tracking-[0.3em]">
+                Services
               </span>
-              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#2D302D] font-bold">
+              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#1E293B] font-bold">
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    Clinics
+                    Find a Clinic
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    Specialists
+                    Our Doctors
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    AI Maria
+                    AI Health Assistant
                   </a>
                 </li>
               </ul>
             </div>
 
             <div className="flex flex-col gap-6">
-              <span className="text-[9px] font-mono text-[#8DAA9D] uppercase tracking-[0.3em]">
-                [ Studio ]
+              <span className="text-[9px] font-mono text-[#0F766E] uppercase tracking-[0.3em]">
+                Company
               </span>
-              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#2D302D] font-bold">
+              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#1E293B] font-bold">
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    About
+                    About Us
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    Vision
+                    Our Mission
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    Contact
+                    Contact Us
                   </a>
                 </li>
               </ul>
             </div>
 
             <div className="flex flex-col gap-6">
-              <span className="text-[9px] font-mono text-[#8DAA9D] uppercase tracking-[0.3em]">
-                [ Legal ]
+              <span className="text-[9px] font-mono text-[#0F766E] uppercase tracking-[0.3em]">
+                Legal
               </span>
-              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#2D302D] font-bold">
+              <ul className="flex flex-col gap-3 text-[11px] uppercase tracking-widest text-[#1E293B] font-bold">
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    Privacy
+                    Privacy Policy
                   </a>
                 </li>
                 <li>
                   <a
                     href="#"
-                    className="hover:text-[#8DAA9D] transition-colors"
+                    className="hover:text-[#0F766E] transition-colors"
                   >
-                    Terms
+                    Terms of Service
                   </a>
                 </li>
               </ul>
@@ -115,13 +114,13 @@ const Footer = () => {
         </div>
 
         {/* BOTTOM ROW: BIG BRANDING */}
-        <div className="border-t border-[#2D302D]/10 pt-12 flex flex-col md:flex-row justify-between items-end gap-12">
+        <div className="border-t border-[#1E293B]/10 pt-12 flex flex-col md:flex-row justify-between items-end gap-12">
           <div className="order-2 md:order-1">
-            <h1 className="text-[12vw] font-light tracking-tighter leading-none text-[#2D302D]/5 select-none">
+            <h1 className="text-[12vw] font-light tracking-tighter leading-none text-[#1E293B]/5 select-none">
               HEALTHBOOK
             </h1>
-            <p className="text-[9px] tracking-[0.4em] uppercase text-[#2D302D]/30 mt-4">
-              © 2025 Intellectual Property — All Rights Reserved
+            <p className="text-[9px] tracking-[0.4em] uppercase text-[#1E293B]/30 mt-4">
+              © 2026 Sovereign HealthBook — All Rights Reserved
             </p>
           </div>
 
@@ -131,14 +130,14 @@ const Footer = () => {
                 <a
                   key={social}
                   href="#"
-                  className="w-10 h-10 border border-[#2D302D]/10 rounded-full flex items-center justify-center text-[10px] font-bold hover:bg-[#2D302D] hover:text-[#FAF9F6] transition-all duration-500"
+                  className="w-10 h-10 border border-[#1E293B]/10 rounded-full flex items-center justify-center text-[10px] font-bold hover:bg-[#0F766E] hover:text-white transition-all duration-500"
                 >
                   {social}
                 </a>
               ))}
             </div>
-            <p className="text-[9px] tracking-widest text-[#2D302D]/40 uppercase">
-              Designed for Wellness
+            <p className="text-[9px] tracking-widest text-[#1E293B]/40 uppercase">
+              Built for Better Healthcare
             </p>
           </div>
         </div>

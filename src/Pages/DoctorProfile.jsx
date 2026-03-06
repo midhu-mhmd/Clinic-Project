@@ -19,10 +19,10 @@ const API_BASE_URL = "http://localhost:5000/api";
 // --- Styled Components / Sub-components ---
 const StatBox = ({ label, value }) => (
   <div className="fade-up">
-    <span className="block text-[9px] uppercase tracking-[0.4em] text-[#2D302D]/30 font-bold mb-4">
+    <span className="block text-[9px] uppercase tracking-[0.4em] text-[#1E293B]/30 font-bold mb-4">
       {label}
     </span>
-    <span className="block text-xl lg:text-3xl font-light tracking-tighter uppercase text-[#2D302D]">
+    <span className="block text-xl lg:text-3xl font-light tracking-tighter uppercase text-[#1E293B]">
       {value}
     </span>
   </div>
@@ -166,8 +166,8 @@ const DoctorProfile = () => {
 
   if (loading)
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6]">
-        <Loader2 className="animate-spin text-[#8DAA9D] mb-4" size={32} />
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#F0FDFA]">
+        <Loader2 className="animate-spin text-[#0F766E] mb-4" size={32} />
         <p className="text-[10px] uppercase tracking-[0.4em] opacity-40 animate-pulse">
           Decrypting Profile...
         </p>
@@ -176,14 +176,14 @@ const DoctorProfile = () => {
 
   if (error || !doctor)
     return (
-      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#FAF9F6] text-red-500 p-6 text-center">
+      <div className="h-screen w-full flex flex-col items-center justify-center bg-[#F0FDFA] text-red-500 p-6 text-center">
         <AlertCircle size={40} className="mb-4 opacity-50" />
         <p className="text-[10px] uppercase tracking-[0.4em] mb-6 max-w-xs leading-loose">
           {error || "Doctor not found"}
         </p>
         <button
           onClick={() => navigate(-1)}
-          className="text-[9px] uppercase tracking-widest text-[#2D302D] underline underline-offset-4 hover:text-[#8DAA9D] transition-colors"
+          className="text-[9px] uppercase tracking-widest text-[#1E293B] underline underline-offset-4 hover:text-[#0F766E] transition-colors"
         >
           Return to Directory
         </button>
@@ -197,18 +197,18 @@ const DoctorProfile = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-[#FAF9F6] text-[#2D302D] selection:bg-[#8DAA9D] selection:text-[#FAF9F6] min-h-screen"
+      className="bg-[#F0FDFA] text-[#1E293B] selection:bg-[#0F766E] selection:text-[#F0FDFA] min-h-screen"
     >
       {/* Hero Section */}
-      <section className="hero-section relative pt-32 lg:pt-48 pb-24 px-6 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-end border-b border-[#2D302D]/5">
+      <section className="hero-section relative pt-32 lg:pt-48 pb-24 px-6 lg:px-16 grid grid-cols-1 lg:grid-cols-12 gap-12 items-end border-b border-[#1E293B]/5">
         <div className="lg:col-span-7">
           <div className="flex items-center gap-4 mb-8">
             <div className="hero-text-reveal flex items-center gap-3">
-              <span className="text-[9px] lg:text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D]">
+              <span className="text-[9px] lg:text-[10px] uppercase tracking-[0.5em] font-bold text-[#0F766E]">
                 Physician Code: {String(doctorId || "").slice(-6).toUpperCase()}
               </span>
-              <div className="w-8 h-px bg-[#8DAA9D]/30" />
-              <Star size={12} className="text-[#8DAA9D] fill-[#8DAA9D]" />
+              <div className="w-8 h-px bg-[#0F766E]/30" />
+              <Star size={12} className="text-[#0F766E] fill-[#0F766E]" />
               <span className="text-[10px] font-bold tracking-[0.2em]">
                 {doctor.rating || "5.0"} RATING
               </span>
@@ -217,12 +217,12 @@ const DoctorProfile = () => {
 
           <h1 className="hero-text-reveal text-[clamp(2.5rem,8vw,6.5rem)] font-light leading-[0.85] tracking-tighter uppercase mb-6">
             {first} <br />
-            <span className="italic font-serif text-[#8DAA9D] lowercase tracking-normal">
+            <span className="italic font-serif text-[#0F766E] lowercase tracking-normal">
               {rest ? `${rest}.` : ""}
             </span>
           </h1>
 
-          <p className="hero-text-reveal text-lg lg:text-xl mt-8 font-light text-[#2D302D]/60 max-w-lg leading-relaxed italic">
+          <p className="hero-text-reveal text-lg lg:text-xl mt-8 font-light text-[#1E293B]/60 max-w-lg leading-relaxed italic">
             "
             {doctor.about ||
               `Specializing in ${doctor.specialization} with a focus on clinical excellence and patient-centric restorative care.`}
@@ -240,14 +240,14 @@ const DoctorProfile = () => {
           )}
         </div>
 
-        <div className="lg:col-span-5 relative aspect-[4/5] overflow-hidden rounded-sm bg-[#2D302D]/5 shadow-2xl">
+        <div className="lg:col-span-5 relative aspect-[4/5] overflow-hidden rounded-sm bg-[#1E293B]/5 shadow-2xl">
           <img
             ref={imageRef}
             src={
               doctor.image ||
               `https://ui-avatars.com/api/?name=${encodeURIComponent(
                 safeName
-              )}&background=8DAA9D&color=fff&size=800`
+              )}&background=0F766E&color=fff&size=800`
             }
             alt={safeName}
             className="w-full h-full object-cover"
@@ -260,7 +260,7 @@ const DoctorProfile = () => {
       <main className="main-content px-6 lg:px-16 py-24 lg:py-32 grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-24">
         <div className="lg:col-span-7 space-y-24 lg:space-y-32">
           {/* Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-y border-[#2D302D]/5 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 border-y border-[#1E293B]/5 py-12">
             <StatBox label="Faculty Specialty" value={doctor.specialization || "—"} />
             <StatBox label="Clinical Tenure" value={`${doctor.experience || 0} Years`} />
             <StatBox label="Clinic" value={clinicName || doctor.tenantId?.name || "Global Network"} />
@@ -268,19 +268,19 @@ const DoctorProfile = () => {
 
           {/* Philosophy Section */}
           <section className="fade-up space-y-8">
-            <h2 className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D]">
+            <h2 className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#0F766E]">
               Clinical Philosophy
             </h2>
-            <div className="text-xl lg:text-2xl text-[#2D302D]/70 font-light leading-snug space-y-8">
-              <p className="border-l-2 border-[#8DAA9D]/20 pl-8">
+            <div className="text-xl lg:text-2xl text-[#1E293B]/70 font-light leading-snug space-y-8">
+              <p className="border-l-2 border-[#0F766E]/20 pl-8">
                 Dr. {safeName.split(" ").pop()} integrates advanced{" "}
                 {doctor.specialization || "clinical"} protocols with a commitment to
                 long-term resilience and technical precision.
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-8 pt-4">
-                <div className="p-8 bg-white border border-[#2D302D]/5 flex flex-col gap-4 hover:border-[#8DAA9D]/30 transition-colors">
-                  <Award size={20} className="text-[#8DAA9D]" />
+                <div className="p-8 bg-white border border-[#1E293B]/5 flex flex-col gap-4 hover:border-[#0F766E]/30 transition-colors">
+                  <Award size={20} className="text-[#0F766E]" />
                   <span className="text-[9px] uppercase tracking-widest font-bold opacity-30">
                     Distinction
                   </span>
@@ -288,8 +288,8 @@ const DoctorProfile = () => {
                     Board of {doctor.specialization || "Medicine"} Excellence
                   </span>
                 </div>
-                <div className="p-8 bg-white border border-[#2D302D]/5 flex flex-col gap-4 hover:border-[#8DAA9D]/30 transition-colors">
-                  <Shield size={20} className="text-[#8DAA9D]" />
+                <div className="p-8 bg-white border border-[#1E293B]/5 flex flex-col gap-4 hover:border-[#0F766E]/30 transition-colors">
+                  <Shield size={20} className="text-[#0F766E]" />
                   <span className="text-[9px] uppercase tracking-widest font-bold opacity-30">
                     Validation
                   </span>
@@ -303,9 +303,9 @@ const DoctorProfile = () => {
 
           {/* Testimonial */}
           <section className="fade-up pt-10">
-            <div className="relative p-10 lg:p-16 bg-[#2D302D] text-[#FAF9F6] overflow-hidden">
+            <div className="relative p-10 lg:p-16 bg-[#1E293B] text-[#F0FDFA] overflow-hidden">
               <Quote
-                className="absolute top-8 left-8 opacity-5 text-[#8DAA9D]"
+                className="absolute top-8 left-8 opacity-5 text-[#0F766E]"
                 size={120}
                 strokeWidth={1}
               />
@@ -314,8 +314,8 @@ const DoctorProfile = () => {
                 A total shift in how I view medical care."
               </p>
               <div className="flex items-center gap-6">
-                <div className="w-12 h-px bg-[#8DAA9D]" />
-                <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#8DAA9D]">
+                <div className="w-12 h-px bg-[#0F766E]" />
+                <span className="text-[9px] font-bold uppercase tracking-[0.3em] text-[#0F766E]">
                   Patient Registry // Verified Review
                 </span>
               </div>
@@ -326,18 +326,18 @@ const DoctorProfile = () => {
         {/* Sidebar / Booking Card */}
         <div className="lg:col-span-5 relative">
           <div className="sticky top-12 lg:top-24">
-            <div className="bg-[#2D302D] text-[#FAF9F6] p-8 lg:p-12 shadow-2xl space-y-10">
-              <div className="flex justify-between items-start border-b border-[#FAF9F6]/10 pb-8">
+            <div className="bg-[#1E293B] text-[#F0FDFA] p-8 lg:p-12 shadow-2xl space-y-10">
+              <div className="flex justify-between items-start border-b border-[#F0FDFA]/10 pb-8">
                 <div>
-                  <span className="block text-[10px] uppercase tracking-[0.5em] text-[#8DAA9D] font-bold mb-3">
+                  <span className="block text-[10px] uppercase tracking-[0.5em] text-[#0F766E] font-bold mb-3">
                     Availability Status
                   </span>
                   <h3 className="text-2xl lg:text-3xl font-light tracking-tighter uppercase">
                     Protocol Entry
                   </h3>
                 </div>
-                <div className="w-10 h-10 rounded-full border border-[#FAF9F6]/10 flex items-center justify-center">
-                  <Clock size={16} className="text-[#8DAA9D]" />
+                <div className="w-10 h-10 rounded-full border border-[#F0FDFA]/10 flex items-center justify-center">
+                  <Clock size={16} className="text-[#0F766E]" />
                 </div>
               </div>
 
@@ -357,8 +357,8 @@ const DoctorProfile = () => {
                     }
                   });
                 }}
-                className="w-full py-6 bg-[#8DAA9D] text-[#FAF9F6] text-[10px] uppercase tracking-[0.5em] font-bold 
-                           hover:bg-[#FAF9F6] hover:text-[#2D302D] transition-all duration-500 flex items-center 
+                className="w-full py-6 bg-[#0F766E] text-[#F0FDFA] text-[10px] uppercase tracking-[0.5em] font-bold 
+                           hover:bg-[#F0FDFA] hover:text-[#1E293B] transition-all duration-500 flex items-center 
                            justify-center gap-4 group"
               >
                 Confirm Entry

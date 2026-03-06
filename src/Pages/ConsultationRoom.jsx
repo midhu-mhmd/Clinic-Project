@@ -29,6 +29,7 @@ const ConsultationRoom = () => {
   const [error, setError] = useState("");
   const [sessionData, setSessionData] = useState(null);
   const [roomId, setRoomId] = useState(null);
+  const [userRole, setUserRole] = useState(null);
 
   // ── Step 1: Verify JWT meeting token via backend ──
   useEffect(() => {
@@ -56,6 +57,7 @@ const ConsultationRoom = () => {
         if (data.success) {
           setSessionData(data.data.session);
           setRoomId(data.data.roomId);
+          setUserRole(data.data.role);
         } else {
           setError(data.message || "Verification failed.");
         }
@@ -123,7 +125,7 @@ const ConsultationRoom = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0a0a0a]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 size={28} className="animate-spin text-[#8DAA9D]" />
+          <Loader2 size={28} className="animate-spin text-[#0F766E]" />
           <p className="text-[10px] uppercase tracking-widest text-gray-500">
             Verifying meeting link...
           </p>
@@ -162,6 +164,12 @@ const ConsultationRoom = () => {
   }
 
   const socketRoomId = `consultation:${roomId}`;
+
+  // Resolve display name for the current user
+  const currentUserName =
+    userRole === "DOCTOR"
+      ? sessionData?.doctorId?.name || "Doctor"
+      : sessionData?.patientId?.name || "Patient";
 
   return (
     <div className="min-h-screen bg-[#0a0a0a] flex flex-col">
@@ -230,12 +238,13 @@ const ConsultationRoom = () => {
             </button>
           </div>
         ) : (
-          <div className="w-full max-w-5xl h-[75vh]">
-            {activeTab === "video" ? (
+          <div className="w-full max-w-5xl h-[75vh] relative">
+            <div className={`w-full h-full ${activeTab === "video" ? "" : "hidden"}`}>
               <VideoCall socket={socket} roomId={socketRoomId} onEnd={handleEnd} />
-            ) : (
-              <ChatBox socket={socket} roomId={socketRoomId} />
-            )}
+            </div>
+            <div className={`w-full h-full ${activeTab === "chat" ? "" : "hidden"}`}>
+              <ChatBox socket={socket} roomId={socketRoomId} currentUser={currentUserName} />
+            </div>
           </div>
         )}
       </div>

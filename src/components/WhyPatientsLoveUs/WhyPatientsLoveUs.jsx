@@ -65,47 +65,47 @@ const WhyPatientsLoveUs = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full py-32 bg-[#FAF9F6]">
+    <section ref={sectionRef} className="w-full py-32 bg-[#F0FDFA]">
       <div className="max-w-7xl mx-auto px-8">
         
         {/* HEADER */}
-        <div className="reveal-header border-b border-[#2D302D]/10 pb-16 mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+        <div className="reveal-header border-b border-[#1E293B]/10 pb-16 mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
           <div className="max-w-xl">
-            <p className="text-[10px] tracking-[0.5em] uppercase text-[#8DAA9D] font-bold mb-4">
-              Core Philosophies
+            <p className="text-[10px] tracking-[0.5em] uppercase text-[#0F766E] font-bold mb-4">
+              Why Choose Us
             </p>
-            <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-light leading-none text-[#2D302D] tracking-tighter">
-              A healthcare experience <br />
-              <span className="italic font-serif text-[#8DAA9D]">reimagined.</span>
+            <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-light leading-none text-[#1E293B] tracking-tighter">
+              Patient-centred care, <br />
+              <span className="italic font-serif text-[#0F766E]">every step of the way.</span>
             </h2>
           </div>
-          <p className="max-w-xs text-sm text-[#2D302D]/60 leading-relaxed font-light">
-            We focus on the intersection of human empathy and medical precision to simplify your journey.
+          <p className="max-w-xs text-sm text-[#1E293B]/60 leading-relaxed font-light">
+            We combine trusted medical expertise with modern technology to make your healthcare journey seamless.
           </p>
         </div>
 
         {/* MINIMAL GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-l border-[#2D302D]/5">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-l border-[#1E293B]/5">
           {features.map((item, index) => (
             <div
               key={index}
               ref={(el) => (cardsRef.current[index] = el)}
-              className="group relative p-10 border-r border-b border-[#2D302D]/5 hover:bg-[#8DAA9D]/5 transition-colors duration-700"
+              className="group relative p-10 border-r border-b border-[#1E293B]/5 hover:bg-[#0F766E]/5 transition-colors duration-700"
             >
               <span className="text-[10px] font-mono opacity-30 block mb-12">
                 [{item.number}]
               </span>
 
-              <h3 className="text-xl font-light text-[#2D302D] mb-4 tracking-tight">
+              <h3 className="text-xl font-light text-[#1E293B] mb-4 tracking-tight">
                 {item.title}
               </h3>
 
-              <p className="text-sm text-[#2D302D]/60 leading-relaxed font-light">
+              <p className="text-sm text-[#1E293B]/60 leading-relaxed font-light">
                 {item.desc}
               </p>
               
               {/* Subtle hover line */}
-              <div className="absolute bottom-0 left-0 w-0 h-px bg-[#8DAA9D] group-hover:w-full transition-all duration-700"></div>
+              <div className="absolute bottom-0 left-0 w-0 h-px bg-[#0F766E] group-hover:w-full transition-all duration-700"></div>
             </div>
           ))}
         </div>

@@ -18,6 +18,9 @@ import {
   Loader2,
   MapPin,
   Video,
+  Calendar,
+  Clock,
+  User,
 } from "lucide-react";
 
 const API_BASE = "http://localhost:5000/api";
@@ -75,20 +78,20 @@ const AppointmentPage = () => {
   });
 
   // --- CONSTANTS ---
-  const timeSlots = useMemo(() => ["09:00", "10:30", "13:00", "14:30", "16:00"], []);
+  const timeSlots = useMemo(() => ["09:00", "10:30", "13:00", "14:30", "16:00", "21:20", "23:15", "23:20", "23:25", "23:30", "23:40", "23:50", "00:00", "00:10", "00:30", "00:40", "00:50", "01:20", "01:30", "01:40", "01:50", "02:00", "02:10", "02:20", "02:30", "02:40", "03:10", "03:20", "03:30"], []);
   const [bookedSlots, setBookedSlots] = useState([]);
 
   const consultationTypes = useMemo(() => [
     {
       id: "in-clinic",
-      label: "In-Clinic Visit",
-      desc: "Visit the facility in person for your consultation",
+      label: "In-Person Visit",
+      desc: "Visit the clinic for a face-to-face consultation with your doctor",
       icon: <MapPin size={20} />,
     },
     {
       id: "video",
-      label: "Video Consultation",
-      desc: "Connect via secure video call from anywhere",
+      label: "Telehealth Visit",
+      desc: "Connect with your doctor via a secure, HIPAA-compliant video call",
       icon: <Video size={20} />,
     },
   ], []);
@@ -346,8 +349,8 @@ const AppointmentPage = () => {
 
   if (isLoading.clinics) {
     return (
-      <div className="h-screen flex items-center justify-center bg-[#FAF9F6]">
-        <Loader2 className="animate-spin text-[#8DAA9D]" />
+      <div className="h-screen flex items-center justify-center bg-[#F0FDFA]">
+        <Loader2 className="animate-spin text-[#0F766E]" />
       </div>
     );
   }
@@ -355,24 +358,24 @@ const AppointmentPage = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-[#FAF9F6] text-[#2D302D] min-h-screen font-sans selection:bg-[#8DAA9D] selection:text-white pt-20"
+      className="bg-[#F0FDFA] text-[#1E293B] min-h-screen selection:bg-[#0F766E] selection:text-white pt-20"
     >
       {/* Step Progress Bar */}
-      <div className="bg-[#FAF9F6] border-b border-[#2D302D]/5 px-8 lg:px-16 py-6 flex justify-between items-center">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-[#0F766E]/10 px-8 lg:px-16 py-6 flex justify-between items-center">
         <div className="flex gap-2">
           {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
               key={s}
-              className={`w-8 h-1 transition-all duration-500 ${step >= s ? "bg-[#8DAA9D]" : "bg-[#2D302D]/10"
+              className={`w-10 h-1.5 rounded-full transition-all duration-500 ${step >= s ? "bg-[#0F766E]" : "bg-[#0F766E]/10"
                 }`}
             />
           ))}
         </div>
         <button
           onClick={() => navigate(-1)}
-          className="text-[10px] font-bold tracking-[0.3em] uppercase flex items-center gap-2 hover:text-red-500 transition-colors"
+          className="text-xs font-semibold tracking-wide uppercase flex items-center gap-2 text-slate-500 hover:text-red-500 transition-colors"
         >
-          <ArrowLeft size={14} /> Abandon Entry
+          <ArrowLeft size={14} /> Cancel Booking
         </button>
       </div>
 
@@ -380,12 +383,16 @@ const AppointmentPage = () => {
         <div className="lg:col-span-7 step-anim">
           {/* STEP 1 */}
           {step === 1 && (
-            <section className="space-y-12">
-              <h2 className="text-5xl font-light tracking-tighter uppercase">
-                Select Facility
-              </h2>
+            <section className="space-y-10">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 1 of 5</p>
+                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                  Choose Your <span className="italic font-serif text-[#0F766E]">Clinic</span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-2">Select the healthcare facility where you'd like to be seen.</p>
+              </div>
 
-              <div className="grid gap-4">
+              <div className="grid gap-3">
                 {data.clinics.map((c) => {
                   const active = normalizeId(selection.clinic) === normalizeId(c);
                   return (
@@ -394,23 +401,25 @@ const AppointmentPage = () => {
                       onClick={() =>
                         setSelection((prev) => ({ ...prev, clinic: c, doctor: null }))
                       }
-                      className={`p-6 border flex justify-between items-center transition-all ${active
-                          ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
-                          : "border-[#2D302D]/10"
+                      className={`p-5 rounded-xl border-2 flex justify-between items-center transition-all ${active
+                          ? "border-[#0F766E] bg-[#0F766E]/5 shadow-sm"
+                          : "border-slate-200 hover:border-[#0F766E]/30"
                         }`}
                     >
                       <div className="flex items-center gap-4">
-                        <Building2 className="text-[#8DAA9D]" />
+                        <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? 'bg-[#0F766E]/10' : 'bg-slate-100'}`}>
+                          <Building2 size={18} className={active ? 'text-[#0F766E]' : 'text-slate-400'} />
+                        </div>
                         <div className="text-left">
-                          <p className="font-bold uppercase text-sm tracking-tight">
+                          <p className="font-semibold text-sm text-[#1E293B]">
                             {c.name}
                           </p>
-                          <p className="text-[10px] opacity-50 uppercase tracking-widest">
+                          <p className="text-xs text-slate-400">
                             {c.location || c.address || "—"}
                           </p>
                         </div>
                       </div>
-                      {active && <CheckCircle2 size={18} className="text-[#8DAA9D]" />}
+                      {active && <CheckCircle2 size={20} className="text-[#0F766E]" />}
                     </button>
                   );
                 })}
@@ -420,13 +429,17 @@ const AppointmentPage = () => {
 
           {/* STEP 2 */}
           {step === 2 && (
-            <section className="space-y-12">
-              <h2 className="text-5xl font-light tracking-tighter uppercase">
-                Select Faculty
-              </h2>
+            <section className="space-y-10">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 2 of 5</p>
+                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                  Select Your <span className="italic font-serif text-[#0F766E]">Doctor</span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-2">Choose a physician based on their specialty and availability.</p>
+              </div>
 
               {isLoading.doctors ? (
-                <Loader2 className="animate-spin" />
+                <div className="flex items-center gap-3 text-slate-400"><Loader2 className="animate-spin" size={20} /> <span className="text-sm">Loading physicians...</span></div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {data.doctors.map((d) => {
@@ -435,25 +448,25 @@ const AppointmentPage = () => {
                       <button
                         key={normalizeId(d)}
                         onClick={() => setSelection((prev) => ({ ...prev, doctor: d }))}
-                        className={`p-6 border text-left transition-all ${active
-                            ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
-                            : "border-[#2D302D]/10"
+                        className={`p-5 rounded-xl border-2 text-left transition-all ${active
+                            ? "border-[#0F766E] bg-[#0F766E]/5 shadow-sm"
+                            : "border-slate-200 hover:border-[#0F766E]/30"
                           }`}
                       >
                         <img
-                          src={d.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.name || "Doctor")}`}
-                          className="w-12 h-12 rounded-full mb-4 grayscale"
+                          src={d.image || `https://ui-avatars.com/api/?name=${encodeURIComponent(d.name || "Doctor")}&background=0F766E&color=fff`}
+                          className="w-14 h-14 rounded-full mb-4 object-cover"
                           alt={d.name || "Doctor"}
                         />
-                        <p className="font-bold uppercase text-sm">{d.name}</p>
-                        <p className="text-[10px] text-[#8DAA9D] font-bold uppercase">
-                          {d.specialization || d.specialty || "—"}
+                        <p className="font-semibold text-sm text-[#1E293B]">{d.name}</p>
+                        <p className="text-xs text-[#0F766E] font-medium mt-0.5">
+                          {d.specialization || d.specialty || "General Practice"}
                         </p>
-                        <p className="text-[10px] opacity-60 uppercase tracking-widest mt-2">
-                          Experience: {d.experience || 0} Years
+                        <p className="text-xs text-slate-400 mt-2">
+                          {d.experience || 0} years experience
                         </p>
-                        <p className="text-[10px] opacity-60 uppercase tracking-widest mt-1">
-                          Fee: ₹{Number(d.consultationFee ?? d.fee ?? 0) || 0}
+                        <p className="text-xs text-slate-400 mt-1">
+                          Consultation Fee: ₹{Number(d.consultationFee ?? d.fee ?? 0) || 0}
                         </p>
                       </button>
                     );
@@ -465,13 +478,14 @@ const AppointmentPage = () => {
 
           {/* STEP 3 — Consultation Type */}
           {step === 3 && (
-            <section className="space-y-12">
-              <h2 className="text-5xl font-light tracking-tighter uppercase">
-                Consultation Type
-              </h2>
-              <p className="text-sm opacity-50 uppercase tracking-widest">
-                Choose how you'd like to consult with your doctor
-              </p>
+            <section className="space-y-10">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 3 of 5</p>
+                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                  Visit <span className="italic font-serif text-[#0F766E]">Type</span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-2">How would you like to see your doctor?</p>
+              </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {consultationTypes.map((ct) => {
@@ -482,22 +496,22 @@ const AppointmentPage = () => {
                       onClick={() =>
                         setSelection((prev) => ({ ...prev, consultationType: ct.id }))
                       }
-                      className={`p-8 border text-left transition-all flex flex-col gap-4 ${
+                      className={`p-7 rounded-xl border-2 text-left transition-all flex flex-col gap-4 ${
                         active
-                          ? "border-[#8DAA9D] bg-[#8DAA9D]/5"
-                          : "border-[#2D302D]/10 hover:border-[#2D302D]/30"
+                          ? "border-[#0F766E] bg-[#0F766E]/5 shadow-sm"
+                          : "border-slate-200 hover:border-[#0F766E]/30"
                       }`}
                     >
-                      <div className={`${active ? "text-[#8DAA9D]" : "opacity-40"}`}>
+                      <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? 'bg-[#0F766E]/10 text-[#0F766E]' : 'bg-slate-100 text-slate-400'}`}>
                         {ct.icon}
                       </div>
                       <div>
-                        <p className="font-bold uppercase text-sm tracking-tight">{ct.label}</p>
-                        <p className="text-[10px] opacity-50 uppercase tracking-widest mt-1">
+                        <p className="font-semibold text-sm text-[#1E293B]">{ct.label}</p>
+                        <p className="text-xs text-slate-400 mt-1">
                           {ct.desc}
                         </p>
                       </div>
-                      {active && <CheckCircle2 size={18} className="text-[#8DAA9D]" />}
+                      {active && <CheckCircle2 size={20} className="text-[#0F766E]" />}
                     </button>
                   );
                 })}
@@ -507,118 +521,138 @@ const AppointmentPage = () => {
 
           {/* STEP 4 — Date & Slot */}
           {step === 4 && (
-            <section className="space-y-12">
-              <h2 className="text-5xl font-light tracking-tighter uppercase">
-                Temporal Slot
-              </h2>
-
-              <div className="grid grid-cols-7 gap-2">
-                {weekDays.map((d) => {
-                  const active = selection.date?.fullDate === d.fullDate;
-                  return (
-                    <button
-                      key={d.fullDate}
-                      onClick={() => setSelection((prev) => ({ ...prev, date: d, slot: null }))}
-                      className={`p-4 border text-center transition-all ${active
-                          ? "bg-[#8DAA9D] text-white"
-                          : "border-[#2D302D]/10"
-                        }`}
-                    >
-                      <span className="text-[10px] block opacity-50 uppercase">
-                        {d.dayName}
-                      </span>
-                      <span className="text-lg">{d.dayNumber}</span>
-                    </button>
-                  );
-                })}
+            <section className="space-y-10">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 4 of 5</p>
+                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                  Preferred <span className="italic font-serif text-[#0F766E]">Date & Time</span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-2">Pick a date and available time slot for your appointment.</p>
               </div>
 
-              <div className="grid grid-cols-3 gap-2">
-                {availableSlots.length === 0 ? (
-                  <p className="col-span-3 text-sm opacity-50 uppercase tracking-widest py-4">
-                    No available slots for this date
-                  </p>
-                ) : (
-                  availableSlots.map((t) => {
-                    const active = selection.slot === t;
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2"><Calendar size={14} /> Select Date</p>
+                <div className="grid grid-cols-7 gap-2">
+                  {weekDays.map((d) => {
+                    const active = selection.date?.fullDate === d.fullDate;
                     return (
                       <button
-                        key={t}
-                        onClick={() => setSelection((prev) => ({ ...prev, slot: t }))}
-                        className={`p-4 border text-sm transition-all ${
-                          active
-                            ? "bg-[#2D302D] text-white"
-                            : "border-[#2D302D]/10"
-                        }`}
+                        key={d.fullDate}
+                        onClick={() => setSelection((prev) => ({ ...prev, date: d, slot: null }))}
+                        className={`p-4 rounded-xl border-2 text-center transition-all ${active
+                            ? "bg-[#0F766E] text-white border-[#0F766E] shadow-sm"
+                            : "border-slate-200 hover:border-[#0F766E]/30"
+                          }`}
                       >
-                        {formatTo12h(t)}
+                        <span className={`text-[10px] block uppercase font-medium ${active ? 'text-white/70' : 'text-slate-400'}`}>
+                          {d.dayName}
+                        </span>
+                        <span className="text-lg font-medium">{d.dayNumber}</span>
                       </button>
                     );
-                  })
-                )}
+                  })}
+                </div>
+              </div>
+
+              <div>
+                <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2"><Clock size={14} /> Available Time Slots</p>
+                <div className="grid grid-cols-3 gap-2">
+                  {availableSlots.length === 0 ? (
+                    <p className="col-span-3 text-sm text-slate-400 py-4">
+                      No available slots for this date. Please select another day.
+                    </p>
+                  ) : (
+                    availableSlots.map((t) => {
+                      const active = selection.slot === t;
+                      return (
+                        <button
+                          key={t}
+                          onClick={() => setSelection((prev) => ({ ...prev, slot: t }))}
+                          className={`p-4 rounded-xl border-2 text-sm font-medium transition-all ${
+                            active
+                              ? "bg-[#0F766E] text-white border-[#0F766E] shadow-sm"
+                              : "border-slate-200 hover:border-[#0F766E]/30"
+                          }`}
+                        >
+                          {formatTo12h(t)}
+                        </button>
+                      );
+                    })
+                  )}
+                </div>
               </div>
             </section>
           )}
 
           {/* STEP 5 — Patient Info */}
           {step === 5 && (
-            <section className="space-y-12">
-              <h2 className="text-5xl font-light tracking-tighter uppercase">
-                Patient Dossier
-              </h2>
+            <section className="space-y-10">
+              <div>
+                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 5 of 5</p>
+                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                  Patient <span className="italic font-serif text-[#0F766E]">Information</span>
+                </h2>
+                <p className="text-sm text-slate-500 mt-2">Please provide your details so the clinic can prepare for your visit.</p>
+              </div>
 
-              <div className="grid gap-6">
+              <div className="grid gap-5">
                 <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Full Name *</label>
                   <input
-                    placeholder="Legal Full Name"
-                    className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 outline-none focus:border-[#8DAA9D]"
+                    placeholder="Enter your full name"
+                    className="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3.5 outline-none focus:border-[#0F766E] transition-colors text-sm"
                     value={patient.name}
                     onChange={(e) => setPatient((p) => ({ ...p, name: e.target.value }))}
                     onBlur={validateStep4}
                   />
                   {fieldErrors.name && (
-                    <p className="text-[10px] uppercase tracking-widest text-red-500 mt-2">
+                    <p className="text-xs text-red-500 mt-1.5">
                       {fieldErrors.name}
                     </p>
                   )}
                 </div>
 
                 <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Email Address *</label>
                   <input
-                    placeholder="Email Address"
-                    className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 outline-none focus:border-[#8DAA9D]"
+                    placeholder="your.email@example.com"
+                    className="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3.5 outline-none focus:border-[#0F766E] transition-colors text-sm"
                     value={patient.email}
                     onChange={(e) => setPatient((p) => ({ ...p, email: e.target.value }))}
                     onBlur={validateStep4}
                   />
                   {fieldErrors.email && (
-                    <p className="text-[10px] uppercase tracking-widest text-red-500 mt-2">
+                    <p className="text-xs text-red-500 mt-1.5">
                       {fieldErrors.email}
                     </p>
                   )}
                 </div>
 
                 <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Phone Number *</label>
                   <input
-                    placeholder="Phone / Contact"
-                    className="w-full bg-transparent border-b border-[#2D302D]/10 py-4 outline-none focus:border-[#8DAA9D]"
+                    placeholder="+91 XXXXX XXXXX"
+                    className="w-full bg-white border-2 border-slate-200 rounded-xl px-4 py-3.5 outline-none focus:border-[#0F766E] transition-colors text-sm"
                     value={patient.phone}
                     onChange={(e) => setPatient((p) => ({ ...p, phone: e.target.value }))}
                     onBlur={validateStep4}
                   />
                   {fieldErrors.phone && (
-                    <p className="text-[10px] uppercase tracking-widest text-red-500 mt-2">
+                    <p className="text-xs text-red-500 mt-1.5">
                       {fieldErrors.phone}
                     </p>
                   )}
                 </div>
 
-                <textarea
-                  placeholder="Clinical Notes"
-                  className="w-full bg-transparent border border-[#2D302D]/10 p-4 outline-none focus:border-[#8DAA9D] h-32"
-                  value={patient.notes}
-                  onChange={(e) => setPatient((p) => ({ ...p, notes: e.target.value }))}
-                />
+                <div>
+                  <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Symptoms / Reason for Visit</label>
+                  <textarea
+                    placeholder="Briefly describe your symptoms or reason for this appointment..."
+                    className="w-full bg-white border-2 border-slate-200 rounded-xl p-4 outline-none focus:border-[#0F766E] transition-colors h-32 text-sm resize-none"
+                    value={patient.notes}
+                    onChange={(e) => setPatient((p) => ({ ...p, notes: e.target.value }))}
+                  />
+                </div>
               </div>
             </section>
           )}
@@ -626,20 +660,20 @@ const AppointmentPage = () => {
           {/* STEP 6 — SUCCESS */}
           {step === 6 && (
             <section className="text-center py-20 space-y-6">
-              <div className="w-20 h-20 bg-[#8DAA9D]/10 rounded-full flex items-center justify-center mx-auto text-[#8DAA9D]">
+              <div className="w-20 h-20 bg-[#0F766E]/10 rounded-full flex items-center justify-center mx-auto text-[#0F766E]">
                 <CheckCircle2 size={40} />
               </div>
-              <h2 className="text-4xl font-light uppercase">Protocol Validated</h2>
-              <p className="text-sm opacity-50 uppercase tracking-widest">
+              <h2 className="text-3xl font-light text-[#1E293B]">Appointment Confirmed</h2>
+              <p className="text-sm text-slate-500 max-w-md mx-auto">
                 {selection.consultationType === "video"
-                  ? "Your video consultation has been booked. Join the call below."
-                  : "Your in-clinic appointment has been confirmed."}
+                  ? "Your telehealth consultation has been scheduled. You will receive a reminder with the meeting link before your appointment."
+                  : "Your in-person appointment has been confirmed. Please arrive 10 minutes early with any relevant medical records."}
               </p>
 
               <div className="flex items-center justify-center gap-4 mt-8">
                 <button
                   onClick={() => navigate("/")}
-                  className="px-8 py-4 bg-[#2D302D] text-white text-[10px] uppercase tracking-widest"
+                  className="px-8 py-4 rounded-xl bg-[#1E293B] text-white text-xs font-semibold uppercase tracking-wide hover:bg-[#0F766E] transition-colors"
                 >
                   Return Home
                 </button>
@@ -649,10 +683,10 @@ const AppointmentPage = () => {
                       const token = createdAppointment.meetingLink.split("/consultation/")[1];
                       if (token) navigate(`/consultation/${token}`);
                     }}
-                    className="px-8 py-4 bg-[#8DAA9D] text-white text-[10px] uppercase tracking-widest flex items-center gap-3 hover:bg-[#8DAA9D]/80 transition-colors"
+                    className="px-8 py-4 rounded-xl bg-[#0F766E] text-white text-xs font-semibold uppercase tracking-wide flex items-center gap-3 hover:bg-[#0F766E]/80 transition-colors"
                   >
                     <Video size={14} />
-                    Join Video Call
+                    Join Video Consultation
                   </button>
                 )}
               </div>
@@ -660,24 +694,24 @@ const AppointmentPage = () => {
           )}
 
           {step < 6 && (
-            <div className="mt-12 flex items-center gap-6">
+            <div className="mt-10 flex items-center gap-6">
               <button
                 disabled={!canProceed || isLoading.submit}
                 onClick={() => (step === 5 ? handleSubmission() : setStep((s) => s + 1))}
-                className="px-12 py-6 bg-[#2D302D] text-white text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-[#8DAA9D] transition-all disabled:opacity-30 flex items-center gap-2"
+                className="px-10 py-4 rounded-xl bg-[#0F766E] text-white text-xs font-semibold uppercase tracking-wide hover:bg-[#0F766E]/90 transition-all disabled:opacity-30 flex items-center gap-2 shadow-sm"
               >
                 {isLoading.submit ? (
                   <Loader2 className="animate-spin" size={14} />
                 ) : step === 5 ? (
-                  "Initialize Protocol"
+                  "Confirm Appointment"
                 ) : (
-                  "Proceed"
+                  "Continue"
                 )}
                 <ChevronRight size={14} />
               </button>
 
               {error && (
-                <p className="text-[10px] text-red-500 uppercase tracking-widest">
+                <p className="text-xs text-red-500 font-medium">
                   {error}
                 </p>
               )}
@@ -685,55 +719,57 @@ const AppointmentPage = () => {
           )}
         </div>
 
-        {/* SIDEBAR */}
-        <aside className="lg:col-span-5 h-fit sticky top-40 bg-white border border-[#2D302D]/5 p-10 space-y-8 shadow-sm">
+        {/* SIDEBAR — Appointment Summary */}
+        <aside className="lg:col-span-5 h-fit sticky top-40 bg-white rounded-2xl border border-slate-200 p-8 space-y-6 shadow-sm">
+          <p className="text-xs font-semibold text-[#0F766E] uppercase tracking-wide">Appointment Summary</p>
+
           <div className="flex items-center gap-4">
-            <div className="w-12 h-12 bg-gray-100 rounded-full flex items-center justify-center overflow-hidden">
+            <div className="w-14 h-14 bg-[#0F766E]/5 rounded-xl flex items-center justify-center overflow-hidden">
               {selection.doctor ? (
                 <img
                   src={
                     selection.doctor.image ||
-                    `https://ui-avatars.com/api/?name=${encodeURIComponent(selection.doctor.name || "Doctor")}`
+                    `https://ui-avatars.com/api/?name=${encodeURIComponent(selection.doctor.name || "Doctor")}&background=0F766E&color=fff`
                   }
-                  className="w-full h-full object-cover grayscale"
+                  className="w-full h-full object-cover"
                   alt=""
                 />
               ) : (
-                <Stethoscope className="opacity-20" />
+                <Stethoscope size={22} className="text-[#0F766E]/30" />
               )}
             </div>
             <div>
-              <p className="text-[9px] font-bold text-[#8DAA9D] uppercase tracking-widest">
-                Assigned Faculty
+              <p className="text-xs text-slate-400">
+                Attending Physician
               </p>
-              <p className="text-sm font-bold uppercase">
-                {selection.doctor?.name || "Pending..."}
+              <p className="text-sm font-semibold text-[#1E293B]">
+                {selection.doctor?.name || "Not selected"}
               </p>
             </div>
           </div>
 
-          <div className="space-y-4 border-t pt-6 text-[11px] uppercase tracking-widest">
+          <div className="space-y-4 border-t border-slate-100 pt-5 text-sm">
             <div className="flex justify-between">
-              <span className="opacity-40">Facility</span>
-              <span>{selection.clinic?.name || "---"}</span>
+              <span className="text-slate-400">Clinic</span>
+              <span className="font-medium text-[#1E293B]">{selection.clinic?.name || "—"}</span>
             </div>
             <div className="flex justify-between">
-              <span className="opacity-40">Type</span>
-              <span>
+              <span className="text-slate-400">Visit Type</span>
+              <span className="font-medium text-[#1E293B]">
                 {selection.consultationType === "video"
-                  ? "Video Call"
+                  ? "Telehealth"
                   : selection.consultationType === "in-clinic"
-                  ? "In-Clinic"
-                  : "---"}
+                  ? "In-Person"
+                  : "—"}
               </span>
             </div>
             <div className="flex justify-between">
-              <span className="opacity-40">Temporal Slot</span>
-              <span>{selection.slot ? formatTo12h(selection.slot) : "---"}</span>
+              <span className="text-slate-400">Date & Time</span>
+              <span className="font-medium text-[#1E293B]">{selection.slot ? formatTo12h(selection.slot) : "—"}</span>
             </div>
-            <div className="flex justify-between border-t pt-4">
-              <span className="opacity-40 font-bold">Total Fee</span>
-              <span className="text-lg">₹{totalFee}</span>
+            <div className="flex justify-between border-t border-slate-100 pt-4">
+              <span className="text-slate-400 font-semibold">Consultation Fee</span>
+              <span className="text-xl font-semibold text-[#0F766E]">₹{totalFee}</span>
             </div>
           </div>
         </aside>

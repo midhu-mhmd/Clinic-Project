@@ -138,7 +138,7 @@ const SecurityLogin = ({ data, onUpdate }) => {
           <h4 className="text-[10px] font-black uppercase tracking-[0.3em]">Identity Protocol</h4>
         </div>
 
-        <form onSubmit={handlePasswordChange} className="space-y-8 bg-[#FAF9F6] p-10">
+        <form onSubmit={handlePasswordChange} className="space-y-8 bg-[#F0FDFA] p-10">
           <div className="relative border-b border-gray-200 focus-within:border-black transition-colors">
             <label className="text-[8px] uppercase tracking-widest text-gray-400 font-bold block mb-1">Current Signature</label>
             <input
@@ -171,7 +171,7 @@ const SecurityLogin = ({ data, onUpdate }) => {
           </div>
 
           <button type="submit" disabled={isSaving}
-            className="bg-[#1A1A1A] text-white px-10 py-4 text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-[#8DAA9D] transition-all disabled:opacity-20">
+            className="bg-[#1A1A1A] text-white px-10 py-4 text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-[#0F766E] transition-all disabled:opacity-20">
             {isSaving ? "Syncing..." : "Rewrite Credentials"}
           </button>
         </form>
@@ -182,7 +182,7 @@ const SecurityLogin = ({ data, onUpdate }) => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="h-10 w-10 bg-gray-50 flex items-center justify-center rounded-full">
-              <Smartphone size={16} className={securityPrefs.twoFactor ? "text-[#8DAA9D]" : "text-gray-300"} />
+              <Smartphone size={16} className={securityPrefs.twoFactor ? "text-[#0F766E]" : "text-gray-300"} />
             </div>
             <div>
               <h4 className="text-[10px] font-black uppercase tracking-widest">Two-Factor Authentication</h4>
@@ -191,7 +191,7 @@ const SecurityLogin = ({ data, onUpdate }) => {
           </div>
           <button
             onClick={() => toggleSecuritySetting('twoFactor')}
-            className={`w-12 h-6 rounded-full p-1 transition-all duration-500 ${securityPrefs.twoFactor ? "bg-[#8DAA9D]" : "bg-gray-200"}`}
+            className={`w-12 h-6 rounded-full p-1 transition-all duration-500 ${securityPrefs.twoFactor ? "bg-[#0F766E]" : "bg-gray-200"}`}
           >
             <div className={`w-4 h-4 bg-white rounded-full transition-transform duration-300 ${securityPrefs.twoFactor ? "translate-x-6" : "translate-x-0"}`} />
           </button>
@@ -207,9 +207,9 @@ const SecurityLogin = ({ data, onUpdate }) => {
 
         <div className="grid gap-4">
           {activeSessions.length > 0 ? activeSessions.map((session, i) => (
-            <div key={i} className="flex items-center justify-between p-6 border border-gray-100 hover:border-[#8DAA9D]/30 transition-all">
+            <div key={i} className="flex items-center justify-between p-6 border border-gray-100 hover:border-[#0F766E]/30 transition-all">
               <div className="flex items-center gap-6">
-                <ShieldCheck size={16} className={session.isCurrent ? "text-[#8DAA9D]" : "text-gray-200"} />
+                <ShieldCheck size={16} className={session.isCurrent ? "text-[#0F766E]" : "text-gray-200"} />
                 <div>
                   <p className="text-[10px] font-black uppercase tracking-tight">{session.browser} / {session.os}</p>
                   <p className="text-[8px] text-gray-400 font-mono uppercase mt-1">
@@ -217,7 +217,7 @@ const SecurityLogin = ({ data, onUpdate }) => {
                   </p>
                 </div>
               </div>
-              <span className={`text-[8px] uppercase tracking-widest font-black ${session.isCurrent ? "text-[#8DAA9D]" : "opacity-20"}`}>
+              <span className={`text-[8px] uppercase tracking-widest font-black ${session.isCurrent ? "text-[#0F766E]" : "opacity-20"}`}>
                 {session.isCurrent ? "Active Connection" : "Verified Device"}
               </span>
             </div>

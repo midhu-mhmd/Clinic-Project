@@ -190,7 +190,7 @@ const Doctors = () => {
         </div>
         <button
           onClick={() => { resetForm(); setIsModalOpen(true); }}
-          className="flex items-center gap-3 bg-black text-white px-8 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#8DAA9D] transition-all"
+          className="flex items-center gap-3 bg-black text-white px-8 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-[#0F766E] transition-all"
         >
           <UserPlus size={16} /> Add Practitioner
         </button>
@@ -212,7 +212,7 @@ const Doctors = () => {
 
             {successMsg ? (
               <div className="py-12 flex flex-col items-center text-center">
-                <CheckCircle2 size={48} className="text-[#8DAA9D] mb-4 animate-bounce" />
+                <CheckCircle2 size={48} className="text-[#0F766E] mb-4 animate-bounce" />
                 <p className="text-[10px] uppercase tracking-widest font-bold">{successMsg}</p>
               </div>
             ) : (
@@ -294,7 +294,7 @@ const Doctors = () => {
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full bg-black text-white py-5 mt-4 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-[#8DAA9D] disabled:bg-gray-400 transition-colors"
+                  className="w-full bg-black text-white py-5 mt-4 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-[#0F766E] disabled:bg-gray-400 transition-colors"
                 >
                   {isSubmitting ? <Loader2 className="animate-spin mx-auto" size={16} /> : (editingId ? "Update Faculty" : "Initialize Practitioner")}
                 </button>
@@ -319,7 +319,7 @@ const Doctors = () => {
               </div>
               <div>
                 <h3 className="text-lg font-bold uppercase tracking-tight">{doc.name}</h3>
-                <p className="text-[10px] text-[#8DAA9D] uppercase tracking-widest font-bold mb-2">{doc.specialization}</p>
+                <p className="text-[10px] text-[#0F766E] uppercase tracking-widest font-bold mb-2">{doc.specialization}</p>
                 <div className="flex flex-col gap-1 text-gray-400 text-[10px] uppercase tracking-tight">
                   <span className="flex items-center gap-2"><Clock size={12} /> {doc.availability}</span>
                   <span className="flex items-center gap-2"><DollarSign size={12} /> ${doc.consultationFee} Consultation</span>

@@ -134,10 +134,10 @@ const Profile = () => {
 
     if (loading) {
         return (
-            <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
+            <div className="h-screen w-full flex items-center justify-center bg-[#F0FDFA]">
                 <div className="flex flex-col items-center gap-4">
-                    <div className="w-12 h-12 border-2 border-[#8DAA9D]/20 border-t-[#8DAA9D] rounded-full animate-spin" />
-                    <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/40">Accessing Vault...</p>
+                    <div className="w-12 h-12 border-2 border-[#0F766E]/20 border-t-[#0F766E] rounded-full animate-spin" />
+                    <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/40">Loading profile...</p>
                 </div>
             </div>
         );
@@ -146,20 +146,20 @@ const Profile = () => {
     if (!user) return null;
 
     return (
-        <div ref={containerRef} className="min-h-screen bg-[#FAF9F6] text-[#2D302D] pt-32 pb-20 px-6">
+        <div ref={containerRef} className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-32 pb-20 px-6">
             <div className="max-w-4xl mx-auto">
 
                 {/* HEADER */}
                 <div className="flex items-center justify-between mb-16 profile-reveal">
                     <button
                         onClick={() => navigate("/")}
-                        className="group flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-all"
+                        className="group flex items-center gap-3 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-all"
                     >
                         <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
                         Back to Home
                     </button>
                     <div className="flex items-center gap-2">
-                        <span className="w-2 h-2 rounded-full bg-[#8DAA9D]" />
+                        <span className="w-2 h-2 rounded-full bg-[#0F766E]" />
                         <span className="text-[10px] uppercase tracking-[0.4em] font-bold opacity-30 italic font-serif">Verified Identity</span>
                     </div>
                 </div>
@@ -168,8 +168,8 @@ const Profile = () => {
 
                     {/* PROFILE CARD */}
                     <div className="md:col-span-1 space-y-8">
-                        <div className="profile-card relative aspect-square bg-white border border-[#2D302D]/5 rounded-3xl p-2 shadow-sm overflow-hidden group">
-                            <div className="w-full h-full bg-[#FAF9F6] rounded-[22px] flex items-center justify-center overflow-hidden relative">
+                        <div className="profile-card relative aspect-square bg-white border border-[#1E293B]/5 rounded-3xl p-2 shadow-sm overflow-hidden group">
+                            <div className="w-full h-full bg-[#F0FDFA] rounded-[22px] flex items-center justify-center overflow-hidden relative">
                                 {imagePreview || user.image ? (
                                     <img
                                         src={imagePreview || user.image}
@@ -177,7 +177,7 @@ const Profile = () => {
                                         className="w-full h-full object-cover"
                                     />
                                 ) : (
-                                    <div className="text-[10vw] md:text-[5vw] font-serif italic text-[#8DAA9D]">
+                                    <div className="text-[10vw] md:text-[5vw] font-serif italic text-[#0F766E]">
                                         {user.name?.charAt(0)}
                                     </div>
                                 )}
@@ -202,7 +202,7 @@ const Profile = () => {
                                 accept="image/*"
                             />
                             <div className="absolute top-6 right-6 flex gap-2">
-                                <Shield size={16} className="text-[#8DAA9D]" />
+                                <Shield size={16} className="text-[#0F766E]" />
                             </div>
                         </div>
 
@@ -212,7 +212,7 @@ const Profile = () => {
                                     type="text"
                                     value={formData.name}
                                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                                    className="w-full bg-[#FAF9F6] border-b border-[#2D302D]/20 text-4xl font-light tracking-tighter uppercase leading-none focus:border-[#8DAA9D] outline-none py-2"
+                                    className="w-full bg-[#F0FDFA] border-b border-[#1E293B]/20 text-4xl font-light tracking-tighter uppercase leading-none focus:border-[#0F766E] outline-none py-2"
                                     placeholder="Legal Name"
                                 />
                             ) : (
@@ -220,14 +220,14 @@ const Profile = () => {
                                     {user.name}
                                 </h1>
                             )}
-                            <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#8DAA9D]">
+                            <p className="text-[10px] uppercase tracking-[0.3em] font-bold text-[#0F766E]">
                                 {user.role} Account
                             </p>
                         </div>
                     </div>
 
                     {/* DATA GRID */}
-                    <div className="md:col-span-2 bg-white border border-[#2D302D]/5 rounded-3xl p-10 shadow-xl profile-reveal">
+                    <div className="md:col-span-2 bg-white border border-[#1E293B]/5 rounded-3xl p-10 shadow-xl profile-reveal">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-10">
 
                             <InfoItem
@@ -247,7 +247,7 @@ const Profile = () => {
                                         type="date"
                                         value={formData.dob}
                                         onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
-                                        className="w-full bg-[#FAF9F6] border border-[#2D302D]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#8DAA9D]/40 mt-2 font-medium"
+                                        className="w-full bg-[#F0FDFA] border border-[#1E293B]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0F766E]/40 mt-2 font-medium"
                                     />
                                 }
                             />
@@ -261,7 +261,7 @@ const Profile = () => {
                                     <select
                                         value={formData.gender}
                                         onChange={(e) => setFormData({ ...formData, gender: e.target.value })}
-                                        className="w-full bg-[#FAF9F6] border border-[#2D302D]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#8DAA9D]/40 mt-2 font-medium appearance-none"
+                                        className="w-full bg-[#F0FDFA] border border-[#1E293B]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0F766E]/40 mt-2 font-medium appearance-none"
                                     >
                                         <option value="">Select Gender</option>
                                         <option value="MALE">MALE</option>
@@ -282,7 +282,7 @@ const Profile = () => {
                                         type="text"
                                         value={formData.bloodGroup}
                                         onChange={(e) => setFormData({ ...formData, bloodGroup: e.target.value })}
-                                        className="w-full bg-[#FAF9F6] border border-[#2D302D]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#8DAA9D]/40 mt-2 font-medium"
+                                        className="w-full bg-[#F0FDFA] border border-[#1E293B]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0F766E]/40 mt-2 font-medium"
                                         placeholder="e.g. AB+"
                                     />
                                 }
@@ -298,7 +298,7 @@ const Profile = () => {
                                         type="text"
                                         value={formData.phoneNumber}
                                         onChange={(e) => setFormData({ ...formData, phoneNumber: e.target.value })}
-                                        className="w-full bg-[#FAF9F6] border border-[#2D302D]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#8DAA9D]/40 mt-2 font-medium"
+                                        className="w-full bg-[#F0FDFA] border border-[#1E293B]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0F766E]/40 mt-2 font-medium"
                                         placeholder="Phone Number"
                                     />
                                 }
@@ -314,7 +314,7 @@ const Profile = () => {
                                         <textarea
                                             value={formData.address}
                                             onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                                            className="w-full bg-[#FAF9F6] border border-[#2D302D]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#8DAA9D]/40 mt-2 min-h-[100px] font-medium resize-none"
+                                            className="w-full bg-[#F0FDFA] border border-[#1E293B]/5 rounded-xl px-4 py-3 text-sm outline-none focus:border-[#0F766E]/40 mt-2 min-h-[100px] font-medium resize-none"
                                             placeholder="Full Signature Address"
                                         />
                                     }
@@ -322,24 +322,24 @@ const Profile = () => {
                             </div>
                         </div>
 
-                        <div className="mt-16 pt-10 border-t border-[#2D302D]/5 flex justify-between items-center">
+                        <div className="mt-16 pt-10 border-t border-[#1E293B]/5 flex justify-between items-center">
                             <div className="flex flex-col gap-1">
-                                <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#2D302D]/30">Account ID</span>
-                                <span className="text-[10px] font-mono text-[#2D302D]/40">{user._id || user.id}</span>
+                                <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#1E293B]/30">Account ID</span>
+                                <span className="text-[10px] font-mono text-[#1E293B]/40">{user._id || user.id}</span>
                             </div>
 
                             {isEditing ? (
                                 <div className="flex gap-4">
                                     <button
                                         onClick={() => setIsEditing(false)}
-                                        className="flex items-center gap-2 px-6 py-3 text-[10px] uppercase tracking-[0.2em] font-bold border border-[#2D302D]/10 rounded-full hover:bg-black/5 transition-all duration-500"
+                                        className="flex items-center gap-2 px-6 py-3 text-[10px] uppercase tracking-[0.2em] font-bold border border-[#1E293B]/10 rounded-full hover:bg-black/5 transition-all duration-500"
                                     >
                                         <X size={14} /> Abandon
                                     </button>
                                     <button
                                         onClick={handleSave}
                                         disabled={loading}
-                                        className="flex items-center gap-2 px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold bg-[#2D302D] text-white rounded-full hover:bg-[#8DAA9D] transition-all duration-500 disabled:opacity-50"
+                                        className="flex items-center gap-2 px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold bg-[#1E293B] text-white rounded-full hover:bg-[#0F766E] transition-all duration-500 disabled:opacity-50"
                                     >
                                         {loading ? "Syncing..." : <><Check size={14} /> Commit Changes</>}
                                     </button>
@@ -347,7 +347,7 @@ const Profile = () => {
                             ) : (
                                 <button
                                     onClick={() => setIsEditing(true)}
-                                    className="flex items-center gap-3 px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold border border-[#2D302D]/10 rounded-full hover:bg-[#2D302D] hover:text-white transition-all duration-500"
+                                    className="flex items-center gap-3 px-8 py-3 text-[10px] uppercase tracking-[0.2em] font-bold border border-[#1E293B]/10 rounded-full hover:bg-[#1E293B] hover:text-white transition-all duration-500"
                                 >
                                     <Edit3 size={14} /> Modify Protocol
                                 </button>
@@ -359,18 +359,18 @@ const Profile = () => {
 
                 {/* SECURITY INFO */}
                 <div className="mt-24 grid grid-cols-1 md:grid-cols-2 gap-8 profile-reveal">
-                    <div className="p-8 bg-[#8DAA9D]/5 border border-[#8DAA9D]/10 rounded-2xl flex gap-6 items-start">
+                    <div className="p-8 bg-[#0F766E]/5 border border-[#0F766E]/10 rounded-2xl flex gap-6 items-start">
                         <div className="p-3 bg-white rounded-xl shadow-sm">
-                            <Shield size={20} className="text-[#8DAA9D]" />
+                            <Shield size={20} className="text-[#0F766E]" />
                         </div>
                         <div className="space-y-2">
                             <h3 className="text-[11px] font-bold uppercase tracking-[0.2em]">Privacy Protocol</h3>
                             <p className="text-[10px] leading-relaxed opacity-50 uppercase tracking-widest">Your data is encrypted using military-grade standards. Only verified clinical practitioners can access your medical records.</p>
                         </div>
                     </div>
-                    <div className="p-8 bg-[#2D302D]/5 border border-[#2D302D]/10 rounded-2xl flex gap-6 items-start">
+                    <div className="p-8 bg-[#1E293B]/5 border border-[#1E293B]/10 rounded-2xl flex gap-6 items-start">
                         <div className="p-3 bg-white rounded-xl shadow-sm">
-                            <Hash size={20} className="text-[#2D302D]" />
+                            <Hash size={20} className="text-[#1E293B]" />
                         </div>
                         <div className="space-y-2">
                             <h3 className="text-[11px] font-bold uppercase tracking-[0.2em]">Activity Ledger</h3>
@@ -386,7 +386,7 @@ const Profile = () => {
 
 const InfoItem = ({ icon, label, value, isEditing, input }) => (
     <div className="space-y-3 group">
-        <div className="flex items-center gap-3 text-[#2D302D]/30 group-hover:text-[#8DAA9D] transition-colors">
+        <div className="flex items-center gap-3 text-[#1E293B]/30 group-hover:text-[#0F766E] transition-colors">
             {icon}
             <span className="text-[9px] uppercase tracking-[0.3em] font-bold">{label}</span>
         </div>
@@ -394,7 +394,7 @@ const InfoItem = ({ icon, label, value, isEditing, input }) => (
             {isEditing && input ? (
                 input
             ) : (
-                <p className="text-xl font-light tracking-tight text-[#2D302D] group-hover:italic transition-all uppercase">
+                <p className="text-xl font-light tracking-tight text-[#1E293B] group-hover:italic transition-all uppercase">
                     {value}
                 </p>
             )}

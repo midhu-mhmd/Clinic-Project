@@ -380,7 +380,7 @@ const Payment = () => {
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-700">
             {manualStep === 1 ? (
               <>
-                <div className="bg-[#FAF9F6] p-8 mb-8 border border-gray-200/60">
+                <div className="bg-[#F0FDFA] p-8 mb-8 border border-gray-200/60">
                   <div className="flex items-center gap-4 mb-8">
                     <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center border border-gray-200 text-green-700">
                       <Landmark size={18} />

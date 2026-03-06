@@ -87,13 +87,13 @@ function TopClinics() {
         {/* Header Section */}
         <div className="px-8 sm:px-20 mb-12 relative z-10">
           <div className="flex items-center gap-3 mb-4">
-            <span className="w-8 h-px bg-[#8DAA9D]"></span>
-            <span className="text-[10px] tracking-[0.5em] text-[#8DAA9D] uppercase font-bold">
-              Featured Partners
+            <span className="w-8 h-px bg-[#0F766E]"></span>
+            <span className="text-[10px] tracking-[0.5em] text-[#0F766E] uppercase font-bold">
+              Top-Rated Clinics
             </span>
           </div>
-          <h2 className="text-5xl lg:text-7xl font-light text-[#2D302D] tracking-tighter leading-none">
-            Premier <span className="italic font-serif">Institutions</span>.
+          <h2 className="text-5xl lg:text-7xl font-light text-[#1E293B] tracking-tighter leading-none">
+            Trusted <span className="italic font-serif">Healthcare Providers</span>.
           </h2>
         </div>
 
@@ -112,7 +112,7 @@ function TopClinics() {
             clinics.map((clinic) => (
               <article
                 key={clinic.id}
-                className="clinic-card group relative shrink-0 w-[85vw] md:w-[400px] bg-white border border-neutral-100 p-6 transition-all duration-500 hover:border-[#8DAA9D]/30"
+                className="clinic-card group relative shrink-0 w-[85vw] md:w-[400px] bg-white border border-neutral-100 p-6 transition-all duration-500 hover:border-[#0F766E]/30 rounded-xl"
               >
                 {/* Image Section */}
                 <div className="relative aspect-[4/3] overflow-hidden mb-8 bg-neutral-100">
@@ -124,8 +124,8 @@ function TopClinics() {
                   />
 
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 flex items-center gap-1.5">
-                    <Star size={12} className="fill-[#8DAA9D] text-[#8DAA9D]" />
-                    <span className="text-[11px] font-medium text-[#2D302D]">
+                    <Star size={12} className="fill-[#0F766E] text-[#0F766E]" />
+                    <span className="text-[11px] font-medium text-[#1E293B]">
                       {clinic.rate}
                     </span>
                   </div>
@@ -135,10 +135,10 @@ function TopClinics() {
                 <div className="space-y-6">
                   <div>
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-2xl font-light text-[#2D302D] tracking-tight group-hover:text-[#8DAA9D] transition-colors line-clamp-1">
+                      <h3 className="text-2xl font-light text-[#1E293B] tracking-tight group-hover:text-[#0F766E] transition-colors line-clamp-1">
                         {clinic.name}
                       </h3>
-                      <div className="flex items-center gap-1 text-[#2D302D]/30">
+                      <div className="flex items-center gap-1 text-[#1E293B]/30">
                         <MapPin size={12} />
                         <span className="text-[10px] uppercase tracking-widest">
                           {clinic.location}
@@ -150,7 +150,7 @@ function TopClinics() {
                       {clinic.specialty.map((s, i) => (
                         <span
                           key={i}
-                          className="text-[9px] uppercase tracking-wider font-bold text-[#2D302D]/40 px-3 py-1 border border-neutral-100 rounded-full group-hover:border-[#8DAA9D]/20 transition-colors"
+                          className="text-[9px] uppercase tracking-wider font-bold text-[#1E293B]/40 px-3 py-1 border border-neutral-100 rounded-full group-hover:border-[#0F766E]/20 transition-colors"
                         >
                           {s}
                         </span>
@@ -160,7 +160,7 @@ function TopClinics() {
 
                   <button
                     onClick={() => navigate(`/clinic/${clinic.id}`)}
-                    className="w-full py-4 bg-transparent border border-[#2D302D]/10 text-[#2D302D] text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:bg-[#2D302D] hover:text-white"
+                    className="w-full py-4 bg-transparent border border-[#1E293B]/10 text-[#1E293B] text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:bg-[#0F766E] hover:text-white rounded-xl"
                   >
                     Book Appointment
                   </button>
@@ -172,10 +172,10 @@ function TopClinics() {
           {!loading && (
             <div className="shrink-0 px-20">
               <button onClick={() => navigate("/clinics")} className="text-left group">
-                <h4 className="text-4xl lg:text-6xl font-serif italic text-[#2D302D]/10 group-hover:text-[#8DAA9D] transition-all duration-700 leading-tight">
+                <h4 className="text-4xl lg:text-6xl font-serif italic text-[#1E293B]/10 group-hover:text-[#0F766E] transition-all duration-700 leading-tight">
                   See our full <br /> network.
                 </h4>
-                <div className="mt-8 flex items-center gap-4 text-[#2D302D]/40 group-hover:text-[#2D302D] transition-colors">
+                <div className="mt-8 flex items-center gap-4 text-[#1E293B]/40 group-hover:text-[#1E293B] transition-colors">
                   <span className="text-[10px] tracking-widest uppercase font-bold">Explore All</span>
                   <ArrowRight size={16} />
                 </div>

@@ -68,13 +68,13 @@ const HeroSection = () => {
   return (
     <section
       ref={sectionRef}
-      className="relative min-h-screen w-full  text-[#2D302D] overflow-hidden flex flex-col justify-center py-20 lg:py-0"
+      className="relative min-h-screen w-full  text-[#1E293B] overflow-hidden flex flex-col justify-center py-20 lg:py-0"
     >
       {/* Background Micro-Grid */}
       <div
         className="absolute inset-0 opacity-[0.03] pointer-events-none"
         style={{
-          backgroundImage: `linear-gradient(#2D302D 1px, transparent 1px), linear-gradient(90deg, #2D302D 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(#1E293B 1px, transparent 1px), linear-gradient(90deg, #1E293B 1px, transparent 1px)`,
           backgroundSize: "clamp(40px, 5vw, 60px) clamp(40px, 5vw, 60px)",
         }}
       />
@@ -87,32 +87,32 @@ const HeroSection = () => {
             {/* Oversized Responsive Typography */}
             <h1 className="text-[12vw] sm:text-[10vw] lg:text-[8vw] xl:text-[8.5rem] leading-[0.85] tracking-[-0.04em] font-light uppercase">
               <div className="overflow-hidden">
-                <span className="line-reveal inline-block">Humanity</span>
+                <span className="line-reveal inline-block">Better</span>
               </div>
               <div className="overflow-hidden">
-                <span className="line-reveal inline-block italic font-serif text-[#8DAA9D] lowercase tracking-tighter sm:pr-4">
-                  meets
+                <span className="line-reveal inline-block italic font-serif text-[#0F766E] lowercase tracking-tighter sm:pr-4">
+                  care,
                 </span>
               </div>
               <div className="overflow-hidden">
-                <span className="line-reveal inline-block">Intelligence.</span>
+                <span className="line-reveal inline-block">Simplified.</span>
               </div>
             </h1>
 
             <div className="mt-10 lg:mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-12 items-end">
               <p className="fade-up text-base sm:text-lg lg:text-xl font-light leading-relaxed opacity-70 max-w-sm lg:max-w-none">
-                A refined synthesis of clinical excellence and artificial
-                intelligence. Sovereign provides a bespoke path to longevity,
-                architected by data.
+                A multi-tenant clinic management platform that connects patients
+                with trusted doctors. Book appointments, consult via video, and
+                manage your health—all in one place.
               </p>
 
               <div className="fade-up flex flex-col sm:flex-row lg:flex-col gap-8 sm:items-center lg:items-start">
                 <button
                   onClick={() => navigate("/clinics")}
-                  className="group relative inline-flex items-center justify-between bg-[#2D302D] text-[#FAF9F6] px-8 py-5 lg:py-6 w-full sm:w-64 transition-transform active:scale-95 hover:bg-[#8DAA9D] duration-500"
+                  className="group relative inline-flex items-center justify-between bg-[#0F766E] text-white px-8 py-5 lg:py-6 w-full sm:w-64 rounded-xl transition-transform active:scale-95 hover:bg-[#0F766E]/90 duration-500"
                 >
                   <span className="text-[9px] lg:text-[10px] tracking-[0.3em] uppercase font-bold">
-                    Initiate Discovery
+                    Find a Clinic
                   </span>
                   <ArrowRight
                     size={16}
@@ -125,12 +125,12 @@ const HeroSection = () => {
                     {[1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-[#FAF9F6] bg-gray-200"
+                        className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-[#0F766E]/10"
                       />
                     ))}
                   </div>
                   <span className="text-[8px] lg:text-[9px] uppercase tracking-widest opacity-40 font-bold leading-tight">
-                    12.4k Patients <br /> Secured.
+                    12.4k Patients <br /> Registered.
                   </span>
                 </div>
               </div>
@@ -142,7 +142,7 @@ const HeroSection = () => {
       {/* Side Numbers (Awwwards Style) - Hidden on Tablet/Mobile */}
       <div className="absolute right-6 lg:right-12 top-1/2 -translate-y-1/2 hidden xl:flex flex-col gap-12 items-center opacity-20">
         <span className="text-[10px] font-bold">01</span>
-        <div className="w-px h-32 bg-[#2D302D]"></div>
+        <div className="w-px h-32 bg-[#1E293B]"></div>
         <span className="text-[10px] font-bold opacity-40">04</span>
       </div>
     </section>

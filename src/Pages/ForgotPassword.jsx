@@ -58,14 +58,14 @@ const ForgotPassword = () => {
 
   // --- STYLES BASED ON VIEW ---
   const isClinic = view === "clinic";
-  const themeColor = isClinic ? "text-[#8DAA9D]" : "text-[#7B9ACC]";
-  const bgColor = isClinic ? "bg-[#2D302D]" : "bg-[#1A1C1E]"; 
-  const accentBorder = isClinic ? "border-[#8DAA9D]" : "border-[#7B9ACC]";
+  const themeColor = isClinic ? "text-[#0F766E]" : "text-[#5B8EC2]";
+  const bgColor = isClinic ? "bg-[#1E293B]" : "bg-[#1E293B]"; 
+  const accentBorder = isClinic ? "border-[#0F766E]" : "border-[#5B8EC2]";
 
   // --- VIEW 1: THE CHOICE SCREEN ---
   if (view === "choice") {
     return (
-      <div className="min-h-screen bg-[#FAF9F6] flex flex-col items-center justify-center p-8">
+      <div className="min-h-screen bg-[#F0FDFA] flex flex-col items-center justify-center p-8">
         <h2 className="text-[10px] tracking-[0.5em] text-gray-400 uppercase mb-4">Identity Verification</h2>
         <h1 className="text-4xl font-light tracking-tighter uppercase mb-12">
           Select your <span className="italic font-serif">portal.</span>
@@ -88,14 +88,14 @@ const ForgotPassword = () => {
           {/* Clinic Card */}
           <button 
             onClick={() => setView("clinic")} 
-            className="group p-12 bg-[#2D302D] text-white transition-all text-left space-y-6 hover:bg-[#363a36]"
+            className="group p-12 bg-[#1E293B] text-white transition-all text-left space-y-6 hover:bg-[#363a36]"
           >
-            <Building2 size={32} className="text-[#8DAA9D]" />
+            <Building2 size={32} className="text-[#0F766E]" />
             <div>
               <h3 className="text-xl font-bold uppercase tracking-tight">Clinic Admin</h3>
               <p className="text-xs text-gray-400 leading-relaxed mt-2">System recovery for healthcare providers and staff members.</p>
             </div>
-            <div className="text-[10px] font-bold uppercase tracking-widest text-[#8DAA9D] flex items-center gap-2">Access Terminal →</div>
+            <div className="text-[10px] font-bold uppercase tracking-widest text-[#0F766E] flex items-center gap-2">Continue →</div>
           </button>
         </div>
         <button 
@@ -110,18 +110,18 @@ const ForgotPassword = () => {
 
   // --- VIEW 2: THE DYNAMIC FORM (PATIENT OR CLINIC) ---
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex animate-in fade-in duration-700">
+    <div className="min-h-screen bg-[#F0FDFA] flex animate-in fade-in duration-700">
       {/* SIDEBAR: Changes based on view */}
-      <div className={`hidden lg:flex w-1/3 ${bgColor} p-16 flex-col justify-between text-[#FAF9F6] transition-colors duration-1000`}>
+      <div className={`hidden lg:flex w-1/3 ${bgColor} p-16 flex-col justify-between text-[#F0FDFA] transition-colors duration-1000`}>
         <div className="space-y-6">
-          <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">
+          <div className="w-12 h-12 border border-[#F0FDFA]/20 flex items-center justify-center">
             {isClinic ? <Stethoscope size={20} className={themeColor} /> : <User size={20} className={themeColor} />}
           </div>
           <div className="space-y-2">
             <h2 className="text-4xl font-light tracking-tighter uppercase font-serif italic leading-none">
               {isClinic ? "Clinical" : "Patient"} <br /> Recovery.
             </h2>
-            <div className={`h-px w-12 mt-4 ${isClinic ? 'bg-[#8DAA9D]' : 'bg-[#7B9ACC]'}`} />
+            <div className={`h-px w-12 mt-4 ${isClinic ? 'bg-[#0F766E]' : 'bg-[#5B8EC2]'}`} />
           </div>
           <p className="text-[10px] tracking-[0.2em] leading-loose opacity-50 uppercase max-w-55">
             {isClinic 
@@ -148,7 +148,7 @@ const ForgotPassword = () => {
             <span className={`text-[10px] uppercase tracking-[0.5em] font-bold mb-4 block ${themeColor}`}>
               Recovery Phase 01
             </span>
-            <h1 className="text-6xl font-light tracking-tighter uppercase text-[#2D302D]">
+            <h1 className="text-6xl font-light tracking-tighter uppercase text-[#1E293B]">
               {isClinic ? "Admin" : "Secure"} <br /> Reset
             </h1>
           </header>
@@ -162,7 +162,7 @@ const ForgotPassword = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-0 py-4 bg-transparent border-b border-[#2D302D]/10 text-sm focus:outline-none focus:border-black transition-all placeholder:text-gray-300"
+                className="w-full px-0 py-4 bg-transparent border-b border-[#1E293B]/10 text-sm focus:outline-none focus:border-black transition-all placeholder:text-gray-300"
                 placeholder="Enter registered email..."
                 required
               />
@@ -171,7 +171,7 @@ const ForgotPassword = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full ${isClinic ? 'bg-[#2D302D]' : 'bg-black'} text-white py-6 flex items-center justify-between px-8 hover:opacity-90 transition-all disabled:opacity-50`}
+              className={`w-full ${isClinic ? 'bg-[#1E293B]' : 'bg-black'} text-white py-6 flex items-center justify-between px-8 hover:opacity-90 transition-all disabled:opacity-50`}
             >
               <span className="text-[10px] uppercase tracking-[0.4em] font-bold">
                 {loading ? "Processing..." : "Dispatch Code"}

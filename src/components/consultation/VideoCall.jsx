@@ -21,6 +21,8 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
   const remoteVideoRef = useRef(null);
   const pcRef = useRef(null);
   const localStreamRef = useRef(null);
+  const callStartedRef = useRef(false);
+  const iceDisconnectTimerRef = useRef(null);
 
   const [callState, setCallState] = useState("idle"); // idle | connecting | connected | ended
   const [micOn, setMicOn] = useState(true);
@@ -30,11 +32,16 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
 
   /* ---- Cleanup helper ---- */
   const cleanup = useCallback(() => {
+    clearTimeout(iceDisconnectTimerRef.current);
     localStreamRef.current?.getTracks().forEach((t) => t.stop());
     pcRef.current?.close();
     pcRef.current = null;
     localStreamRef.current = null;
-    setCallState("ended");
+    // Only transition to "ended" if a call was actually in progress
+    if (callStartedRef.current) {
+      setCallState("ended");
+    }
+    callStartedRef.current = false;
   }, []);
 
   /* ---- Create RTCPeerConnection ---- */
@@ -50,13 +57,25 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
     pc.ontrack = (e) => {
       if (remoteVideoRef.current && e.streams[0]) {
         remoteVideoRef.current.srcObject = e.streams[0];
+        remoteVideoRef.current.play().catch(() => {});
       }
       setCallState("connected");
     };
 
     pc.oniceconnectionstatechange = () => {
-      if (pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed") {
+      const state = pc.iceConnectionState;
+      if (state === "failed") {
         cleanup();
+      } else if (state === "disconnected") {
+        // ICE disconnected is often temporary — wait before giving up
+        clearTimeout(iceDisconnectTimerRef.current);
+        iceDisconnectTimerRef.current = setTimeout(() => {
+          if (pc.iceConnectionState === "disconnected" || pc.iceConnectionState === "failed") {
+            cleanup();
+          }
+        }, 5000);
+      } else if (state === "connected" || state === "completed") {
+        clearTimeout(iceDisconnectTimerRef.current);
       }
     };
 
@@ -66,10 +85,14 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
   /* ---- Start call (caller side) ---- */
   const startCall = useCallback(async () => {
     try {
+      callStartedRef.current = true;
       setCallState("connecting");
       const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
       localStreamRef.current = stream;
-      if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+      if (localVideoRef.current) {
+        localVideoRef.current.srcObject = stream;
+        localVideoRef.current.play().catch(() => {});
+      }
 
       const pc = createPeer();
       pcRef.current = pc;
@@ -91,12 +114,21 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
     if (!socket) return;
 
     const handleUserJoined = async () => {
+      // If we already sent an offer (user joined after we started), re-send it
+      if (pcRef.current && pcRef.current.localDescription) {
+        socket.emit("offer", { roomId, offer: pcRef.current.localDescription });
+        return;
+      }
+
       // If we haven't started yet, prepare our stream
       if (!localStreamRef.current) {
         try {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
           localStreamRef.current = stream;
-          if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = stream;
+            localVideoRef.current.play().catch(() => {});
+          }
 
           if (!pcRef.current) {
             const pc = createPeer();
@@ -111,12 +143,16 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
 
     const handleOffer = async ({ offer }) => {
       try {
+        callStartedRef.current = true;
         setCallState("connecting");
 
         if (!localStreamRef.current) {
           const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
           localStreamRef.current = stream;
-          if (localVideoRef.current) localVideoRef.current.srcObject = stream;
+          if (localVideoRef.current) {
+            localVideoRef.current.srcObject = stream;
+            localVideoRef.current.play().catch(() => {});
+          }
         }
 
         const pc = pcRef.current || createPeer();
@@ -214,9 +250,9 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
   };
 
   return (
-    <div ref={containerRef} className="relative w-full bg-black rounded-sm overflow-hidden">
+    <div ref={containerRef} className="relative w-full h-full bg-black rounded-sm overflow-hidden">
       {/* Remote video (main) */}
-      <div className="relative w-full aspect-video bg-[#1a1a1a]">
+      <div className="relative w-full h-full bg-[#1a1a1a]">
         <video
           ref={remoteVideoRef}
           autoPlay
@@ -224,12 +260,12 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
           className="w-full h-full object-cover"
         />
         {callState !== "connected" && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center text-[#FAF9F6]/60">
+          <div className="absolute inset-0 flex flex-col items-center justify-center text-[#F0FDFA]/60">
             {callState === "idle" && (
               <button
                 onClick={startCall}
-                className="px-8 py-4 bg-[#8DAA9D] text-[#FAF9F6] text-[10px] uppercase tracking-[0.4em] font-bold
-                           hover:bg-[#8DAA9D]/80 transition-colors"
+                className="px-8 py-4 bg-[#0F766E] text-[#F0FDFA] text-[10px] uppercase tracking-[0.4em] font-bold
+                           hover:bg-[#0F766E]/80 transition-colors"
               >
                 Start Video Call
               </button>
@@ -247,7 +283,7 @@ const VideoCall = ({ socket, roomId, onEnd }) => {
       </div>
 
       {/* Local video (PiP) */}
-      <div className="absolute top-3 right-3 w-28 sm:w-36 aspect-video bg-[#2D302D] rounded-sm overflow-hidden border border-white/10 shadow-lg">
+      <div className="absolute top-3 right-3 w-28 sm:w-36 aspect-video bg-[#1E293B] rounded-sm overflow-hidden border border-white/10 shadow-lg">
         <video
           ref={localVideoRef}
           autoPlay

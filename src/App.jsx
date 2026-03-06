@@ -1,9 +1,20 @@
-import React from "react";
-import { Routes, Route, useLocation, Navigate } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Routes, Route, useLocation, Navigate, Link } from "react-router-dom";
 
+// Scroll to top on route change
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: "instant" });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [pathname]);
+  return null;
+};
 
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer/Footer.jsx";
+import ProtectedRoute from "./components/ProtectedRoute.jsx";
 
 // Public Pages
 import Home from "./Pages/Home.jsx";
@@ -54,8 +65,9 @@ const App = () => {
 
   return (
     <>
-
+      <ScrollToTop />
       {!isClinicSide && <Navbar />}
+      {!isClinicSide && <div className="pt-20" />}
 
       <Routes>
         {/* --- PUBLIC ROUTES --- */}
@@ -69,14 +81,14 @@ const App = () => {
         <Route path="/help" element={<Help />} />
         <Route path="/clinic/:id" element={<ClinicProfile />} />
         <Route path="/doctor/:id" element={<DoctorProfile />} />
-        <Route path="/appointment/:id" element={<AppointmentPage />} />
-        <Route path="/consultation/:roomToken" element={<ConsultationRoom />} />
-        <Route path="/appointments" element={<MyAppointments />} />
-        <Route path="/notifications" element={<Notifications />} />
-        <Route path="/support" element={<SupportTickets />} />
-        <Route path="/my-consultations" element={<MyConsultations />} />
-        <Route path="/ai-assistant" element={<AIChatbot />} />
-        <Route path="/profile" element={<Profile />} />
+        <Route path="/appointment/:id" element={<ProtectedRoute><AppointmentPage /></ProtectedRoute>} />
+        <Route path="/consultation/:roomToken" element={<ProtectedRoute><ConsultationRoom /></ProtectedRoute>} />
+        <Route path="/appointments" element={<ProtectedRoute><MyAppointments /></ProtectedRoute>} />
+        <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
+        <Route path="/support" element={<ProtectedRoute><SupportTickets /></ProtectedRoute>} />
+        <Route path="/my-consultations" element={<ProtectedRoute><MyConsultations /></ProtectedRoute>} />
+        <Route path="/ai-assistant" element={<ProtectedRoute><AIChatbot /></ProtectedRoute>} />
+        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
 
         {/* --- CLINIC AUTH & ONBOARDING --- */}
         <Route path="/clinic-login" element={<ClinicLogin />} />
@@ -113,6 +125,25 @@ const App = () => {
       </Routes>
 
       {!isClinicSide && <Footer />}
+
+      {/* Floating AI Assistant Button — patient side only */}
+      {!isClinicSide && (
+        <Link
+          to="/ai-assistant"
+          className="fixed bottom-6 right-6 z-50 w-14 h-14 rounded-full bg-[#0F766E] text-white shadow-lg flex items-center justify-center hover:bg-[#0F766E]/90 hover:scale-105 transition-all duration-300"
+          aria-label="AI Health Assistant"
+          title="AI Health Assistant"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M12 8V4H8" />
+            <rect width="16" height="12" x="4" y="8" rx="2" />
+            <path d="M2 14h2" />
+            <path d="M20 14h2" />
+            <path d="M15 13v2" />
+            <path d="M9 13v2" />
+          </svg>
+        </Link>
+      )}
     </>
   );
 };

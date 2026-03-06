@@ -119,10 +119,10 @@ const Notifications = () => {
 
   if (loading) {
     return (
-      <div className="h-screen w-full flex items-center justify-center bg-[#FAF9F6]">
+      <div className="h-screen w-full flex items-center justify-center bg-[#F0FDFA]">
         <div className="flex flex-col items-center gap-4">
-          <Loader2 className="w-10 h-10 text-[#8DAA9D] animate-spin" />
-          <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/40 font-bold">
+          <Loader2 className="w-10 h-10 text-[#0F766E] animate-spin" />
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/40 font-bold">
             Loading Notifications...
           </p>
         </div>
@@ -138,14 +138,14 @@ const Notifications = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-[#FAF9F6] text-[#2D302D] min-h-screen selection:bg-[#8DAA9D] selection:text-white"
+      className="bg-[#F0FDFA] text-[#1E293B] min-h-screen selection:bg-[#0F766E] selection:text-white"
     >
       {/* Header */}
-      <div className="pt-32 pb-12 px-6 lg:px-16 border-b border-[#2D302D]/5">
+      <div className="pt-32 pb-12 px-6 lg:px-16 border-b border-[#1E293B]/5">
         <div className="max-w-3xl mx-auto">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#2D302D]/40 hover:text-[#2D302D] transition-colors mb-8"
+            className="flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-colors mb-8"
           >
             <ArrowLeft size={14} /> Back
           </button>
@@ -155,7 +155,7 @@ const Notifications = () => {
               <h1 className="text-4xl lg:text-5xl font-light tracking-tighter uppercase">
                 Notifications
               </h1>
-              <p className="text-[10px] uppercase tracking-[0.4em] text-[#8DAA9D] font-bold mt-3">
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#0F766E] font-bold mt-3">
                 {unreadCount} unread
               </p>
             </div>
@@ -163,7 +163,7 @@ const Notifications = () => {
             {unreadCount > 0 && (
               <button
                 onClick={markAllRead}
-                className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-[#8DAA9D] border border-[#8DAA9D]/30 px-5 py-2.5 rounded-full hover:bg-[#8DAA9D] hover:text-[#FAF9F6] transition-all duration-300"
+                className="flex items-center gap-2 text-[10px] uppercase tracking-[0.2em] font-bold text-[#0F766E] border border-[#0F766E]/30 px-5 py-2.5 rounded-full hover:bg-[#0F766E] hover:text-[#F0FDFA] transition-all duration-300"
               >
                 <CheckCircle2 size={12} />
                 Mark All Read
@@ -179,8 +179,8 @@ const Notifications = () => {
                 onClick={() => setFilter(f)}
                 className={`px-6 py-2.5 text-[10px] uppercase tracking-[0.3em] font-bold transition-all ${
                   filter === f
-                    ? "bg-[#2D302D] text-[#FAF9F6]"
-                    : "text-[#2D302D]/40 hover:text-[#2D302D]"
+                    ? "bg-[#1E293B] text-[#F0FDFA]"
+                    : "text-[#1E293B]/40 hover:text-[#1E293B]"
                 }`}
               >
                 {f === "all" ? `All (${notifications.length})` : `Unread (${unreadCount})`}
@@ -195,8 +195,8 @@ const Notifications = () => {
         <div className="max-w-3xl mx-auto space-y-3">
           {filtered.length === 0 ? (
             <div className="text-center py-20">
-              <Bell size={40} className="mx-auto text-[#2D302D]/10 mb-4" />
-              <p className="text-[10px] uppercase tracking-[0.4em] text-[#2D302D]/30 font-bold">
+              <Bell size={40} className="mx-auto text-[#1E293B]/10 mb-4" />
+              <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/30 font-bold">
                 {filter === "unread" ? "No unread notifications" : "No notifications yet"}
               </p>
             </div>
@@ -206,15 +206,15 @@ const Notifications = () => {
                 key={n._id}
                 className={`notif-item flex items-start gap-5 p-6 border transition-all cursor-pointer group ${
                   n.isRead
-                    ? "border-[#2D302D]/5 bg-white"
-                    : "border-[#8DAA9D]/20 bg-[#8DAA9D]/[0.03]"
-                } hover:border-[#8DAA9D]/40`}
+                    ? "border-[#1E293B]/5 bg-white"
+                    : "border-[#0F766E]/20 bg-[#0F766E]/[0.03]"
+                } hover:border-[#0F766E]/40`}
                 onClick={() => !n.isRead && markAsRead(n._id)}
               >
                 {/* Icon */}
                 <div
                   className={`w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 ${
-                    n.isRead ? "bg-[#2D302D]/5 text-[#2D302D]/30" : "bg-[#8DAA9D]/10 text-[#8DAA9D]"
+                    n.isRead ? "bg-[#1E293B]/5 text-[#1E293B]/30" : "bg-[#0F766E]/10 text-[#0F766E]"
                   }`}
                 >
                   {iconMap[n.type] || <Bell size={18} />}
@@ -225,19 +225,19 @@ const Notifications = () => {
                   <div className="flex items-center gap-3 mb-1">
                     <span
                       className={`text-[11px] font-bold uppercase tracking-wider ${
-                        n.isRead ? "text-[#2D302D]/60" : "text-[#2D302D]"
+                        n.isRead ? "text-[#1E293B]/60" : "text-[#1E293B]"
                       }`}
                     >
                       {n.title}
                     </span>
                     {!n.isRead && (
-                      <span className="w-2 h-2 rounded-full bg-[#8DAA9D] flex-shrink-0" />
+                      <span className="w-2 h-2 rounded-full bg-[#0F766E] flex-shrink-0" />
                     )}
                   </div>
-                  <p className="text-[11px] text-[#2D302D]/50 leading-relaxed">
+                  <p className="text-[11px] text-[#1E293B]/50 leading-relaxed">
                     {n.message}
                   </p>
-                  <span className="text-[9px] uppercase tracking-[0.3em] text-[#2D302D]/25 font-bold mt-2 block">
+                  <span className="text-[9px] uppercase tracking-[0.3em] text-[#1E293B]/25 font-bold mt-2 block">
                     {timeAgo(n.createdAt)}
                   </span>
                 </div>
@@ -248,7 +248,7 @@ const Notifications = () => {
                     e.stopPropagation();
                     deleteNotification(n._id);
                   }}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[#2D302D]/20 hover:text-red-400 flex-shrink-0 mt-1"
+                  className="opacity-0 group-hover:opacity-100 transition-opacity text-[#1E293B]/20 hover:text-red-400 flex-shrink-0 mt-1"
                 >
                   <Trash2 size={14} />
                 </button>

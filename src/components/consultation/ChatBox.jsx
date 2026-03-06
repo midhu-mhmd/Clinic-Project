@@ -75,7 +75,7 @@ const ChatBox = ({ socket, roomId, currentUser }) => {
     <div className="flex flex-col h-full bg-[#1a1a1a] rounded-sm overflow-hidden">
       {/* Header */}
       <div className="px-4 py-3 border-b border-white/5">
-        <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-[#8DAA9D]">
+        <span className="text-[9px] uppercase tracking-[0.4em] font-bold text-[#0F766E]">
           Live Chat
         </span>
       </div>
@@ -88,22 +88,22 @@ const ChatBox = ({ socket, roomId, currentUser }) => {
           </p>
         )}
         {messages.map((msg, i) => {
-          const isMe = msg.sender === senderName;
+          const isMe = msg.socketId === socket?.id;
           return (
             <div key={i} className={`flex ${isMe ? "justify-end" : "justify-start"}`}>
               <div
                 className={`max-w-[80%] px-3 py-2 rounded-sm ${
                   isMe
-                    ? "bg-[#8DAA9D] text-[#FAF9F6]"
-                    : "bg-white/10 text-[#FAF9F6]/90"
+                    ? "bg-[#0F766E] text-[#F0FDFA]"
+                    : "bg-white/10 text-[#F0FDFA]/90"
                 }`}
               >
                 {!isMe && (
-                  <span className="block text-[8px] uppercase tracking-widest text-[#8DAA9D] font-bold mb-1">
+                  <span className="block text-[8px] uppercase tracking-widest text-[#0F766E] font-bold mb-1">
                     {msg.sender}
                   </span>
                 )}
-                <p className="text-xs leading-relaxed break-words">{msg.message}</p>
+                <p className="text-xs leading-relaxed wrap-break-word">{msg.message}</p>
                 <span className="block text-[8px] opacity-40 mt-1 text-right">
                   {new Date(msg.timestamp).toLocaleTimeString([], {
                     hour: "2-digit",
@@ -129,16 +129,16 @@ const ChatBox = ({ socket, roomId, currentUser }) => {
           value={input}
           onChange={handleInputChange}
           placeholder="Type a message..."
-          className="flex-1 bg-white/5 border border-white/10 rounded-sm px-3 py-2 text-xs text-[#FAF9F6] 
-                     placeholder:text-white/20 outline-none focus:border-[#8DAA9D]/50 transition-colors"
+          className="flex-1 bg-white/5 border border-white/10 rounded-sm px-3 py-2 text-xs text-[#F0FDFA] 
+                     placeholder:text-white/20 outline-none focus:border-[#0F766E]/50 transition-colors"
         />
         <button
           type="submit"
           disabled={!input.trim()}
-          className="w-8 h-8 flex items-center justify-center bg-[#8DAA9D] rounded-sm 
-                     hover:bg-[#8DAA9D]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+          className="w-8 h-8 flex items-center justify-center bg-[#0F766E] rounded-sm 
+                     hover:bg-[#0F766E]/80 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
         >
-          <Send size={14} className="text-[#FAF9F6]" />
+          <Send size={14} className="text-[#F0FDFA]" />
         </button>
       </form>
     </div>

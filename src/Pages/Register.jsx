@@ -134,19 +134,19 @@ const Register = () => {
   };
 
   const getInputClass = (fieldName) => {
-    const base = "w-full px-0 py-4 bg-transparent border-b text-sm focus:outline-none transition-all duration-500 placeholder:text-[#2D302D]/20";
+    const base = "w-full px-0 py-4 bg-transparent border-b text-sm focus:outline-none transition-all duration-500 placeholder:text-[#1E293B]/20";
     return errors[fieldName]
       ? `${base} border-red-400 text-red-900`
-      : `${base} border-[#2D302D]/10 focus:border-[#8DAA9D]`;
+      : `${base} border-[#1E293B]/10 focus:border-[#0F766E]`;
   };
 
   return (
-    <div className="min-h-screen bg-[#FAF9F6] flex">
+    <div className="min-h-screen bg-[#F0FDFA] flex">
       {/* Side Column Content... (Same as before) */}
-      <div className="hidden lg:flex w-1/3 bg-[#2D302D] p-16 flex-col justify-between text-[#FAF9F6]">
+      <div className="hidden lg:flex w-1/3 bg-[#1E293B] p-16 flex-col justify-between text-[#F0FDFA]">
         <div className="space-y-4">
-          <div className="w-12 h-12 border border-[#FAF9F6]/20 flex items-center justify-center">
-            <Shield size={20} className="text-[#8DAA9D]" />
+          <div className="w-12 h-12 border border-[#F0FDFA]/20 flex items-center justify-center">
+            <Shield size={20} className="text-[#0F766E]" />
           </div>
           <h2 className="text-3xl font-light tracking-tighter uppercase italic font-serif">
             {step === "register" ? "Create \nAccount." : "Verify \nIdentity."}
@@ -158,10 +158,10 @@ const Register = () => {
       <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
         <div className="max-w-md w-full">
           <header className="mb-16">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#8DAA9D] mb-4 block">
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#0F766E] mb-4 block">
               {step === "register" ? "Join the Network" : "Security Check"}
             </span>
-            <h1 className="text-5xl font-light tracking-tighter uppercase text-[#2D302D]">
+            <h1 className="text-5xl font-light tracking-tighter uppercase text-[#1E293B]">
               {step === "register" ? "Create Account" : "Enter Code"}
             </h1>
           </header>
@@ -232,7 +232,7 @@ const Register = () => {
 
               {apiError && <div className="p-4 text-[10px] uppercase tracking-widest font-bold bg-red-50 text-red-600 border border-red-100">{apiError}</div>}
 
-              <button type="submit" disabled={isSubmitting} className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700">
+              <button type="submit" disabled={isSubmitting} className="group w-full bg-[#1E293B] text-[#F0FDFA] py-6 flex items-center justify-between px-8 hover:bg-[#0F766E] transition-all duration-700">
                 <span className="text-[10px] uppercase tracking-[0.4em] font-bold">{isSubmitting ? "Sending OTP..." : "Continue"}</span>
                 <ArrowRight size={16} className="group-hover:translate-x-2 transition-transform duration-500" />
               </button>
@@ -240,21 +240,21 @@ const Register = () => {
               <div className="mt-8 flex flex-col items-center gap-6">
                 <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setApiError("Google Sign-up Failed")} shape="square" />
                 <button type="button" onClick={() => navigate("/login")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-opacity">
-                  Already have an account? <span className="text-[#8DAA9D]">Sign In</span>
+                  Already have an account? <span className="text-[#0F766E]">Sign In</span>
                 </button>
                 <button type="button" onClick={() => navigate("/clinic-registration")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-opacity">
-                  Are you a healthcare provider? <span className="text-[#8DAA9D]">Register Clinic</span>
+                  Are you a healthcare provider? <span className="text-[#0F766E]">Register Clinic</span>
                 </button>
               </div>
             </form>
           ) : (
             <form onSubmit={handleVerifyOtp} className="space-y-10 animate-in fade-in slide-in-from-right-4 duration-500">
-              <div className="p-6 bg-[#2D302D]/5 border border-[#2D302D]/10">
+              <div className="p-6 bg-[#1E293B]/5 border border-[#1E293B]/10">
                 <div className="flex items-center gap-4 mb-2">
-                  <Mail className="text-[#8DAA9D]" size={16} />
+                  <Mail className="text-[#0F766E]" size={16} />
                   <span className="text-[10px] uppercase tracking-widest font-bold opacity-50">Sent to:</span>
                 </div>
-                <p className="text-xl font-serif italic text-[#2D302D]">{formData.email}</p>
+                <p className="text-xl font-serif italic text-[#1E293B]">{formData.email}</p>
               </div>
 
               <div className="space-y-4">
@@ -265,13 +265,13 @@ const Register = () => {
                   onChange={handleOtpChange}
                   placeholder="0 0 0 0 0 0"
                   maxLength={6}
-                  className="w-full text-center text-4xl tracking-[0.5em] py-8 bg-transparent border-b border-[#2D302D]/10 focus:border-[#8DAA9D] focus:outline-none transition-all duration-500 placeholder:text-[#2D302D]/10 font-light"
+                  className="w-full text-center text-4xl tracking-[0.5em] py-8 bg-transparent border-b border-[#1E293B]/10 focus:border-[#0F766E] focus:outline-none transition-all duration-500 placeholder:text-[#1E293B]/10 font-light"
                 />
                 <div className="flex justify-between items-center">
                   <button type="button" onClick={() => setStep("register")} className="flex items-center gap-2 text-[9px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-opacity">
                     <ArrowLeft size={12} /> Wrong Email?
                   </button>
-                  <button type="button" onClick={handleSendOtp} className="text-[9px] uppercase tracking-widest font-bold text-[#8DAA9D] hover:underline">
+                  <button type="button" onClick={handleSendOtp} className="text-[9px] uppercase tracking-widest font-bold text-[#0F766E] hover:underline">
                     Resend Code
                   </button>
                 </div>
@@ -279,7 +279,7 @@ const Register = () => {
 
               {apiError && <div className="p-4 text-[10px] uppercase tracking-widest font-bold bg-red-50 text-red-600 border border-red-100">{apiError}</div>}
 
-              <button type="submit" disabled={isSubmitting} className="group w-full bg-[#2D302D] text-[#FAF9F6] py-6 flex items-center justify-between px-8 hover:bg-[#8DAA9D] transition-all duration-700">
+              <button type="submit" disabled={isSubmitting} className="group w-full bg-[#1E293B] text-[#F0FDFA] py-6 flex items-center justify-between px-8 hover:bg-[#0F766E] transition-all duration-700">
                 <span className="text-[10px] uppercase tracking-[0.4em] font-bold">{isSubmitting ? "Verifying..." : "Confirm & Register"}</span>
                 <CheckCircle size={16} className="group-hover:scale-110 transition-transform duration-500" />
               </button>
