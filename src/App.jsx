@@ -51,6 +51,7 @@ import SystemLogs from "./Pages/adminDashboard/SystemLogs.jsx";
 import PatientsPage from "./Pages/adminDashboard/PatientsPage.jsx";
 import AdminSettings from "./Pages/adminDashboard/AdminSettings.jsx";
 import AdminNotifications from "./Pages/adminDashboard/AdminNotifications.jsx";
+import AdminTickets from "./Pages/adminDashboard/AdminTickets.jsx";
 
 const App = () => {
   const location = useLocation();
@@ -107,6 +108,7 @@ const App = () => {
           <Route path="global-directory" element={<GlobalDirectory />} />
           <Route path="subscriptions" element={<Subscriptions />} />
           <Route path="system-logs" element={<SystemLogs />} />
+          <Route path="tickets" element={<AdminTickets />} />
           <Route path="patients" element={<PatientsPage />} />
           <Route path="settings" element={<AdminSettings />} />
           <Route path="notifications" element={<AdminNotifications />} />

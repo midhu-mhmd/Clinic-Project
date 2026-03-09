@@ -57,13 +57,24 @@ const SupportTickets = () => {
   const [replySending, setReplySending] = useState(false);
   const [showCreate, setShowCreate] = useState(false);
   const [statusFilter, setStatusFilter] = useState("");
+  const [clinics, setClinics] = useState([]);
   const [form, setForm] = useState({
     subject: "",
     description: "",
     category: "GENERAL",
     priority: "MEDIUM",
+    tenantId: "",
   });
   const [creating, setCreating] = useState(false);
+
+  const fetchClinics = async () => {
+    try {
+      const { data } = await api.get("/api/tickets/my-clinics");
+      if (data.success) setClinics(data.clinics || []);
+    } catch {
+      // silent
+    }
+  };
 
   const fetchTickets = async () => {
     setLoading(true);
@@ -81,6 +92,7 @@ const SupportTickets = () => {
 
   useEffect(() => {
     fetchTickets();
+    fetchClinics();
   }, [statusFilter]);
 
   useEffect(() => {
@@ -113,10 +125,18 @@ const SupportTickets = () => {
     if (!form.subject.trim() || !form.description.trim()) return;
     setCreating(true);
     try {
-      const { data } = await api.post("/api/tickets", form);
+      const payload = {
+        subject: form.subject,
+        description: form.description,
+        category: form.category,
+        priority: form.priority,
+      };
+      if (form.tenantId) payload.tenantId = form.tenantId;
+
+      const { data } = await api.post("/api/tickets", payload);
       if (data.success) {
         setShowCreate(false);
-        setForm({ subject: "", description: "", category: "GENERAL", priority: "MEDIUM" });
+        setForm({ subject: "", description: "", category: "GENERAL", priority: "MEDIUM", tenantId: "" });
         fetchTickets();
       }
     } catch {
@@ -160,6 +180,11 @@ const SupportTickets = () => {
   // ──── TICKET DETAIL VIEW ────
   if (selectedTicket && ticketDetail) {
     const st = STATUS_STYLES[ticketDetail.status] || STATUS_STYLES.OPEN;
+    const slaBreached = ticketDetail.slaBreached;
+    const slaDeadline = ticketDetail.slaDeadline ? new Date(ticketDetail.slaDeadline) : null;
+    const firstResponseBreached = ticketDetail.firstResponseBreached;
+    const firstRespondedAt = ticketDetail.firstRespondedAt ? new Date(ticketDetail.firstRespondedAt) : null;
+    const escalationLevel = ticketDetail.escalationLevel || 0;
     return (
       <div className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-32 pb-20 px-6">
         <div className="max-w-3xl mx-auto">
@@ -173,23 +198,61 @@ const SupportTickets = () => {
 
           {/* Ticket Header */}
           <div className="border-b border-[#1E293B]/5 pb-8 mb-8">
-            <div className="flex items-center gap-3 mb-3">
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
               <span className="text-[9px] font-mono tracking-widest text-[#0F766E]">
                 {ticketDetail.ticketNumber}
               </span>
               <span className={`text-[9px] uppercase tracking-[0.2em] font-bold px-3 py-1 rounded-full ${st.bg} ${st.text}`}>
                 {st.label}
               </span>
+              {slaBreached && (
+                <span className="text-[9px] uppercase tracking-[0.2em] font-bold px-3 py-1 rounded-full bg-red-50 text-red-500">
+                  Escalated
+                </span>
+              )}
+              {escalationLevel > 0 && !slaBreached && (
+                <span className="text-[9px] uppercase tracking-[0.2em] font-bold px-3 py-1 rounded-full bg-amber-50 text-amber-500">
+                  Priority Updated
+                </span>
+              )}
             </div>
             <h1 className="text-3xl font-light tracking-tight uppercase">{ticketDetail.subject}</h1>
             <p className="text-sm text-[#1E293B]/50 mt-3 leading-relaxed">{ticketDetail.description}</p>
-            <div className="flex gap-4 mt-4">
+            <div className="flex gap-4 mt-4 flex-wrap">
               <span className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#1E293B]/30">
                 {ticketDetail.category}
               </span>
               <span className={`text-[9px] uppercase tracking-[0.2em] font-bold ${PRIORITY_STYLES[ticketDetail.priority]}`}>
                 {ticketDetail.priority} Priority
               </span>
+            </div>
+
+            {/* SLA Info for Patient */}
+            <div className="flex flex-wrap gap-4 mt-5 p-3 bg-[#0F766E]/5 rounded-lg border border-[#0F766E]/10">
+              <div className="text-[9px]">
+                <span className="text-[#1E293B]/30 uppercase tracking-[0.2em] block mb-0.5">Response</span>
+                {firstRespondedAt ? (
+                  <span className="text-[#0F766E] font-bold">
+                    Responded {firstRespondedAt.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true })}
+                  </span>
+                ) : firstResponseBreached ? (
+                  <span className="text-red-500 font-bold">Overdue</span>
+                ) : (
+                  <span className="text-[#1E293B]/50">Awaiting response</span>
+                )}
+              </div>
+              <div className="text-[9px]">
+                <span className="text-[#1E293B]/30 uppercase tracking-[0.2em] block mb-0.5">Resolution</span>
+                {ticketDetail.resolvedAt ? (
+                  <span className="text-[#0F766E] font-bold">Resolved</span>
+                ) : slaDeadline ? (
+                  <span className={slaBreached || slaDeadline < new Date() ? "text-red-500 font-bold" : "text-[#1E293B]/50"}>
+                    {slaBreached ? "Escalated — higher priority" : `Target: ${slaDeadline.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true })}`}
+                  </span>
+                ) : (
+                  <span className="text-[#1E293B]/50">—</span>
+                )}
+              </div>
             </div>
           </div>
 
@@ -304,6 +367,27 @@ const SupportTickets = () => {
                 placeholder="Detailed description of the problem"
                 required
               />
+            </div>
+
+            <div>
+              <label className="text-[9px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 block mb-2">
+                Related Clinic
+              </label>
+              <select
+                value={form.tenantId}
+                onChange={(e) => setForm({ ...form, tenantId: e.target.value })}
+                className="w-full bg-white border border-[#1E293B]/10 px-5 py-4 text-sm outline-none focus:border-[#0F766E] transition-colors"
+              >
+                <option value="">General / Platform Issue</option>
+                {clinics.map((c) => (
+                  <option key={c._id} value={c._id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+              <p className="text-[8px] uppercase tracking-[0.2em] text-[#1E293B]/25 mt-1.5">
+                Select a clinic if this issue is related to a specific clinic
+              </p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">

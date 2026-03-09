@@ -427,14 +427,6 @@ const Appointments = () => {
             {loading ? "Syncing..." : `Records found: ${filteredRows.length}`}
           </p>
         </div>
-
-        <button
-          type="button"
-          className="flex items-center gap-4 bg-black text-white px-8 py-4 text-[10px] uppercase tracking-[0.4em] font-bold hover:bg-gray-800 transition-all shadow-xl"
-          onClick={() => console.log("Initialize new appointment")}
-        >
-          <Plus size={14} /> Initialize New
-        </button>
       </div>
 
       {/* ERROR */}

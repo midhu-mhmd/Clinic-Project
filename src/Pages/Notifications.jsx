@@ -237,6 +237,27 @@ const Notifications = () => {
                   <p className="text-[11px] text-[#1E293B]/50 leading-relaxed">
                     {n.message}
                   </p>
+
+                  {/* Meeting link button */}
+                  {(n.link || n.meta?.meetingLink) && (
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        if (!n.isRead) markAsRead(n._id);
+                        const meetingUrl = n.link || n.meta.meetingLink;
+                        if (meetingUrl.startsWith("http")) {
+                          window.location.href = meetingUrl;
+                        } else {
+                          navigate(meetingUrl);
+                        }
+                      }}
+                      className="mt-3 inline-flex items-center gap-2 px-4 py-2 bg-[#0F766E] text-[#F0FDFA] text-[9px] uppercase tracking-[0.3em] font-bold hover:bg-[#0F766E]/80 transition-colors"
+                    >
+                      <Video size={12} />
+                      Join Video Call
+                    </button>
+                  )}
+
                   <span className="text-[9px] uppercase tracking-[0.3em] text-[#1E293B]/25 font-bold mt-2 block">
                     {timeAgo(n.createdAt)}
                   </span>

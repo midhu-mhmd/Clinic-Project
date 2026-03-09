@@ -283,15 +283,6 @@ const Patients = () => {
             Derived from appointment.patientInfo (snapshot)
           </p>
         </div>
-
-        <button
-          type="button"
-          className="flex items-center gap-3 bg-black text-white px-6 py-4 text-[10px] uppercase tracking-[0.3em] font-bold hover:bg-gray-800 transition-all duration-500"
-          onClick={() => console.log("Register Patient")}
-        >
-          <UserPlus size={16} />
-          Register Patient
-        </button>
       </div>
 
       {/* ERROR */}

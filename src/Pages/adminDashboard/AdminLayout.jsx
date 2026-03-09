@@ -11,7 +11,8 @@ import {
   LogOut,
   ChevronRight,
   Settings,
-  PieChart
+  PieChart,
+  LifeBuoy,
 } from "lucide-react";
 
 const AdminLayout = () => {
@@ -26,6 +27,7 @@ const AdminLayout = () => {
     { icon: <LayoutGrid size={20} />, label: "Directory", path: "/admin/global-directory" },
     { icon: <CreditCard size={20} />, label: "Billing", path: "/admin/subscriptions" },
     { icon: <Activity size={20} />, label: "Logs", path: "/admin/system-logs" },
+    { icon: <LifeBuoy size={20} />, label: "Tickets", path: "/admin/tickets" },
     { icon: <Bell size={20} />, label: "Notifications", path: "/admin/notifications" },
     { icon: <Settings size={20} />, label: "Settings", path: "/admin/settings" },
   ];

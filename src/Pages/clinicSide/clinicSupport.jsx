@@ -107,7 +107,9 @@ const timeAgo = (d) => {
 const ClinicSupport = () => {
   // ── State ──
   const [view, setView] = useState("list"); // list | create | detail
+  const [mode, setMode] = useState("my"); // my | received
   const [tickets, setTickets] = useState([]);
+  const [receivedTickets, setReceivedTickets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [activeTab, setActiveTab] = useState("ALL");
@@ -118,6 +120,7 @@ const ClinicSupport = () => {
   const [detailLoading, setDetailLoading] = useState(false);
   const [replyText, setReplyText] = useState("");
   const [replying, setReplying] = useState(false);
+  const [statusUpdating, setStatusUpdating] = useState(false);
 
   // Create form
   const [form, setForm] = useState({
@@ -128,7 +131,7 @@ const ClinicSupport = () => {
   });
   const [creating, setCreating] = useState(false);
 
-  /* ── Fetch tickets ── */
+  /* ── Fetch own tickets ── */
   const fetchTickets = useCallback(async () => {
     try {
       setError("");
@@ -143,13 +146,26 @@ const ClinicSupport = () => {
     }
   }, []);
 
+  /* ── Fetch tenant-routed tickets ── */
+  const fetchReceivedTickets = useCallback(async () => {
+    try {
+      const { data } = await api.get("/api/tickets/tenant");
+      if (data.success) {
+        setReceivedTickets(data.tickets || data.data || []);
+      }
+    } catch {
+      // may fail for non-clinic-admin users — silent
+    }
+  }, []);
+
   useEffect(() => {
     fetchTickets();
-  }, [fetchTickets]);
+    fetchReceivedTickets();
+  }, [fetchTickets, fetchReceivedTickets]);
 
   /* ── Filtered tickets ── */
   const filteredTickets = useMemo(() => {
-    let list = tickets;
+    let list = mode === "received" ? receivedTickets : tickets;
     if (activeTab !== "ALL") {
       list = list.filter((t) => t.status === activeTab);
     }
@@ -163,7 +179,7 @@ const ClinicSupport = () => {
       );
     }
     return list;
-  }, [tickets, activeTab, searchQuery]);
+  }, [tickets, receivedTickets, mode, activeTab, searchQuery]);
 
   /* ── Open ticket detail ── */
   const openDetail = useCallback(async (ticketId) => {
@@ -213,13 +229,14 @@ const ClinicSupport = () => {
         setReplyText("");
         // refresh the list in background
         fetchTickets();
+        fetchReceivedTickets();
       }
     } catch (err) {
       setError(err?.response?.data?.message || "Failed to send reply.");
     } finally {
       setReplying(false);
     }
-  }, [replyText, selectedTicket, fetchTickets]);
+  }, [replyText, selectedTicket, fetchTickets, fetchReceivedTickets]);
 
   /* =========================================================
      RENDER — CREATE FORM
@@ -342,6 +359,30 @@ const ClinicSupport = () => {
 
     const st = STATUS_STYLES[selectedTicket.status] || STATUS_STYLES.OPEN;
     const pr = PRIORITY_STYLES[selectedTicket.priority] || PRIORITY_STYLES.MEDIUM;
+    const isReceived = mode === "received";
+    const slaBreached = selectedTicket.slaBreached;
+    const slaDeadline = selectedTicket.slaDeadline ? new Date(selectedTicket.slaDeadline) : null;
+    const firstResponseDeadline = selectedTicket.firstResponseDeadline ? new Date(selectedTicket.firstResponseDeadline) : null;
+    const firstRespondedAt = selectedTicket.firstRespondedAt ? new Date(selectedTicket.firstRespondedAt) : null;
+    const firstResponseBreached = selectedTicket.firstResponseBreached;
+    const escalationLevel = selectedTicket.escalationLevel || 0;
+    const isPaused = !!selectedTicket.slaPausedAt;
+
+    /* ── Status update handler (received tickets) ── */
+    const handleStatusChange = async (newStatus) => {
+      setStatusUpdating(true);
+      try {
+        const { data } = await api.patch(`/api/tickets/${selectedTicket._id}/status`, { status: newStatus });
+        if (data.success) {
+          setSelectedTicket((prev) => ({ ...prev, status: newStatus }));
+          fetchReceivedTickets();
+        }
+      } catch {
+        setError("Failed to update ticket status.");
+      } finally {
+        setStatusUpdating(false);
+      }
+    };
 
     return (
       <div className="p-8 lg:p-12 max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -359,7 +400,7 @@ const ClinicSupport = () => {
 
         {/* Ticket Info */}
         <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
+          <div className="flex items-center gap-3 mb-2 flex-wrap">
             <span className="text-[9px] font-mono tracking-widest text-gray-400">
               {selectedTicket.ticketNumber}
             </span>
@@ -369,6 +410,28 @@ const ClinicSupport = () => {
             <span className={`text-[8px] uppercase tracking-widest font-bold ${pr}`}>
               ● {selectedTicket.priority}
             </span>
+            {slaBreached && (
+              <span className="text-[8px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded-sm bg-red-50 text-red-500">
+                SLA Breached
+              </span>
+            )}
+            {firstResponseBreached && (
+              <span className="text-[8px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded-sm bg-orange-50 text-orange-500">
+                Response SLA Missed
+              </span>
+            )}
+            {isPaused && (
+              <span className="text-[8px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded-sm bg-blue-50 text-blue-500">
+                SLA Paused
+              </span>
+            )}
+            {escalationLevel > 0 && (
+              <span className={`text-[8px] uppercase tracking-widest font-bold px-2.5 py-0.5 rounded-sm ${
+                escalationLevel >= 2 ? "bg-red-50 text-red-600" : "bg-amber-50 text-amber-600"
+              }`}>
+                Escalation L{escalationLevel}
+              </span>
+            )}
           </div>
           <h2 className="text-2xl font-light tracking-tighter">
             {selectedTicket.subject}
@@ -376,14 +439,69 @@ const ClinicSupport = () => {
           <p className="text-sm text-gray-500 mt-3 leading-relaxed">
             {selectedTicket.description}
           </p>
-          <div className="flex items-center gap-6 mt-4 text-[9px] uppercase tracking-widest text-gray-400 font-bold">
+
+          {/* SLA Timeline */}
+          {isReceived && (
+            <div className="flex flex-wrap gap-4 mt-4 p-3 bg-gray-50 rounded-lg border border-gray-100">
+              <div className="text-[9px]">
+                <span className="text-gray-400 uppercase tracking-widest block mb-0.5">First Response</span>
+                {firstRespondedAt ? (
+                  <span className={firstResponseBreached ? "text-red-500 font-bold" : "text-emerald-600 font-bold"}>
+                    {firstRespondedAt.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true })}
+                    {firstResponseBreached ? " (Late)" : " \u2713"}
+                  </span>
+                ) : firstResponseDeadline ? (
+                  <span className={firstResponseDeadline < new Date() ? "text-red-500 font-bold" : "text-gray-600"}>
+                    Due: {firstResponseDeadline.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true })}
+                  </span>
+                ) : (
+                  <span className="text-gray-400">&mdash;</span>
+                )}
+              </div>
+              <div className="text-[9px]">
+                <span className="text-gray-400 uppercase tracking-widest block mb-0.5">Resolution Deadline</span>
+                {slaDeadline ? (
+                  <span className={slaBreached || slaDeadline < new Date() ? "text-red-500 font-bold" : "text-gray-600"}>
+                    {slaDeadline.toLocaleString("en-IN", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit", hour12: true })}
+                    {slaBreached ? " (Breached)" : ""}
+                  </span>
+                ) : (
+                  <span className="text-gray-400">&mdash;</span>
+                )}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center gap-6 mt-4 text-[9px] uppercase tracking-widest text-gray-400 font-bold flex-wrap">
             <span className="flex items-center gap-1">
               <Clock size={10} /> {timeAgo(selectedTicket.createdAt)}
             </span>
             <span>
               {selectedTicket.category?.charAt(0) + selectedTicket.category?.slice(1).toLowerCase()}
             </span>
+            {isReceived && selectedTicket.createdBy && (
+              <span>
+                From: {selectedTicket.createdBy.name || selectedTicket.createdBy.email || "Patient"}
+              </span>
+            )}
           </div>
+
+          {/* Status actions for received tickets */}
+          {isReceived && !["RESOLVED", "CLOSED"].includes(selectedTicket.status) && (
+            <div className="flex items-center gap-2 mt-6">
+              <span className="text-[9px] uppercase tracking-widest text-gray-400 font-bold mr-2">Update:</span>
+              {["IN_PROGRESS", "RESOLVED", "CLOSED"].filter(s => s !== selectedTicket.status).map((s) => (
+                <button
+                  key={s}
+                  onClick={() => handleStatusChange(s)}
+                  disabled={statusUpdating}
+                  className="px-3 py-1.5 text-[8px] uppercase tracking-widest font-bold border border-gray-200 hover:bg-black hover:text-white hover:border-black transition-all disabled:opacity-30"
+                >
+                  {s.replace(/_/g, " ")}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Messages Thread */}
@@ -395,19 +513,26 @@ const ClinicSupport = () => {
 
           <div className="space-y-4 mb-8">
             {(selectedTicket.messages || []).map((msg, i) => {
-              const isAdmin = msg.senderRole === "SUPER_ADMIN";
+              const isStaff = msg.senderRole === "SUPER_ADMIN" || msg.senderRole === "CLINIC_ADMIN";
+              const senderLabel = msg.senderRole === "SUPER_ADMIN"
+                ? "Platform Support"
+                : msg.senderRole === "CLINIC_ADMIN"
+                ? (isReceived ? "You (Clinic)" : "You")
+                : isReceived
+                ? (msg.sender?.name || "Patient")
+                : "You";
               return (
                 <div
                   key={i}
                   className={`p-5 border ${
-                    isAdmin
+                    isStaff
                       ? "border-black/5 bg-gray-50"
                       : "border-gray-100 bg-white"
                   }`}
                 >
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[9px] uppercase tracking-widest font-bold text-gray-500">
-                      {isAdmin ? "Support Team" : "You"}
+                      {senderLabel}
                     </span>
                     <span className="text-[9px] text-gray-400">{timeAgo(msg.createdAt)}</span>
                   </div>
@@ -465,15 +590,43 @@ const ClinicSupport = () => {
             Support <span className="italic font-serif">Center</span>
           </h2>
           <p className="text-[10px] uppercase tracking-widest text-gray-400 mt-1">
-            {tickets.length} total tickets
+            {mode === "received" ? receivedTickets.length : tickets.length} total tickets
           </p>
         </div>
-        <button
-          onClick={() => setView("create")}
-          className="flex items-center gap-2 px-6 py-3 bg-black text-white text-[10px] uppercase tracking-widest font-bold hover:bg-gray-800 transition-colors"
-        >
-          <Plus size={14} /> New Ticket
-        </button>
+        <div className="flex items-center gap-3">
+          {/* Mode Toggle */}
+          <div className="flex border border-gray-200">
+            <button
+              onClick={() => { setMode("my"); setActiveTab("ALL"); }}
+              className={`px-4 py-2.5 text-[9px] uppercase tracking-widest font-bold transition-all ${
+                mode === "my" ? "bg-black text-white" : "text-gray-400 hover:text-black"
+              }`}
+            >
+              My Tickets
+            </button>
+            <button
+              onClick={() => { setMode("received"); setActiveTab("ALL"); }}
+              className={`px-4 py-2.5 text-[9px] uppercase tracking-widest font-bold transition-all relative ${
+                mode === "received" ? "bg-black text-white" : "text-gray-400 hover:text-black"
+              }`}
+            >
+              Received
+              {receivedTickets.filter(t => !["RESOLVED","CLOSED"].includes(t.status)).length > 0 && (
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 text-white text-[8px] flex items-center justify-center rounded-full">
+                  {receivedTickets.filter(t => !["RESOLVED","CLOSED"].includes(t.status)).length}
+                </span>
+              )}
+            </button>
+          </div>
+          {mode === "my" && (
+            <button
+              onClick={() => setView("create")}
+              className="flex items-center gap-2 px-6 py-3 bg-black text-white text-[10px] uppercase tracking-widest font-bold hover:bg-gray-800 transition-colors"
+            >
+              <Plus size={14} /> New Ticket
+            </button>
+          )}
+        </div>
       </div>
 
       {/* Error */}
@@ -545,29 +698,44 @@ const ClinicSupport = () => {
           {filteredTickets.map((ticket) => {
             const st = STATUS_STYLES[ticket.status] || STATUS_STYLES.OPEN;
             const pr = PRIORITY_STYLES[ticket.priority] || PRIORITY_STYLES.MEDIUM;
+            const isBreach = ticket.slaBreached;
+            const isFrBreach = ticket.firstResponseBreached;
             return (
               <div
                 key={ticket._id}
                 onClick={() => openDetail(ticket._id)}
-                className="group bg-white border border-gray-100 p-5 flex items-center justify-between gap-6 cursor-pointer hover:shadow-lg hover:border-gray-200 transition-all duration-300"
+                className={`group bg-white border p-5 flex items-center justify-between gap-6 cursor-pointer hover:shadow-lg hover:border-gray-200 transition-all duration-300 ${isBreach ? "border-red-200" : "border-gray-100"}`}
               >
                 <div className="flex items-center gap-5 min-w-0 flex-1">
                   <div className={`w-2 h-2 rounded-full shrink-0 ${pr.replace("text-", "bg-")}`} />
                   <div className="min-w-0">
-                    <div className="flex items-center gap-3 mb-1">
+                    <div className="flex items-center gap-3 mb-1 flex-wrap">
                       <span className="text-[9px] font-mono tracking-widest text-gray-400">
                         {ticket.ticketNumber}
                       </span>
                       <span className={`text-[8px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-sm ${st}`}>
                         {ticket.status?.replace(/_/g, " ")}
                       </span>
+                      {isBreach && (
+                        <span className="text-[8px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-sm bg-red-50 text-red-500">
+                          SLA Breached
+                        </span>
+                      )}
+                      {isFrBreach && !isBreach && (
+                        <span className="text-[8px] uppercase tracking-widest font-bold px-2 py-0.5 rounded-sm bg-orange-50 text-orange-500">
+                          Response Late
+                        </span>
+                      )}
                     </div>
                     <p className="text-sm font-medium truncate">{ticket.subject}</p>
-                    <div className="flex items-center gap-4 mt-1 text-[9px] text-gray-400">
+                    <div className="flex items-center gap-4 mt-1 text-[9px] text-gray-400 flex-wrap">
                       <span>{ticket.category?.charAt(0) + ticket.category?.slice(1).toLowerCase()}</span>
                       <span className="flex items-center gap-1">
                         <Clock size={9} /> {timeAgo(ticket.createdAt)}
                       </span>
+                      {mode === "received" && ticket.createdBy && (
+                        <span>From: {ticket.createdBy.name || ticket.createdBy.email || "Patient"}</span>
+                      )}
                       {ticket.messages?.length > 0 && (
                         <span className="flex items-center gap-1">
                           <MessageSquare size={9} /> {ticket.messages.length}

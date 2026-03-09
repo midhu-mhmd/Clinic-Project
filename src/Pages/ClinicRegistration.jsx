@@ -112,7 +112,7 @@ const ClinicRegistration = () => {
       if (res.data.success) {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/plans", { replace: true });
+        navigate("/clinic-login", { replace: true });
       }
     } catch (err) {
       setApiError(err.response?.data?.message || "Verification failed.");
