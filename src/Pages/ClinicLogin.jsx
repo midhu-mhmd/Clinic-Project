@@ -3,8 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+import { API_BASE_URL } from "../utils/apiConfig.js";
 
 const isValidJwt = (t) => {
   if (!t || typeof t !== "string") return false;
@@ -51,7 +50,7 @@ const ClinicLogin = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${API_BASE}/api/tenants/login`, {
+      const response = await axios.post(`${API_BASE_URL}/api/tenants/login`, {
         email: formData.email.trim().toLowerCase(),
         password: formData.password,
       });
@@ -189,9 +188,8 @@ const ClinicLogin = () => {
             <button
               type="submit"
               disabled={loading}
-              className={`w-full bg-black text-white py-6 text-[10px] tracking-[0.4em] uppercase transition-all flex justify-between px-10 items-center group ${
-                loading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#2d2d2d]"
-              }`}
+              className={`w-full bg-black text-white py-6 text-[10px] tracking-[0.4em] uppercase transition-all flex justify-between px-10 items-center group ${loading ? "opacity-70 cursor-not-allowed" : "hover:bg-[#2d2d2d]"
+                }`}
             >
               <span>{loading ? "Authenticating" : "Initiate Session"}</span>
               {loading ? (

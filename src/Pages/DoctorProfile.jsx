@@ -14,7 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:5000/api";
+import { API_URL as API_BASE_URL } from "../utils/apiConfig.js";
 
 // --- Styled Components / Sub-components ---
 const StatBox = ({ label, value }) => (

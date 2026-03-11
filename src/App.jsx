@@ -15,6 +15,7 @@ const ScrollToTop = () => {
 import Navbar from "./components/Navbar.jsx";
 import Footer from "./components/Footer/Footer.jsx";
 import ProtectedRoute from "./components/ProtectedRoute.jsx";
+import RoleProtectedRoute from "./components/RoleProtectedRoute.jsx";
 
 // Public Pages
 import Home from "./Pages/Home.jsx";
@@ -56,12 +57,41 @@ import AdminTickets from "./Pages/adminDashboard/AdminTickets.jsx";
 const App = () => {
   const location = useLocation();
 
+  // ── Role-based redirect guard ──
+  // Detect which role is currently logged in and force-redirect
+  // if they try to access pages outside their designated area.
+  const clinicToken = localStorage.getItem("authToken");
+  const clinicRole = localStorage.getItem("userRole");
+  const patientToken = localStorage.getItem("token");
+
+  let activeRole = null;
+  if (clinicToken && clinicRole) {
+    activeRole = clinicRole;
+  } else if (patientToken) {
+    try {
+      const user = JSON.parse(localStorage.getItem("user") || "{}");
+      activeRole = user?.role || null;
+    } catch { /* ignore */ }
+  }
+
+  const path = location.pathname;
+
+  // CLINIC_ADMIN: can only access /dashboard/*
+  if (activeRole === "CLINIC_ADMIN" && !path.startsWith("/dashboard")) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
+  // SUPER_ADMIN: can only access /admin/*
+  if (activeRole === "SUPER_ADMIN" && !path.startsWith("/admin")) {
+    return <Navigate to="/admin/dashboard" replace />;
+  }
+
   const isClinicSide =
     location.pathname.startsWith("/dashboard") ||
     location.pathname.startsWith("/admin") ||
     location.pathname.startsWith("/consultation") ||
     ["/clinic-login", "/clinic-registration", "/plans", "/payment", "/login", "/register"].some(
-      (path) => location.pathname.startsWith(path),
+      (p) => location.pathname.startsWith(p),
     );
 
   return (
@@ -98,10 +128,18 @@ const App = () => {
         <Route path="/payment" element={<Payment />} />
 
         {/* --- TENANT / CLINIC DASHBOARD --- */}
-        <Route path="/dashboard/*" element={<TenantDashboard />} />
+        <Route path="/dashboard/*" element={
+          <RoleProtectedRoute allowedRoles={["CLINIC_ADMIN"]} authRedirect="/clinic-login">
+            <TenantDashboard />
+          </RoleProtectedRoute>
+        } />
 
         {/* --- SUPER ADMIN SYSTEM (NESTED) --- */}
-        <Route path="/admin" element={<AdminLayout />}>
+        <Route path="/admin" element={
+          <RoleProtectedRoute allowedRoles={["SUPER_ADMIN"]} authRedirect="/login">
+            <AdminLayout />
+          </RoleProtectedRoute>
+        }>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<SuperAdminDashboard />} />
           <Route path="tenants" element={<TenantsPage />} />

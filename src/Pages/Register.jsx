@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { Shield, ArrowRight, ArrowLeft, Mail, CheckCircle } from "lucide-react";
+import { API_URL } from "../utils/apiConfig.js";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ const Register = () => {
     setIsSubmitting(true);
     setApiError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/users/verify-otp", {
+      const res = await axios.post(`${API_URL}/users/verify-otp`, {
         email: formData.email,
         otp: code,
       });
@@ -87,7 +88,7 @@ const Register = () => {
     setApiError("");
 
     try {
-      await axios.post("http://localhost:5000/api/users/send-otp", {
+      await axios.post(`${API_URL}/users/send-otp`, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
@@ -118,7 +119,7 @@ const Register = () => {
     setIsSubmitting(true);
     setApiError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/users/google", {
+      const res = await axios.post(`${API_URL}/users/google`, {
         credential: response.credential,
       });
       localStorage.setItem("token", res.data.token);

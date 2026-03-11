@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../utils/apiConfig.js";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { ArrowUpRight, Search, Heart, Globe, Loader2 } from "lucide-react";
@@ -22,7 +23,7 @@ const DoctorList = () => {
   const fetchDoctors = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("http://localhost:5000/api/doctors/directory", {
+      const { data } = await axios.get(`${API_URL}/doctors/directory`, {
         params: {
           page,
           limit,

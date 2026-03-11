@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../utils/apiConfig.js";
 import { 
   ArrowLeft, RefreshCw, ChevronRight, 
   Building2, User, Stethoscope 
@@ -29,8 +30,8 @@ const ForgotPassword = () => {
 
     // Maps to your fixed backend routes
     const endpoint = view === "clinic" 
-      ? "http://localhost:5000/api/tenants/forgot-password" 
-      : "http://localhost:5000/api/users/forgot-password";
+      ? `${API_URL}/tenants/forgot-password` 
+      : `${API_URL}/users/forgot-password`;
 
     try {
       const response = await axios.post(endpoint, { email: email.toLowerCase().trim() });

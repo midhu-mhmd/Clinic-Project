@@ -7,7 +7,7 @@ import { ArrowUpRight, Search, MapPin, AlertCircle, Plus } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-const API_BASE_URL = "http://localhost:5000/api";
+import { API_URL as API_BASE_URL } from "../utils/apiConfig.js";
 
 const ClinicList = () => {
   const containerRef = useRef(null);

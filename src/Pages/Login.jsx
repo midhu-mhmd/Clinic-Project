@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { ArrowRight, Lock, AlertCircle } from "lucide-react";
+import { API_URL } from "../utils/apiConfig.js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const Login = () => {
         password: formData.password
       };
 
-      const res = await axios.post("http://localhost:5000/api/users/login", payload);
+      const res = await axios.post(`${API_URL}/users/login`, payload);
 
       if (res.data.token) {
         handleAuthSuccess(res.data);
@@ -77,10 +78,10 @@ const Login = () => {
   const handleGoogleSuccess = async (response) => {
     setApiError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/users/google", {
+      const res = await axios.post(`${API_URL}/users/google`, {
         credential: response.credential,
       });
-      
+
       handleAuthSuccess(res.data);
     } catch (error) {
       setApiError(error.response?.data?.message || "Google Sign-In failed.");
@@ -101,8 +102,8 @@ const Login = () => {
             Patient <br /> Portal.
           </h2>
           <p className="text-[10px] uppercase tracking-widest leading-loose opacity-60">
-            Secure access for Patients & Platform Staff. <br /> 
-            Clinic partners must use the <br /> 
+            Secure access for Patients & Platform Staff. <br />
+            Clinic partners must use the <br />
             <span className="text-[#0F766E] cursor-pointer hover:underline" onClick={() => navigate("/clinic-login")}>
               Partner Dashboard
             </span>.
@@ -149,12 +150,12 @@ const Login = () => {
           </form>
 
           <div className="mt-12 pt-12 border-t border-[#1E293B]/5 flex flex-col items-center gap-6">
-            <GoogleLogin 
-              onSuccess={handleGoogleSuccess} 
-              onError={() => setApiError("Google Sign-In Failed")} 
-              theme="outline" 
-              shape="square" 
-              width="350" 
+            <GoogleLogin
+              onSuccess={handleGoogleSuccess}
+              onError={() => setApiError("Google Sign-In Failed")}
+              theme="outline"
+              shape="square"
+              width="350"
             />
             <button onClick={() => navigate("/register")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100">
               New patient? <span className="text-[#0F766E]">Join the platform</span>

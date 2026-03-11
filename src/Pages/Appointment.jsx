@@ -23,7 +23,7 @@ import {
   User,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:5000/api";
+import { API_URL as API_BASE } from "../utils/apiConfig.js";
 
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 const validatePhone = (phone) => {

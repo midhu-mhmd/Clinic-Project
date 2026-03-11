@@ -18,8 +18,9 @@ import {
   Shield,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:5000";
-const api = axios.create({ baseURL: API_BASE, timeout: 30000 });
+import { API_BASE_URL } from "../utils/apiConfig.js";
+
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 30000 });
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token") || "";
   const clean = t.replace(/['"]+/g, "").trim();

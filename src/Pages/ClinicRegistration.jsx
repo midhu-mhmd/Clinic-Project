@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom"; // Added Link
 import axios from "axios";
+import { API_URL } from "../utils/apiConfig.js";
 import { Loader2, CheckCircle2, AlertCircle, Eye, EyeOff, ArrowRight, ArrowLeft, Mail, ShieldCheck } from "lucide-react";
 
 const FloatingInput = ({ label, type = "text", name, value, onChange, id, required = true, error }) => {
@@ -88,7 +89,7 @@ const ClinicRegistration = () => {
     };
 
     try {
-      await axios.post("http://localhost:5000/api/tenants/register", payload);
+      await axios.post(`${API_URL}/tenants/register`, payload);
       setStep("otp");
     } catch (err) {
       setApiError(err.response?.data?.message || "Registration failed.");
@@ -104,7 +105,7 @@ const ClinicRegistration = () => {
     setLoading(true);
     setApiError("");
     try {
-      const res = await axios.post("http://localhost:5000/api/tenants/verify-otp", {
+      const res = await axios.post(`${API_URL}/tenants/verify-otp`, {
         email: formData.email.trim().toLowerCase(), 
         otp: otp.trim(),
       });
@@ -127,7 +128,7 @@ const ClinicRegistration = () => {
     setApiError("");
     setSuccessMsg("");
     try {
-      await axios.post("http://localhost:5000/api/tenants/resend-otp", { 
+      await axios.post(`${API_URL}/tenants/resend-otp`, { 
         email: formData.email 
       });
       setSuccessMsg("A new code has been sent to your email.");

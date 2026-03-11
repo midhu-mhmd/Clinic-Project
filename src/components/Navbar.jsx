@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { Bell } from "lucide-react";
 import axios from "axios";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+import { API_BASE_URL as API_BASE } from "../utils/apiConfig.js";
 
 const Navbar = () => {
   const mountRef = useRef(null);

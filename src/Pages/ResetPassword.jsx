@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { API_URL } from "../utils/apiConfig.js";
 import {
   ArrowLeft,
   ShieldCheck,
@@ -64,8 +65,8 @@ const ResetPassword = () => {
     const isClinicFlow = view === "clinic";
     console.log("DEBUG PAYLOAD:", { email, otp, newPassword });
     const endpoint = isClinicFlow 
-      ? "http://localhost:5000/api/tenants/reset-password" 
-      : "http://localhost:5000/api/users/reset-password-otp";
+      ? `${API_URL}/tenants/reset-password` 
+      : `${API_URL}/users/reset-password-otp`;
 
     const redirectPath = isClinicFlow ? "/login" : "/clinic-login";
 
