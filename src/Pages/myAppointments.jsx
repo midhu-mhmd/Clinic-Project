@@ -3,6 +3,7 @@ import axios from "axios";
 import gsap from "gsap";
 import { Calendar, Clock, User, Building2, ChevronRight, ArrowLeft, Loader2, AlertCircle, Video } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../utils/apiConfig.js";
 
 const MyAppointments = () => {
     const navigate = useNavigate();
@@ -21,7 +22,7 @@ const MyAppointments = () => {
                     return;
                 }
 
-                const { data } = await axios.get("http://localhost:5000/api/appointments/my-appointments", {
+                const { data } = await axios.get(`${API_URL}/appointments/my-appointments`, {
                     headers: { Authorization: `Bearer ${token}` }
                 });
 

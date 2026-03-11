@@ -3,6 +3,7 @@ import axios from "axios";
 import gsap from "gsap";
 import { User, Mail, Calendar, Hash, MapPin, Phone, Award, Shield, ArrowLeft, Camera, Check, X, Edit3 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { API_URL } from "../utils/apiConfig.js";
 
 const Profile = () => {
     const navigate = useNavigate();
@@ -23,7 +24,7 @@ const Profile = () => {
                 return;
             }
 
-            const { data } = await axios.get("http://localhost:5000/api/users/me", {
+            const { data } = await axios.get(`${API_URL}/users/me`, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -110,7 +111,7 @@ const Profile = () => {
                 submitData.append("image", selectedFile);
             }
 
-            const res = await axios.patch("http://localhost:5000/api/users/profile", submitData, {
+            const res = await axios.patch(`${API_URL}/users/profile`, submitData, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     "Content-Type": "multipart/form-data"

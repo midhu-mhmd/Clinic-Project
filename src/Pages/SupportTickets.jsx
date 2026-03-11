@@ -16,7 +16,7 @@ import {
   Filter,
 } from "lucide-react";
 
-const API_BASE = "http://localhost:5000";
+import { API_BASE_URL as API_BASE } from "../utils/apiConfig.js";
 const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token") || "";
