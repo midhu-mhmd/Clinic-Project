@@ -35,28 +35,28 @@ const AiAssistantSection = () => {
   return (
     <section
       ref={containerRef}
-      className="w-full py-32 bg-[#F0FDFA] border-t border-[#1E293B]/5"
+      className="w-full py-20 sm:py-32 bg-[#F0FDFA] border-t border-[#1E293B]/5"
     >
-      <div className="max-w-6xl mx-auto px-8 grid grid-cols-1 lg:grid-cols-2 gap-24 items-start">
+      <div className="max-w-6xl mx-auto px-6 sm:px-10 lg:px-12 grid grid-cols-1 lg:grid-cols-2 gap-16 lg:gap-24 items-start">
         {/* LEFT: MINIMAL TYPOGRAPHY */}
-        <div ref={textRef} className="pt-4">
-          <p className="text-[10px] tracking-[0.4em] uppercase text-[#0F766E] font-bold mb-8">
+        <div ref={textRef} className="pt-0 lg:pt-4 text-left">
+          <p className="text-[10px] tracking-[0.4em] uppercase text-[#0F766E] font-bold mb-6 sm:mb-8">
             AI-Powered Guidance
           </p>
 
-          <h2 className="text-[clamp(2rem,5vw,3.5rem)] font-light leading-[1.1] text-[#1E293B] tracking-tighter">
-            An intuitive path <br />
+          <h2 className="text-[clamp(2.2rem,6vw,3.5rem)] font-light leading-[1.1] text-[#1E293B] tracking-tighter">
+            An intuitive path <br className="hidden sm:block" />
             <span className="italic font-serif text-[#0F766E]">
               to the right specialist.
             </span>
           </h2>
 
-          <p className="mt-10 text-[#1E293B] font-light text-lg leading-relaxed max-w-sm opacity-60">
+          <p className="mt-8 sm:mt-10 text-[#1E293B] font-light text-base sm:text-lg leading-relaxed max-w-sm lg:max-w-none opacity-60">
             Skip the guesswork. Describe your symptoms and let our assistant
             identify the care you actually need.
           </p>
 
-          <button className="mt-12 group flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase font-bold text-[#1E293B]">
+          <button className="mt-10 sm:mt-12 group flex items-center gap-6 text-[10px] tracking-[0.3em] uppercase font-bold text-[#1E293B]">
             Try the AI Assistant
             <div className="relative w-12 h-px bg-[#0F766E] group-hover:w-20 transition-all duration-700"></div>
           </button>
@@ -65,25 +65,25 @@ const AiAssistantSection = () => {
         {/* RIGHT: ABSTRACT CHAT INTERFACE */}
         <div
           ref={chatRef}
-          className="relative flex justify-center lg:justify-end"
+          className="relative flex justify-center lg:justify-end mt-12 lg:mt-0"
         >
-          <div className="w-full max-w-100 flex flex-col gap-8">
+          <div className="w-full max-w-md flex flex-col gap-6 sm:gap-8">
             {/* Minimal Bubble 1 */}
-            <div className="self-end max-w-[80%]">
+            <div className="self-end max-w-[90%] sm:max-w-[80%]">
               <p className="text-[10px] tracking-widest uppercase opacity-30 mb-2 text-right">
                 Patient
               </p>
-              <div className="px-6 py-4 rounded-3xl border border-[#1E293B]/10 text-[#1E293B] font-light italic">
+              <div className="px-5 sm:px-6 py-3 sm:py-4 rounded-2xl sm:rounded-3xl border border-[#1E293B]/10 text-[#1E293B] font-light italic text-sm sm:text-base">
                 "Persistent headache and sensitivity to light."
               </div>
             </div>
 
             {/* Minimal Bubble 2 */}
-            <div className="self-start max-w-[80%]">
+            <div className="self-start max-w-[90%] sm:max-w-[80%]">
               <p className="text-[10px] tracking-widest uppercase text-[#0F766E] mb-2">
                 Assistant
               </p>
-              <div className="px-6 py-4 rounded-3xl bg-[#1E293B] text-[#F0FDFA] font-light">
+              <div className="px-5 sm:px-6 py-4 sm:py-5 rounded-2xl sm:rounded-3xl bg-[#1E293B] text-[#F0FDFA] font-light text-sm sm:text-base shadow-xl shadow-[#1E293B]/10">
                 This suggests a visit to a{" "}
                 <strong className="font-normal text-[#0F766E]">
                   Neurologist
@@ -93,7 +93,7 @@ const AiAssistantSection = () => {
             </div>
 
             {/* Subtle Input Indicator */}
-            <div className="mt-4 flex items-center justify-between px-2 opacity-30 border-b border-[#1E293B]/10 pb-4 italic font-light text-sm">
+            <div className="mt-2 text-[#1E293B] flex items-center justify-between px-2 opacity-30 border-b border-[#1E293B]/10 pb-4 italic font-light text-xs sm:text-sm">
               <span>Type your symptoms...</span>
               <div className="w-2 h-2 rounded-full bg-[#0F766E] animate-pulse" />
             </div>

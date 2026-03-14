@@ -80,12 +80,12 @@ const HeroSection = () => {
       />
 
       <div className="container mx-auto px-6 sm:px-10 md:px-16 lg:px-12 relative z-10">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-4 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-4 items-center">
           {/* LEFT: CONTENT AREA */}
-          <div className="lg:col-span-7 xl:col-span-8 order-2 lg:order-1">
+          <div className="lg:col-span-7 xl:col-span-8 order-2 lg:order-1 pt-4 md:pt-0">
 
             {/* Oversized Responsive Typography */}
-            <h1 className="text-[12vw] sm:text-[10vw] lg:text-[8vw] xl:text-[8.5rem] leading-[0.85] tracking-[-0.04em] font-light uppercase">
+            <h1 className="text-[14vw] sm:text-[12vw] lg:text-[8vw] xl:text-[8.5rem] leading-[0.85] tracking-[-0.04em] font-light uppercase">
               <div className="overflow-hidden">
                 <span className="line-reveal inline-block">Better</span>
               </div>
@@ -99,33 +99,33 @@ const HeroSection = () => {
               </div>
             </h1>
 
-            <div className="mt-10 lg:mt-16 grid grid-cols-1 md:grid-cols-2 gap-10 lg:gap-12 items-end">
-              <p className="fade-up text-base sm:text-lg lg:text-xl font-light leading-relaxed opacity-70 max-w-sm lg:max-w-none">
+            <div className="mt-8 sm:mt-10 lg:mt-16 grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 items-end">
+              <p className="fade-up text-sm sm:text-base lg:text-xl font-light leading-relaxed opacity-70 max-w-sm lg:max-w-none">
                 A multi-tenant clinic management platform that connects patients
                 with trusted doctors. Book appointments, consult via video, and
                 manage your health—all in one place.
               </p>
 
-              <div className="fade-up flex flex-col sm:flex-row lg:flex-col gap-8 sm:items-center lg:items-start">
+              <div className="fade-up flex flex-col xs:flex-row md:flex-col lg:flex-col gap-6 sm:gap-8 sm:items-center md:items-start lg:items-start">
                 <button
                   onClick={() => navigate("/clinics")}
-                  className="group relative inline-flex items-center justify-between bg-[#0F766E] text-white px-8 py-5 lg:py-6 w-full sm:w-64 rounded-xl transition-transform active:scale-95 hover:bg-[#0F766E]/90 duration-500"
+                  className="group relative inline-flex items-center justify-between bg-[#0F766E] text-white px-6 sm:px-8 py-4 sm:py-5 lg:py-6 w-full xs:w-64 rounded-xl transition-transform active:scale-95 hover:bg-[#0F766E]/90 duration-500"
                 >
-                  <span className="text-[9px] lg:text-[10px] tracking-[0.3em] uppercase font-bold">
+                  <span className="text-[9px] lg:text-[10px] tracking-[0.3em] uppercase font-bold text-center w-full xs:w-auto">
                     Find a Clinic
                   </span>
                   <ArrowRight
                     size={16}
-                    className="group-hover:translate-x-2 transition-transform"
+                    className="hidden xs:block group-hover:translate-x-2 transition-transform"
                   />
                 </button>
 
                 <div className="flex items-center gap-4 lg:gap-8 lg:px-2">
-                  <div className="flex -space-x-3">
+                  <div className="flex -space-x-2 sm:-space-x-3">
                     {[1, 2, 3].map((i) => (
                       <div
                         key={i}
-                        className="w-8 h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-[#0F766E]/10"
+                        className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 rounded-full border-2 border-white bg-[#0F766E]/20"
                       />
                     ))}
                   </div>

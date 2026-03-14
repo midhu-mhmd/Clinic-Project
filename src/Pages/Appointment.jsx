@@ -358,38 +358,38 @@ const AppointmentPage = () => {
   return (
     <div
       ref={containerRef}
-      className="bg-[#F0FDFA] text-[#1E293B] min-h-screen selection:bg-[#0F766E] selection:text-white pt-20"
+      className="bg-[#F0FDFA] text-[#1E293B] min-h-screen selection:bg-[#0F766E] selection:text-white pt-16 md:pt-20"
     >
       {/* Step Progress Bar */}
-      <div className="bg-white/80 backdrop-blur-sm border-b border-[#0F766E]/10 px-8 lg:px-16 py-6 flex justify-between items-center">
-        <div className="flex gap-2">
+      <div className="bg-white/80 backdrop-blur-sm border-b border-[#0F766E]/10 px-4 md:px-8 lg:px-16 py-4 md:py-6 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-0">
+        <div className="flex gap-1.5 md:gap-2">
           {[1, 2, 3, 4, 5, 6].map((s) => (
             <div
               key={s}
-              className={`w-10 h-1.5 rounded-full transition-all duration-500 ${step >= s ? "bg-[#0F766E]" : "bg-[#0F766E]/10"
+              className={`w-8 md:w-10 h-1 md:h-1.5 rounded-full transition-all duration-500 ${step >= s ? "bg-[#0F766E]" : "bg-[#0F766E]/10"
                 }`}
             />
           ))}
         </div>
         <button
           onClick={() => navigate(-1)}
-          className="text-xs font-semibold tracking-wide uppercase flex items-center gap-2 text-slate-500 hover:text-red-500 transition-colors"
+          className="text-[10px] md:text-xs font-semibold tracking-wide uppercase flex items-center gap-2 text-slate-500 hover:text-red-500 transition-colors"
         >
           <ArrowLeft size={14} /> Cancel Booking
         </button>
       </div>
 
-      <main className="pb-24 px-8 lg:px-16 pt-12 grid grid-cols-1 lg:grid-cols-12 gap-16">
+      <main className="pb-16 md:pb-24 px-4 md:px-8 lg:px-16 pt-8 md:pt-12 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-16">
         <div className="lg:col-span-7 step-anim">
           {/* STEP 1 */}
           {step === 1 && (
-            <section className="space-y-10">
+            <section className="space-y-8 md:space-y-10">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 1 of 5</p>
-                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                <p className="text-[10px] md:text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-1.5 md:mb-2">Step 1 of 5</p>
+                <h2 className="text-3xl md:text-4xl font-light tracking-tight text-[#1E293B]">
                   Choose Your <span className="italic font-serif text-[#0F766E]">Clinic</span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-2">Select the healthcare facility where you'd like to be seen.</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1.5 md:mt-2">Select the healthcare facility where you'd like to be seen.</p>
               </div>
 
               <div className="grid gap-3">
@@ -429,19 +429,19 @@ const AppointmentPage = () => {
 
           {/* STEP 2 */}
           {step === 2 && (
-            <section className="space-y-10">
+            <section className="space-y-8 md:space-y-10">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 2 of 5</p>
-                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                <p className="text-[10px] md:text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-1.5 md:mb-2">Step 2 of 5</p>
+                <h2 className="text-3xl md:text-4xl font-light tracking-tight text-[#1E293B]">
                   Select Your <span className="italic font-serif text-[#0F766E]">Doctor</span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-2">Choose a physician based on their specialty and availability.</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1.5 md:mt-2">Choose a physician based on their specialty and availability.</p>
               </div>
 
               {isLoading.doctors ? (
                 <div className="flex items-center gap-3 text-slate-400"><Loader2 className="animate-spin" size={20} /> <span className="text-sm">Loading physicians...</span></div>
               ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-4">
                   {data.doctors.map((d) => {
                     const active = normalizeId(selection.doctor) === normalizeId(d);
                     return (
@@ -478,16 +478,16 @@ const AppointmentPage = () => {
 
           {/* STEP 3 — Consultation Type */}
           {step === 3 && (
-            <section className="space-y-10">
+            <section className="space-y-8 md:space-y-10">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 3 of 5</p>
-                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                <p className="text-[10px] md:text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-1.5 md:mb-2">Step 3 of 5</p>
+                <h2 className="text-3xl md:text-4xl font-light tracking-tight text-[#1E293B]">
                   Visit <span className="italic font-serif text-[#0F766E]">Type</span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-2">How would you like to see your doctor?</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1.5 md:mt-2">How would you like to see your doctor?</p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {consultationTypes.map((ct) => {
                   const active = selection.consultationType === ct.id;
                   return (
@@ -521,25 +521,25 @@ const AppointmentPage = () => {
 
           {/* STEP 4 — Date & Slot */}
           {step === 4 && (
-            <section className="space-y-10">
+            <section className="space-y-8 md:space-y-10">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 4 of 5</p>
-                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                <p className="text-[10px] md:text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-1.5 md:mb-2">Step 4 of 5</p>
+                <h2 className="text-3xl md:text-4xl font-light tracking-tight text-[#1E293B]">
                   Preferred <span className="italic font-serif text-[#0F766E]">Date & Time</span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-2">Pick a date and available time slot for your appointment.</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1.5 md:mt-2">Pick a date and available time slot for your appointment.</p>
               </div>
 
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2"><Calendar size={14} /> Select Date</p>
-                <div className="grid grid-cols-7 gap-2">
+                <div className="flex overflow-x-auto snap-x snap-mandatory gap-2 md:grid md:grid-cols-7 md:gap-2 pb-2 md:pb-0 scrollbar-hide">
                   {weekDays.map((d) => {
                     const active = selection.date?.fullDate === d.fullDate;
                     return (
                       <button
                         key={d.fullDate}
                         onClick={() => setSelection((prev) => ({ ...prev, date: d, slot: null }))}
-                        className={`p-4 rounded-xl border-2 text-center transition-all ${active
+                        className={`p-4 rounded-xl border-2 text-center transition-all flex-none snap-center min-w-[72px] md:min-w-0 ${active
                             ? "bg-[#0F766E] text-white border-[#0F766E] shadow-sm"
                             : "border-slate-200 hover:border-[#0F766E]/30"
                           }`}
@@ -556,7 +556,7 @@ const AppointmentPage = () => {
 
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-3 flex items-center gap-2"><Clock size={14} /> Available Time Slots</p>
-                <div className="grid grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
                   {availableSlots.length === 0 ? (
                     <p className="col-span-3 text-sm text-slate-400 py-4">
                       No available slots for this date. Please select another day.
@@ -586,16 +586,16 @@ const AppointmentPage = () => {
 
           {/* STEP 5 — Patient Info */}
           {step === 5 && (
-            <section className="space-y-10">
+            <section className="space-y-8 md:space-y-10">
               <div>
-                <p className="text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-2">Step 5 of 5</p>
-                <h2 className="text-4xl font-light tracking-tight text-[#1E293B]">
+                <p className="text-[10px] md:text-xs font-semibold tracking-wide text-[#0F766E] uppercase mb-1.5 md:mb-2">Step 5 of 5</p>
+                <h2 className="text-3xl md:text-4xl font-light tracking-tight text-[#1E293B]">
                   Patient <span className="italic font-serif text-[#0F766E]">Information</span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-2">Please provide your details so the clinic can prepare for your visit.</p>
+                <p className="text-xs md:text-sm text-slate-500 mt-1.5 md:mt-2">Please provide your details so the clinic can prepare for your visit.</p>
               </div>
 
-              <div className="grid gap-5">
+              <div className="grid gap-4 md:gap-5">
                 <div>
                   <label className="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5 block">Full Name *</label>
                   <input
@@ -659,21 +659,21 @@ const AppointmentPage = () => {
 
           {/* STEP 6 — SUCCESS */}
           {step === 6 && (
-            <section className="text-center py-20 space-y-6">
-              <div className="w-20 h-20 bg-[#0F766E]/10 rounded-full flex items-center justify-center mx-auto text-[#0F766E]">
-                <CheckCircle2 size={40} />
+            <section className="text-center py-16 md:py-20 space-y-6">
+              <div className="w-16 h-16 md:w-20 md:h-20 bg-[#0F766E]/10 rounded-full flex items-center justify-center mx-auto text-[#0F766E]">
+                <CheckCircle2 size={32} className="md:w-10 md:h-10" />
               </div>
-              <h2 className="text-3xl font-light text-[#1E293B]">Appointment Confirmed</h2>
+              <h2 className="text-2xl md:text-3xl font-light text-[#1E293B]">Appointment Confirmed</h2>
               <p className="text-sm text-slate-500 max-w-md mx-auto">
                 {selection.consultationType === "video"
                   ? "Your telehealth consultation has been scheduled. You will receive a reminder with the meeting link before your appointment."
                   : "Your in-person appointment has been confirmed. Please arrive 10 minutes early with any relevant medical records."}
               </p>
 
-              <div className="flex items-center justify-center gap-4 mt-8">
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mt-8">
                 <button
                   onClick={() => navigate("/")}
-                  className="px-8 py-4 rounded-xl bg-[#1E293B] text-white text-xs font-semibold uppercase tracking-wide hover:bg-[#0F766E] transition-colors"
+                  className="w-full sm:w-auto px-6 md:px-8 py-3.5 md:py-4 rounded-xl bg-[#1E293B] text-white text-[10px] md:text-xs font-semibold uppercase tracking-wide hover:bg-[#0F766E] transition-colors"
                 >
                   Return Home
                 </button>
@@ -683,7 +683,7 @@ const AppointmentPage = () => {
                       const token = createdAppointment.meetingLink.split("/consultation/")[1];
                       if (token) navigate(`/consultation/${token}`);
                     }}
-                    className="px-8 py-4 rounded-xl bg-[#0F766E] text-white text-xs font-semibold uppercase tracking-wide flex items-center gap-3 hover:bg-[#0F766E]/80 transition-colors"
+                    className="w-full sm:w-auto px-6 md:px-8 py-3.5 md:py-4 rounded-xl bg-[#0F766E] text-white text-[10px] md:text-xs font-semibold uppercase tracking-wide flex items-center justify-center gap-2 md:gap-3 hover:bg-[#0F766E]/80 transition-colors"
                   >
                     <Video size={14} />
                     Join Video Consultation
@@ -694,11 +694,11 @@ const AppointmentPage = () => {
           )}
 
           {step < 6 && (
-            <div className="mt-10 flex items-center gap-6">
+            <div className="mt-8 md:mt-10 flex flex-col sm:flex-row items-center gap-4 md:gap-6">
               <button
                 disabled={!canProceed || isLoading.submit}
                 onClick={() => (step === 5 ? handleSubmission() : setStep((s) => s + 1))}
-                className="px-10 py-4 rounded-xl bg-[#0F766E] text-white text-xs font-semibold uppercase tracking-wide hover:bg-[#0F766E]/90 transition-all disabled:opacity-30 flex items-center gap-2 shadow-sm"
+                className="w-full sm:w-auto px-8 md:px-10 py-3.5 md:py-4 rounded-xl bg-[#0F766E] text-white text-[10px] md:text-xs font-semibold uppercase tracking-wide hover:bg-[#0F766E]/90 transition-all disabled:opacity-30 flex justify-center items-center gap-2 shadow-sm"
               >
                 {isLoading.submit ? (
                   <Loader2 className="animate-spin" size={14} />
@@ -720,8 +720,8 @@ const AppointmentPage = () => {
         </div>
 
         {/* SIDEBAR — Appointment Summary */}
-        <aside className="lg:col-span-5 h-fit sticky top-40 bg-white rounded-2xl border border-slate-200 p-8 space-y-6 shadow-sm">
-          <p className="text-xs font-semibold text-[#0F766E] uppercase tracking-wide">Appointment Summary</p>
+        <aside className="lg:col-span-5 h-fit sticky top-24 lg:top-40 bg-white rounded-2xl border border-slate-200 p-6 md:p-8 space-y-6 shadow-sm order-first lg:order-last mb-8 lg:mb-0">
+          <p className="text-[10px] md:text-xs font-semibold text-[#0F766E] uppercase tracking-wide">Appointment Summary</p>
 
           <div className="flex items-center gap-4">
             <div className="w-14 h-14 bg-[#0F766E]/5 rounded-xl flex items-center justify-center overflow-hidden">

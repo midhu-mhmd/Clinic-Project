@@ -24,7 +24,7 @@ import {
 } from "recharts";
 
 // --- API CONFIGURATION ---
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000/api";
+const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
 
 const api = axios.create({
   baseURL: API_BASE,
@@ -81,7 +81,7 @@ const SuperAdminDashboard = () => {
     setLoading(true);
     setError(""); // Clear previous errors
     try {
-      const response = await api.get("/admin/stats", { signal });
+      const response = await api.get("/api/admin/stats", { signal });
       const payload = response.data?.data;
       
       if (response.data?.success === false) {

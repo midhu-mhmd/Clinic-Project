@@ -54,15 +54,15 @@ const HowItWorks = () => {
   ];
 
   return (
-    <section ref={containerRef} className="relative w-full py-40 bg-[#F0FDFA]">
-      <div className="max-w-7xl mx-auto px-8">
+    <section ref={containerRef} className="relative w-full py-20 sm:py-32 lg:py-40 bg-[#F0FDFA]">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-8">
         {/* MINIMAL HEADER */}
-        <div className="mb-32">
+        <div className="mb-20 sm:mb-32">
           <p className="text-[10px] tracking-[0.5em] text-[#0F766E] uppercase font-bold mb-6">
             How It Works
           </p>
-          <h2 className="text-[clamp(2.5rem,5.5vw,4.5rem)] font-light leading-none text-[#1E293B] tracking-tighter">
-            Your path to care, <br />
+          <h2 className="text-[clamp(2.2rem,5.5vw,4.5rem)] font-light leading-none text-[#1E293B] tracking-tighter">
+            Your path to care, <br className="hidden sm:block" />
             <span className="italic font-serif text-[#0F766E]">
               in three simple steps.
             </span>
@@ -70,7 +70,7 @@ const HowItWorks = () => {
         </div>
 
         {/* STAGGERED EXHIBITS */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-12 lg:gap-24 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-16 md:gap-12 lg:gap-24 items-start">
           {steps.map((step, i) => (
             <div
               key={i}
@@ -78,24 +78,24 @@ const HowItWorks = () => {
               className={`flex flex-col ${step.offset ? "md:mt-32" : ""}`}
             >
               {/* Image Container with Minimalist Frame */}
-              <div className="relative group aspect-9/12 mb-10 overflow-hidden bg-white border border-[#0F766E]/10 rounded-4xl transition-all duration-700 hover:border-[#0F766E]/30">
+              <div className="relative group aspect-9/12 mb-8 sm:mb-10 overflow-hidden bg-white border border-[#0F766E]/10 rounded-3xl sm:rounded-4xl transition-all duration-700 hover:border-[#0F766E]/30">
                 <img
                   src={step.img}
                   alt={step.title}
                   className="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-1000"
                 />
                 {/* Overlay Number */}
-                <div className="absolute top-8 left-8 text-[10px] font-mono text-[#1E293B]/40 tracking-widest uppercase">
+                <div className="absolute top-6 left-6 sm:top-8 sm:left-8 text-[9px] sm:text-[10px] font-mono text-[#1E293B]/40 tracking-widest uppercase">
                   Step {step.num}
                 </div>
               </div>
 
               {/* Text Detail */}
               <div className="px-2">
-                <h3 className="text-2xl font-light text-[#1E293B] mb-4 tracking-tight">
+                <h3 className="text-xl sm:text-2xl font-light text-[#1E293B] mb-3 sm:mb-4 tracking-tight">
                   {step.title}
                 </h3>
-                <p className="text-sm text-[#1E293B]/50 font-light leading-relaxed">
+                <p className="text-sm text-[#1E293B]/50 font-light leading-relaxed max-w-sm sm:max-w-none">
                   {step.desc}
                 </p>
 

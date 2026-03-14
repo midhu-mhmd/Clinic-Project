@@ -65,34 +65,34 @@ const WhyPatientsLoveUs = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="w-full py-32 bg-[#F0FDFA]">
-      <div className="max-w-7xl mx-auto px-8">
+    <section ref={sectionRef} className="w-full py-20 sm:py-32 bg-[#F0FDFA]">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-8">
         
         {/* HEADER */}
-        <div className="reveal-header border-b border-[#1E293B]/10 pb-16 mb-16 flex flex-col md:flex-row justify-between items-end gap-8">
+        <div className="reveal-header border-b border-[#1E293B]/10 pb-12 sm:pb-16 mb-12 sm:mb-16 flex flex-col md:flex-row justify-between items-start md:items-end gap-8">
           <div className="max-w-xl">
             <p className="text-[10px] tracking-[0.5em] uppercase text-[#0F766E] font-bold mb-4">
               Why Choose Us
             </p>
-            <h2 className="text-[clamp(2.5rem,5vw,4rem)] font-light leading-none text-[#1E293B] tracking-tighter">
-              Patient-centred care, <br />
+            <h2 className="text-[clamp(2.2rem,5vw,4rem)] font-light leading-tight sm:leading-none text-[#1E293B] tracking-tighter">
+              Patient-centred care, <br className="hidden sm:block" />
               <span className="italic font-serif text-[#0F766E]">every step of the way.</span>
             </h2>
           </div>
-          <p className="max-w-xs text-sm text-[#1E293B]/60 leading-relaxed font-light">
+          <p className="max-w-xs text-sm text-[#1E293B]/60 leading-relaxed font-light mt-4 md:mt-0">
             We combine trusted medical expertise with modern technology to make your healthcare journey seamless.
           </p>
         </div>
 
         {/* MINIMAL GRID */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-0 border-l border-[#1E293B]/5">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-0 border-l border-t border-[#1E293B]/5 sm:border-t-0">
           {features.map((item, index) => (
             <div
               key={index}
               ref={(el) => (cardsRef.current[index] = el)}
-              className="group relative p-10 border-r border-b border-[#1E293B]/5 hover:bg-[#0F766E]/5 transition-colors duration-700"
+              className="group relative p-8 sm:p-10 border-r border-b border-[#1E293B]/5 hover:bg-[#0F766E]/5 transition-colors duration-700"
             >
-              <span className="text-[10px] font-mono opacity-30 block mb-12">
+              <span className="text-[10px] font-mono opacity-30 block mb-8 sm:mb-12">
                 [{item.number}]
               </span>
 

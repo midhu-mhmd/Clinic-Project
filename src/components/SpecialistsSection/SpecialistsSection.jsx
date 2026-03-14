@@ -35,15 +35,15 @@ const SpecialistsSection = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="py-32 bg-[#F0FDFA] border-t border-[#1E293B]/5">
-      <div className="max-w-7xl mx-auto px-8">
+    <section ref={sectionRef} className="py-20 sm:py-32 bg-[#F0FDFA] border-t border-[#1E293B]/5">
+      <div className="max-w-7xl mx-auto px-6 sm:px-10 lg:px-8">
         
         {/* HEADER: Minimal & Bold */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-24 gap-8">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-16 sm:mb-24 gap-8">
           <div className="reveal-item">
-            <p className="text-[10px] tracking-[0.5em] text-[#0F766E] uppercase font-bold mb-6">Our Doctors</p>
-            <h2 className="text-[clamp(2.5rem,6vw,5rem)] font-light leading-[0.9] text-[#1E293B] tracking-tighter">
-              Experienced <br />
+            <p className="text-[10px] tracking-[0.5em] text-[#0F766E] uppercase font-bold mb-4 sm:mb-6">Our Doctors</p>
+            <h2 className="text-[clamp(2.2rem,6vw,5rem)] font-light leading-[1] sm:leading-[0.9] text-[#1E293B] tracking-tighter">
+              Experienced <br className="hidden sm:block" />
               <span className="italic font-serif text-[#0F766E]">medical professionals.</span>
             </h2>
           </div>
@@ -58,11 +58,11 @@ const SpecialistsSection = () => {
         </div>
 
         {/* GRID: High-End Photography Style */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-16">
+        <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 sm:gap-y-16">
           {specialists.map((doc, index) => (
             <div key={index} className="reveal-item group cursor-pointer">
               {/* Image with subtle reveal */}
-              <div className="relative aspect-3/4 overflow-hidden mb-6 bg-[#1E293B]/5">
+              <div className="relative aspect-3/4 overflow-hidden mb-6 bg-[#1E293B]/5 rounded-xl">
                 <img 
                   src={doc.image} 
                   alt={doc.name}
@@ -72,16 +72,16 @@ const SpecialistsSection = () => {
               </div>
 
               {/* Minimalist Info */}
-              <div className="border-l border-[#1E293B]/10 pl-4 py-1">
-                <h3 className="text-xl font-light text-[#1E293B] tracking-tight group-hover:text-[#0F766E] transition-colors duration-500">
+              <div className="border-l border-[#0F766E]/20 pl-4 py-1">
+                <h3 className="text-xl font-light text-[#1E293B] tracking-tight group-hover:text-[#0F766E] transition-colors duration-500 line-clamp-1">
                   {doc.name}
                 </h3>
-                <div className="flex items-center gap-3 mt-2">
-                  <span className="text-[9px] tracking-[0.2em] uppercase text-[#1E293B]/40 font-bold">
+                <div className="flex flex-wrap items-center gap-2 mt-2">
+                  <span className="text-[9px] tracking-[0.2em] uppercase text-[#1E293B]/40 font-bold whitespace-nowrap">
                     {doc.role}
                   </span>
                   <div className="w-1 h-1 rounded-full bg-[#0F766E]/40" />
-                  <span className="text-[9px] tracking-[0.2em] uppercase text-[#0F766E] font-bold">
+                  <span className="text-[9px] tracking-[0.2em] uppercase text-[#0F766E] font-bold whitespace-nowrap">
                     Practitioner
                   </span>
                 </div>

@@ -440,47 +440,47 @@ const SupportTickets = () => {
 
   // ──── TICKET LIST ────
   return (
-    <div ref={containerRef} className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-32 pb-20 px-6">
+    <div ref={containerRef} className="min-h-screen bg-[#F0FDFA] text-[#1E293B] pt-24 sm:pt-32 pb-20 px-4 sm:px-6">
       <div className="max-w-4xl mx-auto">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12 sm:mb-16">
+          <div className="w-full md:w-auto">
             <button
-              onClick={() => navigate(-1)}
+              onClick={() => navigate("/")}
               className="group flex items-center gap-2 text-[10px] uppercase tracking-[0.3em] font-bold text-[#1E293B]/40 hover:text-[#1E293B] transition-all mb-6"
             >
               <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
-              Back
+              Back Home
             </button>
-            <h1 className="text-5xl font-light tracking-tighter uppercase leading-none">
+            <h1 className="text-4xl sm:text-5xl font-light tracking-tighter uppercase leading-none">
               Support <span className="italic font-serif text-[#0F766E]">Tickets</span>
             </h1>
-            <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/30 font-bold mt-3">
-              {tickets.length} tickets
+            <p className="text-[9px] sm:text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/30 font-bold mt-4">
+              Manage your technical & medical queries
             </p>
           </div>
           <button
             onClick={() => setShowCreate(true)}
-            className="flex items-center gap-2 px-8 py-4 bg-[#1E293B] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-full hover:bg-[#0F766E] transition-all duration-500 shadow-lg"
+            className="w-full md:w-auto flex items-center justify-center gap-3 px-8 py-5 sm:py-4 bg-[#1E293B] text-white text-[10px] uppercase tracking-[0.3em] font-bold rounded-2xl md:rounded-full hover:bg-[#0F766E] transition-all duration-500 shadow-xl shadow-[#1E293B]/10"
           >
             <Plus size={14} /> New Ticket
           </button>
         </div>
 
-        {/* Filter */}
-        <div className="flex items-center gap-2 mb-8">
-          <Filter size={12} className="text-[#1E293B]/20" />
+        {/* Filter - Scrollable on Mobile */}
+        <div className="flex items-center gap-3 mb-10 overflow-x-auto pb-4 no-scrollbar border-b border-[#1E293B]/5 sm:border-none">
+          <Filter size={12} className="text-[#1E293B]/20 shrink-0" />
           {["", "OPEN", "IN_PROGRESS", "AWAITING_REPLY", "RESOLVED", "CLOSED"].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`px-4 py-2 text-[9px] uppercase tracking-[0.2em] font-bold transition-all ${
+              className={`whitespace-nowrap px-4 py-2 sm:py-2.5 text-[8px] sm:text-[9px] uppercase tracking-[0.2em] font-bold transition-all border sm:border-none rounded-full sm:rounded-none ${
                 statusFilter === s
-                  ? "bg-[#1E293B] text-white"
-                  : "text-[#1E293B]/30 hover:text-[#1E293B]"
+                  ? "bg-[#1E293B] text-white border-[#1E293B]"
+                  : "text-[#1E293B]/30 hover:text-[#1E293B] border-transparent"
               }`}
             >
-              {s ? (STATUS_STYLES[s]?.label || s) : "All"}
+              {s ? (STATUS_STYLES[s]?.label || s) : "All Status"}
             </button>
           ))}
         </div>

@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Command, ChevronLeft, ChevronRight, Building2, MoreHorizontal, Calendar, Plus, Filter } from "lucide-react";
 import TenantProfileModal from "../../components/adminDashboard/TenantProfileModal";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
 
 const TenantsPage = () => {
   const [clinics, setClinics] = useState([]);
@@ -33,7 +33,7 @@ const TenantsPage = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const { data } = await axios.get(`${API_BASE_URL}/admin/tenants`, {
+        const { data } = await axios.get(`${API_BASE_URL}/api/admin/tenants`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         // Ensure we handle different backend response shapes

@@ -38,39 +38,39 @@ const TrustShowcase = () => {
   }, []);
 
   return (
-    <section ref={sectionRef} className="bg-[#F0FDFA] py-40 px-8 overflow-hidden">
-      <div className="max-w-350 mx-auto">
+    <section ref={sectionRef} className="bg-[#F0FDFA] py-20 sm:py-32 lg:py-40 px-6 sm:px-10 lg:px-8 overflow-hidden">
+      <div className="max-w-7xl mx-auto">
         
         {/* MINIMALIST HEADER */}
-        <div className="flex flex-col lg:flex-row justify-between items-end mb-24 border-b border-[#1E293B]/10 pb-16">
+        <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-16 sm:mb-24 border-b border-[#1E293B]/10 pb-12 sm:pb-16 gap-8">
           <div className="overflow-hidden">
-            <h2 className="reveal-up text-[clamp(3rem,8vw,7rem)] leading-[0.85] font-light tracking-tighter text-[#1E293B]">
-              Your data, <br />
+            <h2 className="reveal-up text-[clamp(2.5rem,8vw,6.5rem)] leading-[1] lg:leading-[0.85] font-light tracking-tighter text-[#1E293B]">
+              Your data, <br className="hidden sm:block" />
               <span className="italic font-serif text-[#0F766E]">fully protected.</span>
             </h2>
           </div>
-          <div className="max-w-[320px] mt-12 lg:mt-0">
+          <div className="max-w-[400px] lg:max-w-[320px] mt-4 lg:mt-0">
             <p className="text-[10px] uppercase tracking-[0.4em] text-[#0F766E] font-bold mb-4">
               Security & Compliance
             </p>
-            <p className="text-sm text-[#1E293B]/60 leading-relaxed font-light italic">
+            <p className="text-sm sm:text-base lg:text-sm text-[#1E293B]/60 leading-relaxed font-light italic">
               "Your medical records are encrypted end-to-end. Only you and your authorised physician hold the decryption keys."
             </p>
           </div>
         </div>
 
         {/* REFINED BENTO GRID */}
-        <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-[#1E293B]/10 border border-[#1E293B]/10 rounded-xl overflow-hidden">
+        <div ref={gridRef} className="grid grid-cols-1 lg:grid-cols-12 gap-px bg-[#1E293B]/10 border border-[#1E293B]/10 rounded-2xl overflow-hidden shadow-2xl shadow-[#1E293B]/5">
           
           {/* Main Visual: Clinical Precision */}
-          <div className="lg:col-span-7 bg-[#F0FDFA] p-12 group cursor-none">
-            <div className="flex justify-between items-start mb-20">
+          <div className="lg:col-span-7 bg-[#F0FDFA] p-8 sm:p-12 group cursor-none">
+            <div className="flex justify-between items-start mb-12 sm:mb-20">
               <span className="text-[9px] font-mono opacity-40 uppercase tracking-[0.3em]">Data Protection</span>
               <div className="w-8 h-8 rounded-full border border-[#1E293B]/10 flex items-center justify-center group-hover:bg-[#0F766E] group-hover:text-white transition-all duration-500">
                 <Plus size={14} />
               </div>
             </div>
-            <div className="aspect-16/10 overflow-hidden grayscale hover:grayscale-0 transition-all duration-1000">
+            <div className="aspect-16/10 overflow-hidden grayscale hover:grayscale-0 transition-all duration-1000 rounded-lg sm:rounded-xl">
               <img 
                 src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?q=80&w=1200" 
                 alt="Clinical UI" 
@@ -80,13 +80,13 @@ const TrustShowcase = () => {
           </div>
 
           {/* Feature: Encryption (Dark Mode Contrast) */}
-          <div className="lg:col-span-5 bg-[#1E293B] text-white p-12 flex flex-col justify-between group">
+          <div className="lg:col-span-5 bg-[#1E293B] text-white p-8 sm:p-12 flex flex-col justify-between group min-h-[300px] lg:min-h-auto">
             <div className="flex justify-between items-start">
               <Shield size={24} strokeWidth={1} className="text-[#0F766E]" />
               <ArrowUpRight size={20} className="opacity-40 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
             </div>
-            <div>
-              <h3 className="text-4xl font-light tracking-tighter mb-6">End-to-End Encryption</h3>
+            <div className="mt-12 lg:mt-0">
+              <h3 className="text-3xl sm:text-4xl font-light tracking-tighter mb-4 sm:mb-6">End-to-End Encryption</h3>
               <p className="text-sm opacity-50 leading-relaxed font-light max-w-sm">
                 Industry-standard encryption ensures medical records remain confidential. Only the patient and their attending physician have access.
               </p>
@@ -94,16 +94,16 @@ const TrustShowcase = () => {
           </div>
 
           {/* Metrics Block */}
-          <div className="lg:col-span-12 bg-[#F0FDFA] p-16">
-            <div className="grid grid-cols-2 lg:grid-cols-4 gap-12">
+          <div className="lg:col-span-12 bg-[#F0FDFA] p-10 sm:p-16">
+            <div className="grid grid-cols-1 xs:grid-cols-2 lg:grid-cols-4 gap-10 sm:gap-12">
               {[
                 { val: "256-bit", lab: "AES Encryption" },
                 { val: "99.99%", lab: "Platform Uptime" },
                 { val: "HIPAA", lab: "Compliant" },
                 { val: "ISO 27001", lab: "Certified" }
               ].map((stat, i) => (
-                <div key={i} className="border-l border-[#1E293B]/10 pl-8">
-                  <h4 className="text-4xl font-light tracking-tighter text-[#1E293B] mb-2">{stat.val}</h4>
+                <div key={i} className="border-l border-[#0F766E]/20 pl-6 sm:pl-8">
+                  <h4 className="text-3xl sm:text-4xl font-light tracking-tighter text-[#1E293B] mb-1 sm:mb-2">{stat.val}</h4>
                   <p className="text-[9px] uppercase tracking-[0.3em] text-[#0F766E] font-bold">{stat.lab}</p>
                 </div>
               ))}

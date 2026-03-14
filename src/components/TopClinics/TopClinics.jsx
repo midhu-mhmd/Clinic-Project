@@ -81,18 +81,18 @@ function TopClinics() {
   return (
     <section
       ref={containerRef}
-      className="min-h-[150vh] bg-transparent overflow-hidden"
+      className="min-h-[120vh] sm:min-h-[150vh] bg-transparent overflow-hidden"
     >
       <div className="h-screen flex flex-col justify-center relative">
         {/* Header Section */}
-        <div className="px-8 sm:px-20 mb-12 relative z-10">
+        <div className="px-6 sm:px-20 mb-10 sm:mb-12 relative z-10">
           <div className="flex items-center gap-3 mb-4">
             <span className="w-8 h-px bg-[#0F766E]"></span>
             <span className="text-[10px] tracking-[0.5em] text-[#0F766E] uppercase font-bold">
               Top-Rated Clinics
             </span>
           </div>
-          <h2 className="text-5xl lg:text-7xl font-light text-[#1E293B] tracking-tighter leading-none">
+          <h2 className="text-4xl sm:text-5xl lg:text-7xl font-light text-[#1E293B] tracking-tighter leading-none">
             Trusted <span className="italic font-serif">Healthcare Providers</span>.
           </h2>
         </div>
@@ -100,22 +100,22 @@ function TopClinics() {
         {/* The Horizontal Track */}
         <div
           ref={scrollRef}
-          className="flex gap-12 px-8 sm:px-20 w-fit items-center"
+          className="flex gap-8 sm:gap-12 px-6 sm:px-20 w-fit items-center"
         >
           {loading ? (
-            <div className="flex gap-12">
+            <div className="flex gap-8 sm:gap-12">
               {[1, 2, 3].map((i) => (
-                <div key={i} className="w-[85vw] md:w-[400px] h-[500px] bg-neutral-100 animate-pulse border border-neutral-200" />
+                <div key={i} className="w-[85vw] sm:w-[400px] h-[450px] sm:h-[500px] bg-neutral-100 animate-pulse border border-neutral-200 rounded-xl" />
               ))}
             </div>
           ) : (
             clinics.map((clinic) => (
               <article
                 key={clinic.id}
-                className="clinic-card group relative shrink-0 w-[85vw] md:w-[400px] bg-white border border-neutral-100 p-6 transition-all duration-500 hover:border-[#0F766E]/30 rounded-xl"
+                className="clinic-card group relative shrink-0 w-[85vw] sm:w-[400px] bg-white border border-neutral-100 p-5 sm:p-6 transition-all duration-500 hover:border-[#0F766E]/30 rounded-xl shadow-lg shadow-neutral-100/50"
               >
                 {/* Image Section */}
-                <div className="relative aspect-[4/3] overflow-hidden mb-8 bg-neutral-100">
+                <div className="relative aspect-[4/3] overflow-hidden mb-6 sm:mb-8 bg-neutral-100 rounded-lg">
                   <img
                     src={clinic.img}
                     className="w-full h-full object-cover grayscale transition-all duration-700 group-hover:grayscale-0 group-hover:scale-105"
@@ -123,7 +123,7 @@ function TopClinics() {
                     onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?q=80&w=800" }}
                   />
 
-                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 flex items-center gap-1.5">
+                  <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1.5 flex items-center gap-1.5 rounded-full shadow-sm">
                     <Star size={12} className="fill-[#0F766E] text-[#0F766E]" />
                     <span className="text-[11px] font-medium text-[#1E293B]">
                       {clinic.rate}
@@ -132,25 +132,25 @@ function TopClinics() {
                 </div>
 
                 {/* Info Section */}
-                <div className="space-y-6">
+                <div className="space-y-5 sm:space-y-6">
                   <div>
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="text-2xl font-light text-[#1E293B] tracking-tight group-hover:text-[#0F766E] transition-colors line-clamp-1">
+                    <div className="flex justify-between items-start mb-2 gap-2">
+                      <h3 className="text-xl sm:text-2xl font-light text-[#1E293B] tracking-tight group-hover:text-[#0F766E] transition-colors line-clamp-1">
                         {clinic.name}
                       </h3>
-                      <div className="flex items-center gap-1 text-[#1E293B]/30">
+                      <div className="flex items-center gap-1 text-[#1E293B]/30 shrink-0">
                         <MapPin size={12} />
-                        <span className="text-[10px] uppercase tracking-widest">
-                          {clinic.location}
+                        <span className="text-[9px] uppercase tracking-widest font-bold">
+                          {clinic.location?.split(',')[0] || "Care"}
                         </span>
                       </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2 mt-4">
-                      {clinic.specialty.map((s, i) => (
+                      {(clinic.specialty || []).slice(0, 3).map((s, i) => (
                         <span
                           key={i}
-                          className="text-[9px] uppercase tracking-wider font-bold text-[#1E293B]/40 px-3 py-1 border border-neutral-100 rounded-full group-hover:border-[#0F766E]/20 transition-colors"
+                          className="text-[8px] sm:text-[9px] uppercase tracking-wider font-bold text-[#1E293B]/40 px-2.5 sm:px-3 py-1 border border-neutral-100 rounded-full group-hover:border-[#0F766E]/20 transition-colors"
                         >
                           {s}
                         </span>
@@ -160,7 +160,7 @@ function TopClinics() {
 
                   <button
                     onClick={() => navigate(`/clinic/${clinic.id}`)}
-                    className="w-full py-4 bg-transparent border border-[#1E293B]/10 text-[#1E293B] text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:bg-[#0F766E] hover:text-white rounded-xl"
+                    className="w-full py-3.5 sm:py-4 bg-transparent border border-[#1E293B]/10 text-[#1E293B] text-[9px] sm:text-[10px] uppercase tracking-[0.3em] font-bold transition-all duration-500 hover:bg-[#0F766E] hover:text-white rounded-xl"
                   >
                     Book Appointment
                   </button>
@@ -170,9 +170,9 @@ function TopClinics() {
           )}
 
           {!loading && (
-            <div className="shrink-0 px-20">
+            <div className="shrink-0 px-10 sm:px-20">
               <button onClick={() => navigate("/clinics")} className="text-left group">
-                <h4 className="text-4xl lg:text-6xl font-serif italic text-[#1E293B]/10 group-hover:text-[#0F766E] transition-all duration-700 leading-tight">
+                <h4 className="text-3xl sm:text-4xl lg:text-6xl font-serif italic text-[#1E293B]/10 group-hover:text-[#0F766E] transition-all duration-700 leading-tight">
                   See our full <br /> network.
                 </h4>
                 <div className="mt-8 flex items-center gap-4 text-[#1E293B]/40 group-hover:text-[#1E293B] transition-colors">

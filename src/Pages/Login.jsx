@@ -93,7 +93,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-[#F0FDFA] flex">
       {/* Sidebar Section */}
-      <div className="hidden lg:flex w-1/3 bg-[#1E293B] p-16 flex-col justify-between text-[#F0FDFA]">
+      <div className="hidden lg:flex lg:w-1/3 bg-[#1E293B] p-12 xl:p-16 flex-col justify-between text-[#F0FDFA]">
         <div className="space-y-6">
           <div className="w-12 h-12 border border-[#F0FDFA]/20 flex items-center justify-center">
             <Lock size={20} className="text-[#0F766E]" />
@@ -112,11 +112,11 @@ const Login = () => {
       </div>
 
       {/* Form Section */}
-      <div className="flex-1 flex items-center justify-center p-8 lg:p-24">
+      <div className="flex-1 flex items-center justify-center p-6 sm:p-8 md:p-16 lg:p-24 bg-white lg:bg-transparent rounded-t-3xl lg:rounded-none mt-16 lg:mt-0 shadow-[-10px_-10px_30px_rgba(0,0,0,0.02)] lg:shadow-none z-10 w-full relative">
         <div className="max-w-md w-full">
-          <header className="mb-16">
-            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#0F766E] mb-4 block">Patient Login</span>
-            <h1 className="text-5xl font-light tracking-tighter uppercase text-[#1E293B]">Sign In</h1>
+          <header className="mb-10 md:mb-16 text-center lg:text-left">
+            <span className="text-[10px] uppercase tracking-[0.5em] font-bold text-[#0F766E] mb-3 md:mb-4 block">Patient Login</span>
+            <h1 className="text-4xl md:text-5xl font-light tracking-tighter uppercase text-[#1E293B]">Sign In</h1>
           </header>
 
           <form onSubmit={handleSubmit} className="space-y-10">
@@ -149,19 +149,29 @@ const Login = () => {
             </button>
           </form>
 
-          <div className="mt-12 pt-12 border-t border-[#1E293B]/5 flex flex-col items-center gap-6">
-            <GoogleLogin
-              onSuccess={handleGoogleSuccess}
-              onError={() => setApiError("Google Sign-In Failed")}
-              theme="outline"
-              shape="square"
-              width="350"
-            />
-            <button onClick={() => navigate("/register")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100">
+          <div className="mt-10 md:mt-12 pt-10 md:pt-12 border-t border-[#1E293B]/5 flex flex-col items-center gap-6">
+            <div className="w-full flex justify-center [&>div]:w-full sm:[&>div]:w-[350px]">
+              <GoogleLogin
+                onSuccess={handleGoogleSuccess}
+                onError={() => setApiError("Google Sign-In Failed")}
+                theme="outline"
+                shape="square"
+                width="100%"
+              />
+            </div>
+            <button onClick={() => navigate("/register")} className="text-[10px] uppercase tracking-widest font-bold opacity-60 hover:opacity-100 mt-2">
               New patient? <span className="text-[#0F766E]">Join the platform</span>
             </button>
           </div>
         </div>
+      </div>
+
+      {/* Mobile Top Header (replaces sidebar) */}
+      <div className="lg:hidden absolute top-0 left-0 w-full p-6 flex items-center gap-3">
+         <div className="w-10 h-10 bg-[#1E293B] rounded-full flex items-center justify-center">
+            <Lock size={16} className="text-[#0F766E]" />
+         </div>
+         <span className="text-xs uppercase tracking-widest font-bold text-[#1E293B]">Patient Portal</span>
       </div>
     </div>
   );
