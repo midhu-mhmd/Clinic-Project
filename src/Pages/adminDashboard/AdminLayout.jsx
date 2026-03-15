@@ -51,7 +51,7 @@ const AdminLayout = () => {
         <div className="flex h-16 items-center px-6 border-b border-zinc-100">
           <div className="flex items-center gap-2">
             <div className="h-6 w-6 rounded-md bg-zinc-900"></div>
-            <span className="font-semibold tracking-tight text-lg">Nexus.</span>
+            <span className="font-semibold tracking-tight text-lg">Sovereign.</span>
           </div>
         </div>
 

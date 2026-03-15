@@ -12,7 +12,9 @@ const ForgotPassword = () => {
   const location = useLocation();
 
   // 'choice', 'user', or 'clinic'
-  const [view, setView] = useState(location.state?.role || "choice");
+  // If coming from tenant side, force 'clinic' view
+  const isTenantSide = location.state?.fromTenant === true || location.pathname === "/clinic-login";
+  const [view, setView] = useState(isTenantSide ? "clinic" : (location.state?.role || "choice"));
   const [email, setEmail] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState({ text: "", type: "" });
@@ -64,7 +66,12 @@ const ForgotPassword = () => {
   const accentBorder = isClinic ? "border-[#0F766E]" : "border-[#5B8EC2]";
 
   // --- VIEW 1: THE CHOICE SCREEN ---
+  // If forced to clinic view, skip the choice screen
   if (view === "choice") {
+    if (isTenantSide) {
+      setView("clinic");
+      return null;
+    }
     return (
       <div className="min-h-screen bg-[#F0FDFA] flex flex-col items-center justify-center p-8">
         <h2 className="text-[10px] tracking-[0.5em] text-gray-400 uppercase mb-4">Identity Verification</h2>
