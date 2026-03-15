@@ -178,7 +178,7 @@ const ClinicLogin = () => {
             <div className="flex justify-between items-center pt-2">
               <button
                 type="button"
-                onClick={() => navigate("/forgot-password", { state: { view: "clinic" } })}
+                onClick={() => navigate("/forgot-password", { state: { fromTenant: true } })}
                 className="text-[9px] tracking-widest text-gray-400 uppercase cursor-pointer hover:text-black transition-colors focus:outline-none"
               >
                 Reset Access Key?

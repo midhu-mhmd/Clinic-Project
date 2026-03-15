@@ -128,7 +128,7 @@ const Login = () => {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <label className="text-[9px] uppercase tracking-widest font-bold opacity-30">Password</label>
-                <button type="button" onClick={() => navigate("/forgot-password")} className="text-[9px] uppercase tracking-widest font-bold text-[#0F766E] hover:underline">Forgot?</button>
+                <button type="button" onClick={() => navigate("/forgot-password", { state: { role: "user" } })} className="text-[9px] uppercase tracking-widest font-bold text-[#0F766E] hover:underline">Forgot?</button>
               </div>
               <input type="password" id="password" value={formData.password} onChange={handleChange} placeholder="••••••••" className={inputClass} required />
             </div>
