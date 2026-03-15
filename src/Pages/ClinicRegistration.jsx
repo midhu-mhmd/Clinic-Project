@@ -113,7 +113,7 @@ const ClinicRegistration = () => {
       if (res.data.success) {
         localStorage.setItem("token", res.data.token);
         localStorage.setItem("isLoggedIn", "true");
-        navigate("/clinic-login", { replace: true });
+        navigate("/plans", { replace: true }); // Redirect to plan selection after OTP verification
       }
     } catch (err) {
       setApiError(err.response?.data?.message || "Verification failed.");
