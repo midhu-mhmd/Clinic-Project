@@ -218,8 +218,7 @@ const ClinicSettings = () => {
               index
               element={<PublicProfile data={settingsData} onUpdate={handleUpdate} />}
             />
-            <Route
-              // Visual Identity route removed
+            {/* Visual Identity route removed */}
             <Route
               path="security"
               element={<SecurityLogin data={settingsData} onUpdate={handleUpdate} />}
