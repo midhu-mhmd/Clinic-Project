@@ -438,7 +438,7 @@ const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR, onAction }) => {
 
       {/* Payment */}
       <div className="col-span-1 flex justify-center">
-        {clinic.paymentMethodStatus === "ON_FILE" ? (
+        {clinic.paymentMethodStatus === "ON_FILE" || status === "ACTIVE" ? (
           <div className="flex items-center gap-1 text-emerald-600">
             <CreditCard size={12} />
             <span className="text-[9px] font-bold">ON FILE</span>
