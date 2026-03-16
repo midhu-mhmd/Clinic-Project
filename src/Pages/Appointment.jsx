@@ -112,8 +112,11 @@ const AppointmentPage = () => {
     return Array.from({ length: 7 }, (_, i) => {
       const d = new Date();
       d.setDate(d.getDate() + i);
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
       return {
-        fullDate: d.toISOString().split("T")[0], // YYYY-MM-DD
+        fullDate: `${y}-${m}-${day}`, // YYYY-MM-DD (local)
         dayName: ["S", "M", "T", "W", "T", "F", "S"][d.getDay()],
         dayNumber: d.getDate(),
         monthName: d.toLocaleString("default", { month: "short" }),
