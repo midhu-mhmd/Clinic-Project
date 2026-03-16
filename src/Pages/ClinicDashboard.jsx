@@ -418,6 +418,7 @@ const TenantDashboard = () => {
 
       <main className="flex-1 flex flex-col overflow-hidden relative">
         <header className="h-20 border-b border-gray-100 flex items-center justify-between px-8 lg:px-12 bg-white/80 backdrop-blur-md sticky top-0 z-20 shrink-0">
+          {/* Tenant search functionality removed
           <div className="relative w-full max-w-md hidden md:block">
             <Search className="absolute left-0 top-1/2 -translate-y-1/2 text-gray-300" size={16} />
             <input
@@ -426,6 +427,7 @@ const TenantDashboard = () => {
               className="w-full bg-transparent pl-8 text-[10px] tracking-widest uppercase focus:outline-none"
             />
           </div>
+          */}
 
           <div className="flex items-center gap-8 ml-auto">
             <div className="flex items-center gap-4">

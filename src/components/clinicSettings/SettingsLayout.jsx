@@ -8,7 +8,7 @@ const SettingsLayout = () => {
 
   const sections = [
     { id: "profile", path: "/dashboard/settings", icon: <Globe size={16} />, label: "Public Profile" },
-    { id: "security", path: "/dashboard/settings/security", icon: <Lock size={16} />, label: "Security & Login" },
+    // { id: "security", path: "/dashboard/settings/security", icon: <Lock size={16} />, label: "Security & Login" },
     { id: "notifications", path: "/dashboard/settings/notifications", icon: <BellRing size={16} />, label: "Alerts" },
     { id: "billing", path: "/dashboard/settings/billing", icon: <CreditCard size={16} />, label: "Subscription" },
   ];

@@ -146,7 +146,7 @@ const ClinicSettings = () => {
   const sections = useMemo(
     () => [
       { id: "profile", path: "/dashboard/settings", icon: <Globe size={16} />, label: "Public Profile" },
-      { id: "security", path: "/dashboard/settings/security", icon: <Lock size={16} />, label: "Security & Login" },
+      // { id: "security", path: "/dashboard/settings/security", icon: <Lock size={16} />, label: "Security & Login" },
       { id: "notifications", path: "/dashboard/settings/notifications", icon: <BellRing size={16} />, label: "Alerts & Notifications" },
       { id: "billing", path: "/dashboard/settings/billing", icon: <CreditCard size={16} />, label: "Subscription" },
     ],
@@ -219,10 +219,10 @@ const ClinicSettings = () => {
               element={<PublicProfile data={settingsData} onUpdate={handleUpdate} />}
             />
             {/* Visual Identity route removed */}
-            <Route
+            {/* <Route
               path="security"
               element={<SecurityLogin data={settingsData} onUpdate={handleUpdate} />}
-            />
+            /> */}
             <Route
               path="notifications"
               element={<AlertsNotifications data={settingsData} onUpdate={handleUpdate} />}
