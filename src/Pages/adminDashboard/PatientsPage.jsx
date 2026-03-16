@@ -189,7 +189,7 @@ const PatientsPage = () => {
 
       {/* 01. NAVIGATION BAR */}
       <nav className="border-b border-zinc-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
+        <div className="max-w-7xl fixed mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Command size={14} className="text-zinc-900" />
