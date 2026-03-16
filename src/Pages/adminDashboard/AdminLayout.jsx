@@ -23,7 +23,7 @@ const AdminLayout = () => {
   const menuItems = [
     { icon: <PieChart size={20} />, label: "Overview", path: "/admin/dashboard" },
     { icon: <Building2 size={20} />, label: "Tenants", path: "/admin/tenants" },
-    { icon: <Users size={20} />, label: "Patients", path: "/admin/patients" },
+    { icon: <Users size={20} />, label: "Users", path: "/admin/patients" },
     { icon: <LayoutGrid size={20} />, label: "Directory", path: "/admin/global-directory" },
     { icon: <CreditCard size={20} />, label: "Billing", path: "/admin/subscriptions" },
     { icon: <Activity size={20} />, label: "Logs", path: "/admin/system-logs" },
