@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -14,14 +15,17 @@ import {
   ChevronLeft,
   ChevronRight,
   LogOut,
-  CheckCircle2,
-  XCircle,
-  AlertCircle,
+  CheckCircle2, 
+  XCircle, 
+  AlertCircle, 
   Clock,
   ChevronDown,
   ArrowUpDown,
-  Command
+  Command,
+  Plus, 
+  UserX 
 } from "lucide-react";
+import UserProfileModal from "../../components/adminDashboard/UserProfileModal";
 
 /* --- CONFIG --- */
 const API_BASE_URL = "https://sovereigns.site/api";
@@ -45,6 +49,7 @@ const PatientsPage = () => {
   const [users, setUsers] = useState([]);
   const [tenants, setTenants] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [selectedUser, setSelectedUser] = useState(null); // Added selectedUser state
   const [error, setError] = useState(null);
 
   // Pagination & Sort State
@@ -346,6 +351,7 @@ const PatientsPage = () => {
                       onSelect={(id) => {
                         setSelectedUsers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
                       }}
+                      onAction={() => setSelectedUser(user._id)} // Added onAction
                       formatDate={formatDate}
                     />
                   ))
@@ -376,6 +382,17 @@ const PatientsPage = () => {
         )}
       </main>
 
+      {/* 05. PROFILE MODAL */}
+      <AnimatePresence>
+        {selectedUser && (
+          <UserProfileModal
+            userId={selectedUser}
+            onClose={() => setSelectedUser(null)}
+            onUpdate={fetchUsers}
+          />
+        )}
+      </AnimatePresence>
+
       {/* ERROR OVERLAY */}
       {error && (
         <div className="fixed top-24 right-8 bg-white border border-red-100 p-4 rounded-xl shadow-xl flex items-center gap-4 animate-in slide-in-from-right duration-500 z-50">
@@ -394,11 +411,13 @@ const PatientsPage = () => {
 
 /* --- SUB-COMPONENTS --- */
 
-const UserRow = ({ user, index, isSelected, onSelect, formatDate }) => {
+const UserRow = ({ user, index, isSelected, onSelect, onAction, formatDate }) => {
+  const navigate = useNavigate();
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
+      onClick={onAction} // Row click opens modal
       className={`grid grid-cols-12 items-center py-4 px-4 hover:bg-zinc-50/50 transition-colors group cursor-pointer ${isSelected ? 'bg-zinc-50/80 shadow-inner' : ''}`}
     >
       {/* Ref (Numbering) */}
@@ -475,7 +494,10 @@ const UserRow = ({ user, index, isSelected, onSelect, formatDate }) => {
 
       {/* Action Button */}
       <div className="col-span-1 text-right">
-        <button className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500">
+        <button 
+          className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500"
+          onClick={(e) => { e.stopPropagation(); onAction(); }}
+        >
           <MoreHorizontal size={14} />
         </button>
       </div>

@@ -1,5 +1,4 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import {
@@ -20,6 +19,7 @@ import {
   LogOut,
   MoreHorizontal
 } from "lucide-react";
+import DoctorProfileModal from "../../components/adminDashboard/DoctorProfileModal";
 
 /* --- CONFIG --- */
 const API_BASE_URL = "https://sovereigns.site/api";
@@ -38,7 +38,6 @@ api.interceptors.request.use((config) => {
 });
 
 const GlobalDirectory = () => {
-  const navigate = useNavigate();
   const [faculty, setFaculty] = useState([]);
   const [loading, setLoading] = useState(true);
   const [totalCount, setTotalCount] = useState(0);
@@ -63,6 +62,7 @@ const GlobalDirectory = () => {
 
   // Selection
   const [selectedIds, setSelectedIds] = useState([]);
+  const [selectedDoctor, setSelectedDoctor] = useState(null);
 
   // UI States
   const [isExporting, setIsExporting] = useState(false);
@@ -309,7 +309,7 @@ const GlobalDirectory = () => {
                       isSelected={selectedIds.includes(doc._id)}
                       onSelect={() => toggleSelect(doc._id)}
                       formatDate={formatDate}
-                      onNavigate={() => navigate(`/doctor/${doc._id}`)}
+                      onAction={() => setSelectedDoctor(doc._id)}
                     />
                   ))
                 ) : (
@@ -338,17 +338,28 @@ const GlobalDirectory = () => {
           </footer>
         )}
       </main>
+
+      {/* 05. PROFILE MODAL */}
+      <AnimatePresence>
+        {selectedDoctor && (
+          <DoctorProfileModal
+            doctorId={selectedDoctor}
+            onClose={() => setSelectedDoctor(null)}
+            onUpdate={fetchFaculty}
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 };
 
 /* --- SUB-COMPONENTS --- */
 
-const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate, onNavigate }) => (
+const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate, onAction }) => (
   <motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
-    onClick={onNavigate}
+    onClick={onAction}
     className={`grid grid-cols-12 items-center py-4 px-4 hover:bg-zinc-50/50 transition-colors group cursor-pointer ${isSelected ? 'bg-zinc-50/80 shadow-inner' : ''}`}
   >
     {/* Ref */}
@@ -431,84 +442,15 @@ const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate, onNavigate }
 
     {/* Action */}
     <div className="col-span-1 text-right">
-      <ActionDropdown 
-        onViewProfile={onNavigate}
-        onToggleStatus={() => {}} 
-        onVerify={() => {}} 
-        onDelete={() => {}} 
-      />
-    </div>
-  </motion.div>
-);
-
-const ActionDropdown = ({ onViewProfile, onToggleStatus, onVerify, onDelete }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const dropdownRef = React.useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className="relative inline-block text-left" ref={dropdownRef}>
       <button 
-        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
         className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500"
+        onClick={(e) => { e.stopPropagation(); onAction(); }}
       >
         <MoreHorizontal size={14} />
       </button>
-
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: -10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: -10 }}
-            className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[100] overflow-hidden"
-          >
-            <div className="py-1" role="menu" aria-orientation="vertical">
-              <button
-                onClick={(e) => { e.stopPropagation(); onViewProfile(); setIsOpen(false); }}
-                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
-                role="menuitem"
-              >
-                <Search size={12} className="text-zinc-400" /> View Profile
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onToggleStatus(); setIsOpen(false); }}
-                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
-                role="menuitem"
-              >
-                <Shield size={12} className="text-zinc-400" /> Toggle Status
-              </button>
-              <button
-                onClick={(e) => { e.stopPropagation(); onVerify(); setIsOpen(false); }}
-                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
-                role="menuitem"
-              >
-                <CheckCircle size={12} className="text-zinc-400" /> Verify Profile
-              </button>
-              <div className="h-[1px] bg-zinc-100 my-1" />
-              <button
-                onClick={(e) => { e.stopPropagation(); onDelete(); setIsOpen(false); }}
-                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors"
-                role="menuitem"
-              >
-                <UserX size={12} /> Remove Entry
-              </button>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
-  );
-};
+  </motion.div>
+);
 
 const PaginationBtn = ({ children, onClick, disabled }) => (
   <button
