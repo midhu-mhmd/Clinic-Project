@@ -4,21 +4,22 @@ import { X, Activity, User, Calendar, AlertTriangle, ShieldCheck, Mail, Phone, M
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
-const UserProfileModal = ({ userId, onClose, onUpdate }) => {
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+const UserProfileModal = ({ userId, userData, onClose, onUpdate }) => {
+    const [data, setData] = useState(userData || null);
+    const [loading, setLoading] = useState(!userData);
     const [actionLoading, setActionLoading] = useState(null);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (userId) fetchUserDetails();
-    }, [userId]);
+        if (!userData && userId) {
+            fetchUserDetails();
+        }
+    }, [userId, userData]);
 
     const fetchUserDetails = async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem("token");
-            // Assuming admin endpoint for user details
             const res = await axios.get(`${API_BASE_URL}/api/admin/users/${userId}`, {
                 headers: { Authorization: `Bearer ${token}` }
             });

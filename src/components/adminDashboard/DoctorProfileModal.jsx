@@ -9,16 +9,16 @@ import { X, Activity, User, HardDrive, Calendar, Zap, AlertTriangle, ShieldCheck
  */
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
-const DoctorProfileModal = ({ doctorId, onClose, onUpdate }) => {
+const DoctorProfileModal = ({ doctorId, doctorData, onClose, onUpdate }) => {
     const navigate = useNavigate();
-    const [data, setData] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [data, setData] = useState(doctorData || null);
+    const [loading, setLoading] = useState(!doctorData);
     const [actionLoading, setActionLoading] = useState(null);
     const [error, setError] = useState("");
 
     useEffect(() => {
-        if (doctorId) fetchDoctorDetails();
-    }, [doctorId]);
+        if (!doctorData && doctorId) fetchDoctorDetails();
+    }, [doctorId, doctorData]);
 
     const fetchDoctorDetails = async () => {
         try {

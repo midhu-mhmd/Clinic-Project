@@ -351,7 +351,7 @@ const PatientsPage = () => {
                       onSelect={(id) => {
                         setSelectedUsers(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
                       }}
-                      onAction={() => setSelectedUser(user._id)} // Added onAction
+                      onAction={() => setSelectedUser(user)} // Pass the whole user object
                       formatDate={formatDate}
                     />
                   ))
@@ -386,7 +386,7 @@ const PatientsPage = () => {
       <AnimatePresence>
         {selectedUser && (
           <UserProfileModal
-            userId={selectedUser}
+            userData={selectedUser}
             onClose={() => setSelectedUser(null)}
             onUpdate={fetchUsers}
           />

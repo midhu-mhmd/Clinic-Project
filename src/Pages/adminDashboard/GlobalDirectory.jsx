@@ -309,7 +309,7 @@ const GlobalDirectory = () => {
                       isSelected={selectedIds.includes(doc._id)}
                       onSelect={() => toggleSelect(doc._id)}
                       formatDate={formatDate}
-                      onAction={() => setSelectedDoctor(doc._id)}
+                      onAction={() => setSelectedDoctor(doc)}
                     />
                   ))
                 ) : (
@@ -343,7 +343,7 @@ const GlobalDirectory = () => {
       <AnimatePresence>
         {selectedDoctor && (
           <DoctorProfileModal
-            doctorId={selectedDoctor}
+            doctorData={selectedDoctor}
             onClose={() => setSelectedDoctor(null)}
             onUpdate={fetchFaculty}
           />
