@@ -190,11 +190,11 @@ const PatientsPage = () => {
   if (loading && page === 1) return <MinimalLoader />;
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-100 antialiased">
+    <div className="bg-transparent text-zinc-900 font-sans selection:bg-zinc-100 antialiased">
 
-      {/* 01. NAVIGATION BAR */}
-      <nav className="border-b border-zinc-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
-        <div className="max-w-7xl fixed mx-auto px-6 h-14 flex items-center justify-between">
+      {/* 01. NAVIGATION BAR - Sticky below main header */}
+      <nav className="border-b border-zinc-100 sticky top-16 bg-white/80 backdrop-blur-md z-40 -mx-6 lg:-mx-10 px-6 lg:px-10 py-3 mb-6">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="flex items-center gap-2">
               <Command size={14} className="text-zinc-900" />
@@ -282,7 +282,7 @@ const PatientsPage = () => {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-8 relative">
+      <main className="relative">
         {/* BULK ACTIONS TOOLBAR */}
         <AnimatePresence>
           {selectedUsers.length > 0 && (
