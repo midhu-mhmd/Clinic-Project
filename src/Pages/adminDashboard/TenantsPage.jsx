@@ -4,7 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Command, ChevronLeft, ChevronRight, Building2, MoreHorizontal, Calendar, Plus, Filter } from "lucide-react";
 import TenantProfileModal from "../../components/adminDashboard/TenantProfileModal";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
 const TenantsPage = () => {
   const [clinics, setClinics] = useState([]);

@@ -21,7 +21,7 @@ import {
   ChevronDown
 } from "lucide-react";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = "https://sovereigns.site/api";
 
 const PLAN_CATALOG = {
   PRO: { name: "Standard", price: { monthly: 1999, yearly: 19990 } },

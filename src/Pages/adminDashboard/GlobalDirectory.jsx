@@ -28,9 +28,9 @@ import {
 /**
  * UTILS
  */
-const API_URL = "http://localhost:5000/api/doctors/directory";
-const BULK_API_URL = "http://localhost:5000/api/doctors/bulk-status";
-const EXPORT_API_URL = "http://localhost:5000/api/doctors/export-csv";
+const API_URL = "https://sovereigns.site/api/doctors/directory";
+const BULK_API_URL = "https://sovereigns.site/api/doctors/bulk-status";
+const EXPORT_API_URL = "https://sovereigns.site/api/doctors/export-csv";
 
 const GlobalDirectory = () => {
   const [faculty, setFaculty] = useState([]);
