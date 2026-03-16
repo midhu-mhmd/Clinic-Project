@@ -19,7 +19,8 @@ import {
   AlertCircle,
   Clock,
   ChevronDown,
-  ArrowUpDown
+  ArrowUpDown,
+  Command
 } from "lucide-react";
 
 /* --- CONFIG --- */
