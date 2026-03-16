@@ -177,22 +177,24 @@ const Subscriptions = () => {
 
 
   return (
-    <div className="min-h-screen bg-[#FDFDFD] text-[#1A1A1A] font-sans selection:bg-zinc-900 selection:text-white">
-      {/* SECTION 02: UTILITY BAR */}
-      <div className="max-w-7xl mx-auto px-6 py-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative group w-full md:w-96">
-          <Search size={14} className="absolute left-0 top-1/2 -translate-y-1/2 text-zinc-300 group-focus-within:text-zinc-900 transition-colors" />
+    <div className="bg-transparent text-[#1A1A1A] font-sans selection:bg-zinc-900 selection:text-white antialiased">
+      {/* SECTION 02: UTILITY BAR - Styled consistently with other inventory pages */}
+      <div className="border-b border-zinc-100 sticky top-16 bg-white/80 backdrop-blur-md z-40 lg:-mx-10 lg:px-10 px-4 py-3 mb-6 -mx-4 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="relative group w-full md:w-96 flex items-center gap-3">
+          <Search size={14} className="text-zinc-300 group-focus-within:text-zinc-900 transition-colors" />
           <input
             value={clinicSearch}
             onChange={(e) => { setClinicPage(1); setClinicSearch(e.target.value); }}
             placeholder="Filter by institution or ID..."
-            className="w-full bg-transparent border-none py-2 pl-7 text-sm outline-none placeholder:text-zinc-300"
+            className="w-full bg-transparent border-none py-1 text-xs outline-none placeholder:text-zinc-300"
           />
         </div>
       </div>
 
       {/* SECTION 03: THE GRID */}
-      <main className="max-w-7xl mx-auto px-6">
+      <main className="relative">
+        <div className="overflow-x-auto custom-scrollbar pb-4 -mx-6 px-6 sm:mx-0 sm:px-0">
+          <div className="min-w-[1200px]">
         <div className="grid grid-cols-12 px-4 py-3 bg-zinc-50 border border-zinc-100 rounded-t-sm text-[10px] font-bold uppercase tracking-widest text-zinc-400">
           <div className="col-span-3">Clinical Entity</div>
           <div className="col-span-1">Plan</div>
@@ -250,131 +252,134 @@ const Subscriptions = () => {
             </button>
           </footer>
         )}
-        {/* MODALS */}
-        <AnimatePresence>
-          {activeModal && (
-            <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden"
-              >
-                <div className="px-6 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50">
-                  <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-900">
-                    {activeModal.type.replace('_', ' ')}: {selectedClinic?.name}
-                  </h3>
-                  <button onClick={() => setActiveModal(null)} className="text-zinc-400 hover:text-zinc-900">
-                    <XCircle size={18} />
-                  </button>
-                </div>
+          </div>
+        </div>
+      </main>
 
-                <div className="p-6">
-                  {activeModal.type === 'PLAN' && (
-                    <div className="space-y-4">
-                      <p className="text-[11px] text-zinc-500">Select the new subscription tier for this entity.</p>
-                      <select
-                        value={newPlan}
-                        onChange={(e) => setNewPlan(e.target.value)}
-                        className="w-full bg-zinc-50 border border-zinc-200 rounded px-3 py-2 text-xs outline-none focus:border-zinc-900 transition-colors"
-                      >
-                        {Object.keys(PLAN_CATALOG).map(k => (
-                          <option key={k} value={k}>{PLAN_CATALOG[k].name}</option>
-                        ))}
-                      </select>
-                    </div>
-                  )}
+      {/* SECTION 05: MODALS */}
+      <AnimatePresence>
+        {activeModal && (
+          <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.95 }}
+              className="bg-white rounded-lg shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="px-6 py-4 border-b border-zinc-100 flex justify-between items-center bg-zinc-50">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-zinc-900">
+                  {activeModal.type.replace('_', ' ')}: {selectedClinic?.name}
+                </h3>
+                <button onClick={() => setActiveModal(null)} className="text-zinc-400 hover:text-zinc-900">
+                  <XCircle size={18} />
+                </button>
+              </div>
 
-                  {activeModal.type === 'CANCEL' && (
-                    <div className="space-y-4 text-center">
-                      <ShieldAlert size={32} className="mx-auto text-rose-500" />
-                      <p className="text-[11px] text-zinc-600">How would you like to handle this cancellation?</p>
-                      <div className="grid grid-cols-1 gap-2">
-                        <button
-                          onClick={() => executeAction({ immediate: true })}
-                          className="w-full py-2 bg-rose-50 text-rose-600 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-rose-100 transition-colors"
-                        >
-                          Cancel Immediately
-                        </button>
-                        <button
-                          onClick={() => executeAction({ immediate: false })}
-                          className="w-full py-2 border border-zinc-200 text-zinc-600 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-zinc-50 transition-colors"
-                        >
-                          Cancel at Period End
-                        </button>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeModal.type === 'OVERRIDE' && (
-                    <div className="space-y-4">
-                      <div className="flex items-center gap-2 text-amber-600">
-                        <ShieldAlert size={14} />
-                        <span className="text-[10px] font-bold uppercase tracking-widest">Restricted Action</span>
-                      </div>
-                      <p className="text-[11px] text-zinc-500 italic">This change will be logged in the system audit trail. Please provide detailed justification.</p>
-                      <textarea
-                        value={overrideDetails}
-                        onChange={(e) => setOverrideDetails(e.target.value)}
-                        placeholder="Log details (e.g., Manual refund issued, temporary extension granted)..."
-                        className="w-full h-24 bg-zinc-50 border border-zinc-200 rounded px-3 py-2 text-xs outline-none focus:border-zinc-900 transition-colors resize-none"
-                      />
-                    </div>
-                  )}
-
-                  {activeModal.type === 'COUPON' && (
-                    <div className="space-y-4">
-                      <p className="text-[11px] text-zinc-500">Enter a manual discount or coupon code.</p>
-                      <input
-                        value={couponCode}
-                        onChange={(e) => setCouponCode(e.target.value)}
-                        placeholder="SUMMER20, FREEMONTH, etc."
-                        className="w-full bg-zinc-50 border border-zinc-200 rounded px-3 py-2 text-xs outline-none focus:border-zinc-900 transition-colors"
-                      />
-                    </div>
-                  )}
-
-                  {activeModal.type === 'CYCLE' && (
-                    <div className="space-y-4">
-                      <p className="text-[11px] text-zinc-500">Toggle between Monthly and Annual billing cycles.</p>
-                      <div className="flex border border-zinc-100 rounded overflow-hidden">
-                        {['MONTHLY', 'ANNUAL'].map(c => (
-                          <button
-                            key={c}
-                            onClick={() => setNewCycle(c)}
-                            className={`flex-1 py-2 text-[10px] font-bold tracking-widest transition-colors ${newCycle === c ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-400 hover:bg-zinc-50'}`}
-                          >
-                            {c}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-
-                {activeModal.type !== 'CANCEL' && (
-                  <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex gap-3">
-                    <button
-                      onClick={() => setActiveModal(null)}
-                      className="flex-1 py-2 border border-zinc-200 text-zinc-400 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-white transition-colors"
+              <div className="p-6">
+                {activeModal.type === 'PLAN' && (
+                  <div className="space-y-4">
+                    <p className="text-[11px] text-zinc-500">Select the new subscription tier for this entity.</p>
+                    <select
+                      value={newPlan}
+                      onChange={(e) => setNewPlan(e.target.value)}
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded px-3 py-2 text-xs outline-none focus:border-zinc-900 transition-colors"
                     >
-                      Dismiss
-                    </button>
-                    <button
-                      onClick={executeAction}
-                      disabled={actionLoading || (activeModal.type === 'OVERRIDE' && !overrideDetails)}
-                      className="flex-1 py-2 bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
-                    >
-                      {actionLoading && <Loader2 size={12} className="animate-spin" />}
-                      Finalize Change
-                    </button>
+                      {Object.keys(PLAN_CATALOG).map(k => (
+                        <option key={k} value={k}>{PLAN_CATALOG[k].name}</option>
+                      ))}
+                    </select>
                   </div>
                 )}
-              </motion.div>
-            </div>
-          )}
-        </AnimatePresence>
-      </main>
+
+                {activeModal.type === 'CANCEL' && (
+                  <div className="space-y-4 text-center">
+                    <ShieldAlert size={32} className="mx-auto text-rose-500" />
+                    <p className="text-[11px] text-zinc-600">How would you like to handle this cancellation?</p>
+                    <div className="grid grid-cols-1 gap-2">
+                      <button
+                        onClick={() => executeAction({ immediate: true })}
+                        className="w-full py-2 bg-rose-50 text-rose-600 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-rose-100 transition-colors"
+                      >
+                        Cancel Immediately
+                      </button>
+                      <button
+                        onClick={() => executeAction({ immediate: false })}
+                        className="w-full py-2 border border-zinc-200 text-zinc-600 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-zinc-50 transition-colors"
+                      >
+                        Cancel at Period End
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                {activeModal.type === 'OVERRIDE' && (
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 text-amber-600">
+                      <ShieldAlert size={14} />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Restricted Action</span>
+                    </div>
+                    <p className="text-[11px] text-zinc-500 italic">This change will be logged in the system audit trail. Please provide detailed justification.</p>
+                    <textarea
+                      value={overrideDetails}
+                      onChange={(e) => setOverrideDetails(e.target.value)}
+                      placeholder="Log details (e.g., Manual refund issued, temporary extension granted)..."
+                      className="w-full h-24 bg-zinc-50 border border-zinc-200 rounded px-3 py-2 text-xs outline-none focus:border-zinc-900 transition-colors resize-none"
+                    />
+                  </div>
+                )}
+
+                {activeModal.type === 'COUPON' && (
+                  <div className="space-y-4">
+                    <p className="text-[11px] text-zinc-500">Enter a manual discount or coupon code.</p>
+                    <input
+                      value={couponCode}
+                      onChange={(e) => setCouponCode(e.target.value)}
+                      placeholder="SUMMER20, FREEMONTH, etc."
+                      className="w-full bg-zinc-50 border border-zinc-200 rounded px-3 py-2 text-xs outline-none focus:border-zinc-900 transition-colors"
+                    />
+                  </div>
+                )}
+
+                {activeModal.type === 'CYCLE' && (
+                  <div className="space-y-4">
+                    <p className="text-[11px] text-zinc-500">Toggle between Monthly and Annual billing cycles.</p>
+                    <div className="flex border border-zinc-100 rounded overflow-hidden">
+                      {['MONTHLY', 'ANNUAL'].map(c => (
+                        <button
+                          key={c}
+                          onClick={() => setNewCycle(c)}
+                          className={`flex-1 py-2 text-[10px] font-bold tracking-widest transition-colors ${newCycle === c ? 'bg-zinc-900 text-white' : 'bg-white text-zinc-400 hover:bg-zinc-50'}`}
+                        >
+                          {c}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {activeModal.type !== 'CANCEL' && (
+                <div className="px-6 py-4 bg-zinc-50 border-t border-zinc-100 flex gap-3">
+                  <button
+                    onClick={() => setActiveModal(null)}
+                    className="flex-1 py-2 border border-zinc-200 text-zinc-400 text-[10px] font-bold uppercase tracking-widest rounded hover:bg-white transition-colors"
+                  >
+                    Dismiss
+                  </button>
+                  <button
+                    onClick={executeAction}
+                    disabled={actionLoading || (activeModal.type === 'OVERRIDE' && !overrideDetails)}
+                    className="flex-1 py-2 bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-widest rounded hover:bg-zinc-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  >
+                    {actionLoading && <Loader2 size={12} className="animate-spin" />}
+                    Finalize Change
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };

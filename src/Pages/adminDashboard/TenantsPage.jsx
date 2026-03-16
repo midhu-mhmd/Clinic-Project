@@ -72,12 +72,12 @@ const TenantsPage = () => {
   if (loading) return <MinimalLoader />;
 
   return (
-    <div className="min-h-screen bg-white text-zinc-900 font-sans selection:bg-zinc-100">
+    <div className="bg-transparent text-zinc-900 font-sans selection:bg-zinc-100 antialiased">
 
-      {/* 01. NAVIGATION BAR */}
-      <nav className="border-b border-zinc-100 sticky top-0 bg-white/80 backdrop-blur-md z-50">
-        <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
-          <div className="flex items-center gap-4">
+      {/* 01. NAVIGATION BAR - Sticky below main header */}
+      <nav className="border-b border-zinc-100 sticky top-16 bg-white/80 backdrop-blur-md z-40 lg:-mx-10 lg:px-10 px-4 py-3 mb-6 -mx-4">
+        <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div className="flex items-center justify-between lg:justify-start gap-4">
             <div className="flex items-center gap-2">
               <Command size={14} className="text-zinc-900" />
               <span className="text-xs font-bold tracking-tight uppercase">Registry</span>
@@ -97,9 +97,9 @@ const TenantsPage = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-4">
+          <div className="flex flex-wrap items-center gap-4">
             {/* Filters */}
-            <div className="flex items-center gap-3 text-xs">
+            <div className="flex flex-wrap items-center gap-2 text-xs">
               <div className="flex items-center gap-2 border border-zinc-200 rounded px-2 py-1 cursor-pointer">
                 <Filter size={12} className="text-zinc-400" />
                 <select
@@ -129,7 +129,7 @@ const TenantsPage = () => {
             </div>
 
             <button
-              className="bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-1.5 rounded flex items-center gap-1.5 hover:bg-zinc-800 transition-colors"
+              className="bg-zinc-900 text-white text-[10px] font-bold uppercase tracking-widest px-3 py-2 rounded flex items-center justify-center gap-1.5 hover:bg-zinc-800 transition-colors w-full lg:w-auto"
               onClick={() => alert("Redirecting to tenant manual onboarding portal...")}
             >
               <Plus size={12} /> Invite Tenant
@@ -138,7 +138,7 @@ const TenantsPage = () => {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto px-6 py-8">
+      <main className="relative">
         <div className="overflow-x-auto custom-scrollbar pb-4 -mx-6 px-6 sm:mx-0 sm:px-0">
           <div className="min-w-[1000px]">
             {/* 02. TABLE HEADER */}

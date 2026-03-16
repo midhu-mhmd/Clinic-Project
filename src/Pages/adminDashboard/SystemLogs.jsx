@@ -9,24 +9,54 @@ const SystemLogs = () => {
   ];
 
   return (
-    <div className="bg-white border border-[#1E293B]/5 rounded-sm overflow-hidden">
-      <div className="grid grid-cols-12 bg-[#1E293B]/5 p-6 text-[9px] uppercase tracking-widest font-bold opacity-40">
-        <div className="col-span-2">Timestamp</div>
-        <div className="col-span-3">Protocol</div>
-        <div className="col-span-5">Technical Detail</div>
-        <div className="col-span-2 text-right">Status</div>
+    <div className="space-y-6 animate-in fade-in duration-500">
+      <div>
+        <h1 className="text-2xl font-semibold tracking-tight text-zinc-900">System Logs</h1>
+        <p className="text-sm text-zinc-500 mt-1">Real-time audit trail of platform operations.</p>
       </div>
-      <div className="divide-y divide-[#1E293B]/5">
-        {logs.map(log => (
-          <div key={log.id} className="grid grid-cols-12 p-8 items-center hover:bg-[#F0FDFA] transition-colors group">
-            <div className="col-span-2 text-[10px] font-mono opacity-40">{log.time}</div>
-            <div className="col-span-3 text-xs font-bold uppercase tracking-tight">{log.event}</div>
-            <div className="col-span-5 text-sm font-light text-[#1E293B]/60">{log.detail}</div>
-            <div className="col-span-2 flex justify-end">
-              {log.status === 'success' ? <ShieldCheck size={18} className="text-[#0F766E]" /> : <AlertTriangle size={18} className="text-red-400 animate-pulse" />}
+
+      <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
+        <div className="overflow-x-auto">
+          <div className="min-w-[800px]">
+            <div className="grid grid-cols-12 bg-zinc-50/50 px-6 py-4 text-[10px] uppercase tracking-widest font-bold text-zinc-400 border-b border-zinc-100">
+              <div className="col-span-2">Timestamp</div>
+              <div className="col-span-3">Event Protocol</div>
+              <div className="col-span-5">Technical Trace</div>
+              <div className="col-span-2 text-right">Verification</div>
+            </div>
+            <div className="divide-y divide-zinc-50">
+              {logs.map(log => (
+                <div key={log.id} className="grid grid-cols-12 px-6 py-5 items-center hover:bg-zinc-50/50 transition-colors group">
+                  <div className="col-span-2 text-[11px] font-mono text-zinc-400">{log.time}</div>
+                  <div className="col-span-3">
+                    <span className="text-xs font-semibold text-zinc-900 uppercase tracking-tight">{log.event}</span>
+                    <p className="text-[10px] text-zinc-400 font-mono mt-0.5">#{log.id}</p>
+                  </div>
+                  <div className="col-span-5 text-sm text-zinc-600 font-medium">{log.detail}</div>
+                  <div className="col-span-2 flex justify-end">
+                    <div className={`flex items-center gap-2 px-3 py-1 rounded-full border ${
+                      log.status === 'success' 
+                        ? 'bg-emerald-50 border-emerald-100 text-emerald-700' 
+                        : 'bg-red-50 border-red-100 text-red-600'
+                    }`}>
+                      {log.status === 'success' ? (
+                        <>
+                          <ShieldCheck size={12} />
+                          <span className="text-[9px] font-bold uppercase tracking-wider">Verified</span>
+                        </>
+                      ) : (
+                        <>
+                          <AlertTriangle size={12} className="animate-pulse" />
+                          <span className="text-[9px] font-bold uppercase tracking-wider">Failure</span>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
-        ))}
+        </div>
       </div>
     </div>
   );

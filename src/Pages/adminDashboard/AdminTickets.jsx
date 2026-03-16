@@ -614,8 +614,8 @@ const AdminTickets = () => {
 
       {/* Ticket Table */}
       {!loading && filteredTickets.length > 0 && (
-        <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden">
-          <table className="w-full text-sm">
+        <div className="bg-white border border-zinc-200 rounded-xl overflow-hidden overflow-x-auto">
+          <table className="w-full text-sm min-w-[1000px]">
             <thead>
               <tr className="border-b border-zinc-100 text-left">
                 <th className="px-5 py-3 text-[10px] uppercase tracking-widest text-zinc-400 font-medium">Ticket</th>
