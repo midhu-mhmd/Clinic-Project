@@ -34,7 +34,7 @@ import Doctors from "./clinicSide/clinicDoctors.jsx";
 import ClinicSupport from "./clinicSide/clinicSupport.jsx";
 
 /* ----------------------------- CONFIG ----------------------------- */
-const API_BASE = "http://localhost:5000/api";
+const API_BASE = "https://sovereigns.site/api";
 
 const MENU_ITEMS = [
   { id: "Overview", icon: LayoutDashboard, label: "Overview", path: "/dashboard" },

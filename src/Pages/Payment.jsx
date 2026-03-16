@@ -5,10 +5,10 @@ import { CreditCard, Landmark, Check, Copy, ChevronRight, AlertCircle } from "lu
 
 /**
  * Prefer environment-based base URL:
- * Vite: VITE_API_BASE_URL=http://localhost:5000
+ * Vite: VITE_API_BASE_URL=https://sovereigns.site
  */
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
 const api = axios.create({
   baseURL: API_BASE,

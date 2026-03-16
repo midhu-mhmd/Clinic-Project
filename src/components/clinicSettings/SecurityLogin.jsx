@@ -5,7 +5,7 @@ import {
   KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2
 } from "lucide-react";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
 const cleanToken = (t) => {
   if (!t || typeof t !== "string") return null;

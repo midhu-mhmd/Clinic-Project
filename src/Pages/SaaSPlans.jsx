@@ -6,10 +6,10 @@ import { ArrowRight, Check, RefreshCw } from "lucide-react";
 /**
  * Prefer environment-based base URL:
  * Vite: import.meta.env.VITE_API_BASE_URL
- * Example: VITE_API_BASE_URL=http://localhost:5000
+ * Example: VITE_API_BASE_URL=https://sovereigns.site
  */
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
 const api = axios.create({
   baseURL: API_BASE,

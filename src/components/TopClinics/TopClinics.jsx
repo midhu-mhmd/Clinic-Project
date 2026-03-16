@@ -20,7 +20,7 @@ function TopClinics() {
     const fetchClinics = async () => {
       try {
         // MATCHED TO YOUR BACKEND ROUTE: /api/tenants/all
-        const res = await axios.get("http://localhost:5000/api/tenants/all");
+        const res = await axios.get("https://sovereigns.site/api/tenants/all");
 
         // Ensure res.data is the array of formatted clinics from your controller
         const formattedData = res.data.data.map(clinic => ({

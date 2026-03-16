@@ -13,7 +13,7 @@ import {
 
 /* ----------------------------- CONFIG ----------------------------- */
 const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
 
 const getAuthToken = () => {
   // ✅ primary key
