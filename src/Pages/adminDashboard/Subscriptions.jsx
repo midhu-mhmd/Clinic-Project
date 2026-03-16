@@ -71,15 +71,17 @@ const Subscriptions = () => {
     return instance;
   }, []);
 
-  const getPlanDisplay = useCallback((backendPlanRaw) => {
+  const getPlanDisplay = useCallback((backendPlanRaw, billingCycleRaw) => {
     const backend = String(backendPlanRaw || "PRO").toUpperCase();
+    const cycle = String(billingCycleRaw || "MONTHLY").toUpperCase();
+    const isYearly = cycle === "ANNUAL" || cycle === "YEARLY";
     const plan = PLAN_CATALOG[backend] || PLAN_CATALOG.PRO;
     return {
       backend,
       name: plan.name,
-      price: Number(plan.price[billing] ?? 0),
+      price: Number(plan.price[isYearly ? "yearly" : "monthly"] ?? 0),
     };
-  }, [billing]);
+  }, []);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -134,7 +136,10 @@ const Subscriptions = () => {
     // Open modal for others
     setActiveModal({ type, clinicId });
     if (type === 'PLAN') setNewPlan(clinic.tier || 'PRO');
-    if (type === 'CYCLE') setNewCycle(clinic.billingCycle || 'MONTHLY');
+    if (type === 'CYCLE') {
+      const c = String(clinic.billingCycle || 'MONTHLY').toUpperCase();
+      setNewCycle(c === 'ANNUAL' || c === 'YEARLY' ? 'ANNUAL' : 'MONTHLY');
+    }
   }, [api, clinics]);
 
   const executeAction = async () => {
@@ -378,7 +383,7 @@ const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR, onAction }) => {
   const [showActions, setShowActions] = useState(false);
   const planRaw = clinic.tier || "PRO";
   const statusRaw = clinic.subscriptionStatus || "PENDING";
-  const { name, price, backend } = getPlanDisplay(planRaw);
+  const { name, price, backend } = getPlanDisplay(planRaw, clinic.billingCycle);
   const status = String(statusRaw).toUpperCase();
 
   const handleAction = (type, data = {}) => {
@@ -420,7 +425,7 @@ const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR, onAction }) => {
       {/* Cycle */}
       <div className="col-span-1 text-center">
         <span className="text-[10px] text-zinc-500 font-medium">
-          {clinic.billingCycle === "ANNUAL" ? "Annual" : "Monthly"}
+          {String(clinic.billingCycle).toUpperCase() === "ANNUAL" || String(clinic.billingCycle).toUpperCase() === "YEARLY" ? "Annual" : "Monthly"}
         </span>
       </div>
 
