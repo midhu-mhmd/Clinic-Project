@@ -442,14 +442,18 @@ const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR, onAction }) => {
       </div>
 
       {/* Payment */}
-      <div className="col-span-1 flex justify-center">
-        {clinic.paymentMethodStatus === "ON_FILE" || status === "ACTIVE" ? (
-          <div className="flex items-center gap-1 text-emerald-600">
-            <CreditCard size={12} />
-            <span className="text-[9px] font-bold">ON FILE</span>
-          </div>
+      <div className="col-span-1 flex flex-col items-center justify-center text-[9px]">
+        {clinic.latestPayment ? (
+          <>
+            <span className="font-bold text-emerald-600 flex items-center gap-1">
+              <CreditCard size={12} />
+              {clinic.latestPayment.method}
+            </span>
+            <span className="text-zinc-600">{formatINR.format(clinic.latestPayment.amount)}</span>
+            <span className="text-zinc-400">{clinic.latestPayment.date ? new Date(clinic.latestPayment.date).toLocaleDateString() : ''}</span>
+          </>
         ) : (
-          <span className="text-[9px] font-bold text-rose-400">MISSING</span>
+          <span className="font-bold text-rose-400">No Payment</span>
         )}
       </div>
 
