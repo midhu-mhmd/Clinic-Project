@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   Shield,
   LogOut,
-  MoreHorizontal
+  MoreHorizontal,
+  UserCheck
 } from "lucide-react";
 import DoctorProfileModal from "../../components/adminDashboard/DoctorProfileModal";
 
@@ -343,6 +344,7 @@ const GlobalDirectory = () => {
       <AnimatePresence>
         {selectedDoctor && (
           <DoctorProfileModal
+            doctorId={selectedDoctor._id}
             doctorData={selectedDoctor}
             onClose={() => setSelectedDoctor(null)}
             onUpdate={fetchFaculty}

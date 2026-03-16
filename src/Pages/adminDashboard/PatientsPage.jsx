@@ -386,6 +386,7 @@ const PatientsPage = () => {
       <AnimatePresence>
         {selectedUser && (
           <UserProfileModal
+            userId={selectedUser._id}
             userData={selectedUser}
             onClose={() => setSelectedUser(null)}
             onUpdate={fetchUsers}
