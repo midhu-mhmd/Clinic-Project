@@ -5,10 +5,9 @@ import axios from "axios";
 import { Video, MessageSquare, X, AlertCircle, Loader2, ShieldCheck, ShieldX } from "lucide-react";
 import VideoCall from "../components/consultation/VideoCall";
 import ChatBox from "../components/consultation/ChatBox";
+import { API_BASE_URL as API_BASE } from "../utils/apiConfig";
 
-const API_BASE = "http://localhost:5000";
-const SOCKET_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "http://localhost:5000";
+const SOCKET_URL = API_BASE;
 
 const getAuthToken = () => {
   const t =
