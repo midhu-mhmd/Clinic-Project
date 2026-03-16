@@ -11,7 +11,6 @@ import {
   MoreVertical,
   ChevronDown,
   ChevronUp,
-  UserCheck,
   UserX,
   Command,
   ArrowUpDown,
@@ -430,8 +429,8 @@ const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate }) => (
     <div className="col-span-1 text-right">
       <ActionDropdown 
         onToggleStatus={() => {}} 
-        onVerify={() => {}}
-        onDelete={() => {}}
+        onVerify={() => {}} 
+        onDelete={() => {}} 
       />
     </div>
   </motion.div>
@@ -514,8 +513,8 @@ const BulkActionBtn = ({ icon, label, onClick, disabled, variant = "default" }) 
     disabled={disabled}
     onClick={onClick}
     className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-[9px] font-bold uppercase tracking-widest transition-all ${variant === "danger"
-        ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
-        : "bg-white/10 text-white hover:bg-white hover:text-zinc-900"
+      ? "bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white"
+      : "bg-white/10 text-white hover:bg-white hover:text-zinc-900"
       } disabled:opacity-20`}
   >
     {icon} {label}
