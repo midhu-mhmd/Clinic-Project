@@ -5,7 +5,6 @@ import { Globe, Lock, BellRing, CreditCard, Palette, Loader2 } from "lucide-reac
 
 // Sub-components
 import PublicProfile from "../../components/clinicSettings/PublicProfile.jsx";
-import VisualIdentity from "../../components/clinicSettings/VisualIdentity.jsx";
 import SecurityLogin from "../../components/clinicSettings/SecurityLogin.jsx";
 import AlertsNotifications from "../../components/clinicSettings/AlertsNotifications.jsx";
 import BillingSubscription from "../../components/clinicSettings/BillingSubscription.jsx";

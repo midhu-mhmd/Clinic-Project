@@ -152,7 +152,6 @@ const Doctors = () => {
         : await axios.post(API_DOCTORS, fd, { headers });
 
       if (res.data.success) {
-        // ✅ Updated message to match backend invitation logic
         setSuccessMsg(editingId ? "Faculty record updated." : "Practitioner created & Invitation dispatched.");
         await fetchDoctors();
         setTimeout(() => {
@@ -162,7 +161,12 @@ const Doctors = () => {
         }, 1500);
       }
     } catch (err) {
-      setError(normalizeApiError(err));
+      const msg = normalizeApiError(err);
+      if (msg && msg.toLowerCase().includes("doctor limit reached")) {
+        setError("Limit Reached: Your plan does not allow adding more practitioners.");
+      } else {
+        setError(msg);
+      }
     } finally {
       setIsSubmitting(false);
     }
