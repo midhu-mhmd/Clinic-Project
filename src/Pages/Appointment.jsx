@@ -110,7 +110,10 @@ const AppointmentPage = () => {
 
   const weekDays = useMemo(() => {
     return Array.from({ length: 7 }, (_, i) => {
-      const d = new Date();
+      const now = new Date();
+      // Calculate IST time (UTC + 5:30)
+      const istNow = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (5.5 * 60 * 60 * 1000));
+      const d = new Date(istNow);
       d.setDate(d.getDate() + i);
       const y = d.getFullYear();
       const m = String(d.getMonth() + 1).padStart(2, "0");
@@ -780,7 +783,10 @@ const AppointmentPage = () => {
             </div>
             <div className="flex justify-between">
               <span className="text-slate-400">Date & Time</span>
-              <span className="font-medium text-[#1E293B]">{selection.slot ? formatTo12h(selection.slot) : "—"}</span>
+              <span className="font-medium text-[#1E293B]">
+                {selection.date ? `${selection.date.dayNumber} ${selection.date.monthName}` : "—"}
+                {selection.slot ? `, ${formatTo12h(selection.slot)}` : ""}
+              </span>
             </div>
             <div className="flex justify-between border-t border-slate-100 pt-4">
               <span className="text-slate-400 font-semibold">Consultation Fee</span>
