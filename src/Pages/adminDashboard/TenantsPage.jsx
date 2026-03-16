@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, MapPin, Command, ChevronLeft, ChevronRight, Building2, MoreHorizontal, Calendar, Plus, Filter } from "lucide-react";
+import { Search, MapPin, Command, ChevronLeft, ChevronRight, Building2, MoreHorizontal, Calendar, Plus, Filter, Shield, LogOut, XCircle } from "lucide-react";
 import TenantProfileModal from "../../components/adminDashboard/TenantProfileModal";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
@@ -281,11 +281,75 @@ const ClinicRow = ({ clinic, index, formatDate, onClick }) => {
 
       {/* Action Button */}
       <div className="col-span-1 text-right">
-        <button className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500">
-          <MoreHorizontal size={14} />
-        </button>
+        <ActionDropdown 
+          onViewProfile={() => onClick()} 
+          onToggleStatus={() => {}}
+          onDelete={() => {}}
+        />
       </div>
     </motion.div>
+  );
+};
+
+const ActionDropdown = ({ onViewProfile, onToggleStatus, onDelete }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button 
+        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+        className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500"
+      >
+        <MoreHorizontal size={14} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[100] overflow-hidden"
+          >
+            <div className="py-1" role="menu" aria-orientation="vertical">
+              <button
+                onClick={(e) => { e.stopPropagation(); onViewProfile(); setIsOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
+                role="menuitem"
+              >
+                <Search size={12} className="text-zinc-400" /> View Profile
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleStatus(); setIsOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
+                role="menuitem"
+              >
+                <Shield size={12} className="text-zinc-400" /> Toggle Status
+              </button>
+              <div className="h-[1px] bg-zinc-100 my-1" />
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(); setIsOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors"
+                role="menuitem"
+              >
+                <XCircle size={12} /> Remove Tenant
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 };
 

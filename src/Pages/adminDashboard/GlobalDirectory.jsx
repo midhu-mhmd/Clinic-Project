@@ -15,7 +15,10 @@ import {
   UserX,
   Command,
   ArrowUpDown,
-  ChevronLeft
+  ChevronLeft,
+  Shield,
+  LogOut,
+  MoreHorizontal
 } from "lucide-react";
 
 /* --- CONFIG --- */
@@ -425,12 +428,76 @@ const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate }) => (
 
     {/* Action */}
     <div className="col-span-1 text-right">
-      <button className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500">
-        <MoreVertical size={14} />
-      </button>
+      <ActionDropdown 
+        onToggleStatus={() => {}} 
+        onVerify={() => {}}
+        onDelete={() => {}}
+      />
     </div>
   </motion.div>
 );
+
+const ActionDropdown = ({ onToggleStatus, onVerify, onDelete }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const dropdownRef = React.useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative inline-block text-left" ref={dropdownRef}>
+      <button 
+        onClick={(e) => { e.stopPropagation(); setIsOpen(!isOpen); }}
+        className="p-1 hover:bg-zinc-200 rounded transition-colors text-zinc-300 hover:text-zinc-900 group-hover:text-zinc-500"
+      >
+        <MoreHorizontal size={14} />
+      </button>
+
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: -10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: -10 }}
+            className="absolute right-0 mt-2 w-40 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5 z-[100] overflow-hidden"
+          >
+            <div className="py-1" role="menu" aria-orientation="vertical">
+              <button
+                onClick={(e) => { e.stopPropagation(); onToggleStatus(); setIsOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
+                role="menuitem"
+              >
+                <Shield size={12} className="text-zinc-400" /> Toggle Status
+              </button>
+              <button
+                onClick={(e) => { e.stopPropagation(); onVerify(); setIsOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-zinc-700 hover:bg-zinc-50 transition-colors"
+                role="menuitem"
+              >
+                <CheckCircle size={12} className="text-zinc-400" /> Verify Profile
+              </button>
+              <div className="h-[1px] bg-zinc-100 my-1" />
+              <button
+                onClick={(e) => { e.stopPropagation(); onDelete(); setIsOpen(false); }}
+                className="flex items-center gap-2 w-full px-4 py-2 text-[10px] font-bold uppercase tracking-widest text-red-600 hover:bg-red-50 transition-colors"
+                role="menuitem"
+              >
+                <UserX size={12} /> Remove Entry
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const PaginationBtn = ({ children, onClick, disabled }) => (
   <button
