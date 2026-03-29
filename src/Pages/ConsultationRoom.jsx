@@ -177,7 +177,7 @@ const ConsultationRoom = () => {
         <div className="flex items-center gap-3">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
           <span className="text-[10px] uppercase tracking-[0.3em] text-gray-400 font-bold">
-            Sovereign Healthbook — Video Consultation
+            Sovereign Healthcare — Video Consultation
           </span>
           <ShieldCheck size={12} className="text-emerald-400" />
         </div>

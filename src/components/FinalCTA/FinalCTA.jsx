@@ -95,7 +95,7 @@ const FinalCTA = () => {
       {/* Minimal Footer Info */}
       <div className="absolute bottom-8 sm:bottom-12 w-full px-6 sm:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
         <p className="text-[8px] sm:text-[9px] tracking-widest text-[#1E293B]/40 uppercase text-center md:text-left">
-          &copy; 2026 Sovereign HealthBook &mdash; Multi-Tenant Platform
+          &copy; 2026 Sovereign Healthcare &mdash; Multi-Tenant Platform
         </p>
 
         <button

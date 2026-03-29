@@ -203,7 +203,7 @@ const Navbar = () => {
   }, []);
 
   return (
-    <nav ref={navRef} className="fixed top-0 left-0 w-full z-[100] bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm md:shadow-none">
+    <nav ref={navRef} className="fixed top-0 left-0 w-full z-100 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm md:shadow-none">
       <div className="max-w-7xl mx-auto flex items-center justify-between px-4 sm:px-8 py-4">
 
         {/* LOGO SECTION */}
@@ -215,7 +215,7 @@ const Navbar = () => {
             </span>
             <span className="text-[9px] tracking-widest text-[#0F766E] font-medium mt-1 uppercase flex items-center gap-2">
               <span className="w-3 h-px bg-[#0F766E]/40" />
-              HealthBook
+              Healthcare
             </span>
           </div>
         </div>
@@ -271,7 +271,7 @@ const Navbar = () => {
                 </button>
 
                 {isProfileOpen && (
-                  <div className="absolute right-0 mt-4 w-56 md:w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl py-3 overflow-hidden z-[110]">
+                  <div className="absolute right-0 mt-4 w-56 md:w-60 bg-white border border-slate-200 rounded-2xl shadow-2xl py-3 overflow-hidden z-110">
                     <div className="px-5 py-3 border-b border-slate-100">
                       <p className="text-[9px] tracking-[0.2em] uppercase text-[#0F766E] font-bold">My Account</p>
                       <p className="text-sm font-medium text-[#1E293B] truncate">
@@ -328,7 +328,7 @@ const Navbar = () => {
 
       {/* MOBILE OVERLAY */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-2xl max-h-[calc(100vh-80px)] overflow-y-auto z-[90] mobile-overlay">
+        <div className="lg:hidden absolute top-full left-0 w-full bg-white border-t border-slate-100 shadow-2xl max-h-[calc(100vh-80px)] overflow-y-auto z-90 mobile-overlay">
           <div className="px-6 py-8 flex flex-col gap-8">
             <div className="flex flex-col gap-1">
               <p className="text-[9px] uppercase tracking-[0.4em] font-bold text-[#0F766E] mb-2 opacity-60 px-2">Navigation</p>
@@ -373,7 +373,7 @@ const Navbar = () => {
             )}
             
             <div className="pt-8 border-t border-slate-100 mobile-link">
-               <p className="text-[9px] text-slate-400 font-medium tracking-[0.1em] text-center uppercase">© 2026 Sovereign Health Platform</p>
+               <p className="text-[9px] text-slate-400 font-medium tracking-widest text-center uppercase">© 2026 Sovereign Health Platform</p>
             </div>
           </div>
         </div>

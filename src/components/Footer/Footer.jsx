@@ -117,10 +117,10 @@ const Footer = () => {
         <div className="border-t border-[#1E293B]/10 pt-12 flex flex-col md:flex-row justify-between items-end gap-12">
           <div className="order-2 md:order-1">
             <h1 className="text-[12vw] font-light tracking-tighter leading-none text-[#1E293B]/5 select-none">
-              HEALTHBOOK
+              HEALTHCARE
             </h1>
             <p className="text-[9px] tracking-[0.4em] uppercase text-[#1E293B]/30 mt-4">
-              © 2026 Sovereign HealthBook — All Rights Reserved
+              © 2026 Sovereign Healthcare — All Rights Reserved
             </p>
           </div>
 
