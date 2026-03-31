@@ -17,11 +17,9 @@ import {
   Video,
   MapPin,
 } from "lucide-react";
+import { API_URL } from "../../utils/apiConfig.js";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
-const API = `${API_BASE}/api`;
+const API = API_URL;
 
 /* =========================================================
    ✅ AUTH HELPERS (fix: uses authToken, not token)

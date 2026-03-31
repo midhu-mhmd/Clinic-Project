@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import gsap from "gsap";
+import API_BASE_URL from "../utils/apiConfig.js";
 import {
   Video,
   ArrowLeft,
@@ -17,8 +18,7 @@ import {
   FileText,
 } from "lucide-react";
 
-const API_BASE = "https://sovereigns.site";
-const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token") || "";
   const clean = t.replace(/['"]+/g, "").trim();

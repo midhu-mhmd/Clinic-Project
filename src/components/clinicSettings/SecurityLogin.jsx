@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import {
   ShieldCheck, Lock, Smartphone, History,
   KeyRound, AlertTriangle, CheckCircle2, Eye, EyeOff, Loader2
 } from "lucide-react";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 const cleanToken = (t) => {
   if (!t || typeof t !== "string") return null;
@@ -26,7 +25,7 @@ const authHeaders = () => {
   return { Authorization: `Bearer ${token}` };
 };
 
-const SecurityLogin = ({ data, onUpdate }) => {
+const SecurityLogin = () => {
   const [isSaving, setIsSaving] = useState(false);
   const [fetching, setFetching] = useState(true);
   const [showPassword, setShowPassword] = useState(false);
@@ -82,7 +81,7 @@ const SecurityLogin = ({ data, onUpdate }) => {
         { headers: authHeaders() }
       );
       setMessage({ type: "success", text: `${key} preference updated.` });
-    } catch (err) {
+    } catch {
       // Revert on error
       setSecurityPrefs(prev => ({ ...prev, [key]: !updatedValue }));
       setMessage({ type: "error", text: "Cloud sync failed." });

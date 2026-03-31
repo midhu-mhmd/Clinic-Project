@@ -18,7 +18,7 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-import { API_URL as API_BASE_URL } from "../utils/apiConfig.js";
+import API_BASE_URL from "../utils/apiConfig.js";
 
 const ClinicProfile = () => {
   const { id } = useParams();

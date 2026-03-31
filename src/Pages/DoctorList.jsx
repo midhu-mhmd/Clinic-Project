@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { API_URL } from "../utils/apiConfig.js";
@@ -20,7 +20,7 @@ const DoctorList = () => {
   const [limit] = useState(10);
 
 
-  const fetchDoctors = async () => {
+  const fetchDoctors = useCallback(async () => {
     try {
       setLoading(true);
       const { data } = await axios.get(`${API_URL}/doctors/directory`, {
@@ -42,14 +42,14 @@ const DoctorList = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [page, limit, searchQuery]);
 
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       fetchDoctors();
     }, searchQuery ? 500 : 0);
     return () => clearTimeout(debounceTimer);
-  }, [page, searchQuery]);
+  }, [fetchDoctors, searchQuery]);
 
   useEffect(() => {
     setPage(1);

@@ -3,15 +3,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { CreditCard, Landmark, Check, Copy, ChevronRight, AlertCircle } from "lucide-react";
 
-/**
- * Prefer environment-based base URL:
- * Vite: VITE_API_BASE_URL=https://sovereigns.site
- */
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
+import API_BASE_URL from "../utils/apiConfig.js";
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: API_BASE_URL,
   timeout: 15000,
 });
 
@@ -48,7 +42,9 @@ const readTokenFromStorage = () => {
         parsed?.data?.token;
       if (isValidToken(t)) return t;
     }
-  } catch {}
+  } catch {
+    // Ignore malformed legacy auth payloads and fall through to null.
+  }
 
   return null;
 };

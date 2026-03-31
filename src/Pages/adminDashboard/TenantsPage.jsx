@@ -1,10 +1,9 @@
 import React, { useState, useEffect, useMemo } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import { Search, MapPin, Command, ChevronLeft, ChevronRight, Building2, MoreHorizontal, Calendar, Plus, Filter } from "lucide-react";
 import TenantProfileModal from "../../components/adminDashboard/TenantProfileModal";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+import { API_URL } from "../../utils/apiConfig.js";
 
 const TenantsPage = () => {
   const [clinics, setClinics] = useState([]);
@@ -33,14 +32,14 @@ const TenantsPage = () => {
       setLoading(true);
       try {
         const token = localStorage.getItem("token");
-        const { data } = await axios.get(`${API_BASE_URL}/api/admin/tenants`, {
+        const { data } = await axios.get(`${API_URL}/admin/tenants`, {
           headers: { Authorization: `Bearer ${token}` }
         });
         // Ensure we handle different backend response shapes
         const results = Array.isArray(data) ? data : data.data || data.tenants || [];
         setClinics(results);
         setError(null);
-      } catch (err) {
+      } catch {
         setError("Database connection offline or unauthorized.");
         setClinics([]);
       } finally {
@@ -211,7 +210,6 @@ const TenantsPage = () => {
 
 const ClinicRow = ({ clinic, index, formatDate, onClick }) => {
   // Extracting dynamic data
-  const clinicId = clinic._id || clinic.id || "N/A";
   const plan = clinic.subscription?.plan || clinic.tier || "BASIC";
   const status = (clinic.subscription?.status || clinic.status || "PENDING").toUpperCase();
   const location = clinic.location || clinic.city || clinic.address || "Global";
@@ -219,7 +217,7 @@ const ClinicRow = ({ clinic, index, formatDate, onClick }) => {
   const registrationId = clinic.registrationId || "N/A";
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       onClick={onClick}
@@ -288,7 +286,7 @@ const ClinicRow = ({ clinic, index, formatDate, onClick }) => {
           <MoreHorizontal size={14} />
         </button>
       </div>
-    </motion.div>
+    </Motion.div>
   );
 };
 

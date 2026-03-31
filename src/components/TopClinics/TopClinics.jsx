@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
+import { API_URL } from "../../utils/apiConfig.js";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -20,7 +21,7 @@ function TopClinics() {
     const fetchClinics = async () => {
       try {
         // MATCHED TO YOUR BACKEND ROUTE: /api/tenants/all
-        const res = await axios.get("https://sovereigns.site/api/tenants/all");
+        const res = await axios.get(`${API_URL}/tenants/all`);
 
         // Ensure res.data is the array of formatted clinics from your controller
         const formattedData = res.data.data.map(clinic => ({

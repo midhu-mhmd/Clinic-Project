@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useCallback } from "react";
+import React, { useEffect, useRef, useState, useCallback, useMemo } from "react";
 import axios from "axios";
 import {
   Save,
@@ -9,15 +9,13 @@ import {
   Globe,
   MapPin,
 } from "lucide-react";
+import { API_URL } from "../../utils/apiConfig.js";
 
 /* =========================================================
    CONFIG
 ========================================================= */
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
-const PROFILE_URL = `${API_BASE}/api/tenants/profile`;
-const UPLOAD_URL = `${API_BASE}/api/tenants/upload-image`;
+const PROFILE_URL = `${API_URL}/tenants/profile`;
+const UPLOAD_URL = `${API_URL}/tenants/upload-image`;
 
 /* =========================================================
    AUTH HELPERS (authToken-first)
@@ -55,12 +53,11 @@ const authHeadersOrThrow = () => {
    - supports BOTH: onUpdate (from parent) and onProfileUpdate (legacy)
 ========================================================= */
 const PublicProfile = ({ data, onUpdate, onProfileUpdate }) => {
-  const notifyParent =
-    typeof onUpdate === "function"
-      ? onUpdate
-      : typeof onProfileUpdate === "function"
-        ? onProfileUpdate
-        : () => {};
+  const notifyParent = useMemo(() => {
+    if (typeof onUpdate === "function") return onUpdate;
+    if (typeof onProfileUpdate === "function") return onProfileUpdate;
+    return () => {};
+  }, [onProfileUpdate, onUpdate]);
 
   const [formData, setFormData] = useState({
     name: "",

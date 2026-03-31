@@ -132,7 +132,7 @@ const ClinicRegistration = () => {
         email: formData.email 
       });
       setSuccessMsg("A new code has been sent to your email.");
-    } catch (err) {
+    } catch {
       setApiError("Failed to resend code. Please try again later.");
     } finally {
       setLoading(false);

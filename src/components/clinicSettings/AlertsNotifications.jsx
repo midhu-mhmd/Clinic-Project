@@ -1,8 +1,8 @@
 import React, { useState, useEffect, useCallback, useRef } from "react";
 import {
-  BellRing, Mail, Smartphone, BellOff,
+  BellRing, BellOff,
   Stethoscope, Calendar, CreditCard, ShieldAlert,
-  Save, CheckCircle2, AlertCircle, Loader2
+  Save, CheckCircle2
 } from "lucide-react";
 
 const DEFAULT_PREFS = {
@@ -87,11 +87,14 @@ const AlertsNotifications = ({ data, onUpdate }) => {
     }
   };
 
-  const NotificationRow = ({ icon: Icon, title, desc, category }) => (
+  const NotificationRow = ({ icon, title, desc, category }) => {
+    const IconComponent = icon;
+
+    return (
     <div className="flex items-center justify-between py-6 border-b border-gray-50 group hover:bg-gray-50/50 px-4 transition-colors">
       <div className="flex items-center gap-6">
         <div className="w-10 h-10 bg-white border border-gray-100 flex items-center justify-center text-gray-400 group-hover:text-black transition-colors">
-          <Icon size={18} />
+          <IconComponent size={18} />
         </div>
         <div>
           <h4 className="text-[11px] font-bold uppercase tracking-widest">{title}</h4>
@@ -124,6 +127,7 @@ const AlertsNotifications = ({ data, onUpdate }) => {
       </div>
     </div>
   );
+  };
 
   return (
     <div className="space-y-12 animate-in slide-in-from-right-4 duration-500">

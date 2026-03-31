@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { X, Activity, User, Calendar, AlertTriangle, ShieldCheck, Mail, Phone, MapPin, Trash2 } from "lucide-react";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 const UserProfileModal = ({ userId, userData, onClose, onUpdate }) => {
     const [data, setData] = useState(userData || null);
@@ -10,13 +9,7 @@ const UserProfileModal = ({ userId, userData, onClose, onUpdate }) => {
     const [actionLoading, setActionLoading] = useState(null);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (!userData && userId) {
-            fetchUserDetails();
-        }
-    }, [userId, userData]);
-
-    const fetchUserDetails = async () => {
+    const fetchUserDetails = useCallback(async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem("token");
@@ -29,12 +22,18 @@ const UserProfileModal = ({ userId, userData, onClose, onUpdate }) => {
             } else {
                 setError("User data not found.");
             }
-        } catch (err) {
+        } catch {
             setError("Failed to load user details.");
         } finally {
             setLoading(false);
         }
-    };
+    }, [userId]);
+
+    useEffect(() => {
+        if (!userData && userId) {
+            fetchUserDetails();
+        }
+    }, [fetchUserDetails, userData, userId]);
 
     const handleAction = async (actionType) => {
         const token = localStorage.getItem("token");

@@ -5,7 +5,7 @@ import * as THREE from "three";
 import { Bell, Menu, X, ArrowRight } from "lucide-react";
 import axios from "axios";
 
-import { API_BASE_URL as API_BASE } from "../utils/apiConfig.js";
+import API_BASE_URL from "../utils/apiConfig.js";
 
 const Navbar = () => {
   const mountRef = useRef(null);
@@ -44,7 +44,7 @@ const Navbar = () => {
       if (savedUser && savedUser !== "undefined") {
         try {
           setUserData(JSON.parse(savedUser));
-        } catch (e) {
+        } catch {
           setUserData(null);
         }
       } else {
@@ -63,13 +63,13 @@ const Navbar = () => {
 
   // Fetch unread notification count
   useEffect(() => {
-    if (!isLoggedIn) { setUnreadCount(0); return; }
+    if (!isLoggedIn) return;
     const token = (localStorage.getItem("token") || localStorage.getItem("authToken") || "").replace(/['"]+/g, "").trim();
     if (!token) return;
 
     const fetchCount = async () => {
       try {
-        const { data } = await axios.get(`${API_BASE}/api/notifications/unread-count`, {
+        const { data } = await axios.get(`${API_BASE_URL}/api/notifications/unread-count`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUnreadCount(data?.unreadCount ?? 0);

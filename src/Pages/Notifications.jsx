@@ -15,8 +15,8 @@ import {
   MessageSquare,
 } from "lucide-react";
 
-const API_BASE = "https://sovereigns.site";
-const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
+import API_BASE_URL from "../utils/apiConfig.js";
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token") || "";
   const clean = t.replace(/['"]+/g, "").trim();

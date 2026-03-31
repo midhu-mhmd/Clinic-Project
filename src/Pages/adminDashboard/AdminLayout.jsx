@@ -1,6 +1,6 @@
 import React, { useCallback } from "react";
 import { useNavigate, useLocation, Outlet } from "react-router-dom";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   Users,
   Building2,
@@ -103,7 +103,7 @@ const AdminLayout = () => {
         {isMobileMenuOpen && (
           <>
             {/* Overlay */}
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -111,7 +111,7 @@ const AdminLayout = () => {
               className="fixed inset-0 z-[60] bg-zinc-900/50 backdrop-blur-sm lg:hidden"
             />
             {/* Sidebar */}
-            <motion.aside
+            <Motion.aside
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -166,7 +166,7 @@ const AdminLayout = () => {
                   <span>Sign Out</span>
                 </button>
               </div>
-            </motion.aside>
+            </Motion.aside>
           </>
         )}
       </AnimatePresence>

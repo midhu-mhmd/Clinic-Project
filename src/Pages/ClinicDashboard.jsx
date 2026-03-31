@@ -9,7 +9,6 @@ import {
   LogOut,
   Clock,
   Stethoscope,
-  Search,
   Loader2,
   ArrowUpRight,
   LifeBuoy,
@@ -34,7 +33,7 @@ import Doctors from "./clinicSide/clinicDoctors.jsx";
 import ClinicSupport from "./clinicSide/clinicSupport.jsx";
 
 /* ----------------------------- CONFIG ----------------------------- */
-const API_BASE = "https://sovereigns.site/api";
+import API_BASE_URL from "../utils/apiConfig.js";
 
 const MENU_ITEMS = [
   { id: "Overview", icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
@@ -68,7 +67,7 @@ const getAuthToken = () => {
 
 /* ----------------------------- API CLIENT ----------------------------- */
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: API_BASE_URL,
   timeout: 20000,
 });
 
@@ -115,14 +114,6 @@ const sameDay = (a, b) =>
 const fmtWeekday = (date) => new Intl.DateTimeFormat("en-US", { weekday: "short" }).format(date);
 const fmtMonth = (date) => new Intl.DateTimeFormat("en-US", { month: "short" }).format(date);
 
-const resolvePatientName = (appt) => {
-  if (appt?.patientInfo?.name) return appt.patientInfo.name;
-  if (appt?.patientId && typeof appt.patientId === "object" && appt.patientId?.name) return appt.patientId.name;
-  return appt?.patientName || "Patient";
-};
-
-const resolveStatus = (appt) => String(appt?.status || "PENDING").toUpperCase();
-
 const resolveFee = (appt) => {
   const n = Number(appt?.fee ?? appt?.consultationFee ?? 0);
   return Number.isFinite(n) ? n : 0;
@@ -160,11 +151,10 @@ const CustomTooltip = ({ active, payload, label }) => {
 /* ----------------------------- OVERVIEW ----------------------------- */
 const OverviewContent = React.memo(function OverviewContent({ stats, tenant, data }) {
   const flow = data?.flow || [];
-  const revenue = data?.revenue || [];
 
   const revenueTotal = useMemo(
-    () => revenue.reduce((acc, x) => acc + (Number(x.revenue) || 0), 0),
-    [revenue]
+    () => (data?.revenue || []).reduce((acc, x) => acc + (Number(x.revenue) || 0), 0),
+    [data?.revenue]
   );
 
   return (

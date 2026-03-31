@@ -22,12 +22,10 @@ import {
   Tooltip,
   ResponsiveContainer,
 } from "recharts";
-
-// --- API CONFIGURATION ---
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: API_BASE_URL,
   timeout: 15000,
   headers: { "Content-Type": "application/json" },
 });

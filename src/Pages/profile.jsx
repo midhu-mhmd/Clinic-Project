@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import axios from "axios";
 import gsap from "gsap";
 import { User, Mail, Calendar, Hash, MapPin, Phone, Award, Shield, ArrowLeft, Camera, Check, X, Edit3 } from "lucide-react";
@@ -16,7 +16,7 @@ const Profile = () => {
     const containerRef = useRef(null);
     const fileInputRef = useRef(null);
 
-    const fetchUserData = async () => {
+    const fetchUserData = useCallback(async () => {
         try {
             const token = localStorage.getItem("token");
             if (!token) {
@@ -57,11 +57,11 @@ const Profile = () => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [navigate]);
 
     useEffect(() => {
         fetchUserData();
-    }, [navigate]);
+    }, [fetchUserData]);
 
     useEffect(() => {
         if (!loading && user) {

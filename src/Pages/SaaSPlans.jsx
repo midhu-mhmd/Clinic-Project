@@ -3,16 +3,9 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { ArrowRight, Check, RefreshCw } from "lucide-react";
 
-/**
- * Prefer environment-based base URL:
- * Vite: import.meta.env.VITE_API_BASE_URL
- * Example: VITE_API_BASE_URL=https://sovereigns.site
- */
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
+import API_BASE_URL from "../utils/apiConfig.js";
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: API_BASE_URL,
   timeout: 15000,
 });
 

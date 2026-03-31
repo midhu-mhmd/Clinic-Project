@@ -1,27 +1,22 @@
 import React, { useEffect, useMemo, useState, useCallback } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
-  Activity,
   Loader2,
   Search,
   ChevronLeft,
   ChevronRight,
   Building2,
-  MapPin,
   CreditCard,
-  ArrowRight,
   MoreVertical,
   Calendar,
   RefreshCw,
   XCircle,
   Pause,
   Ticket,
-  ShieldAlert,
-  ChevronDown
+  ShieldAlert
 } from "lucide-react";
-
-const API_BASE_URL = "https://sovereigns.site/api";
+import { API_URL } from "../../utils/apiConfig.js";
 
 const PLAN_CATALOG = {
   PRO: { name: "Standard", price: { monthly: 1999, yearly: 19990 } },
@@ -30,7 +25,6 @@ const PLAN_CATALOG = {
 };
 
 const Subscriptions = () => {
-  const [billing, setBilling] = useState("monthly");
   const [clinicPage, setClinicPage] = useState(1);
   const [clinicLimit] = useState(12);
   const [clinicSearch, setClinicSearch] = useState("");
@@ -59,7 +53,7 @@ const Subscriptions = () => {
 
   const api = useMemo(() => {
     const instance = axios.create({
-      baseURL: API_BASE_URL,
+      baseURL: API_URL,
       timeout: 15000,
       headers: { "Content-Type": "application/json" },
     });
@@ -83,66 +77,64 @@ const Subscriptions = () => {
     };
   }, []);
 
+  const fetchClinics = useCallback(async (signal) => {
+    try {
+      setClinicsLoading(true);
+      setClinicsError("");
+      const res = await api.get("/tenants/all", {
+        signal,
+        params: {
+          page: clinicPage,
+          limit: clinicLimit,
+          search: clinicSearch.trim() || undefined,
+        },
+      });
+      setClinics(res.data?.data || []);
+      setClinicsMeta({
+        total: Number(res.data?.meta?.total || 0),
+        totalPages: Number(res.data?.meta?.totalPages || 1),
+      });
+    } catch (err) {
+      if (err?.name === "CanceledError") return;
+      setClinicsError(err?.response?.data?.message || "Connection failed.");
+    } finally {
+      setClinicsLoading(false);
+    }
+  }, [api, clinicLimit, clinicPage, clinicSearch]);
+
   useEffect(() => {
     const controller = new AbortController();
-    const fetchClinics = async () => {
-      try {
-        setClinicsLoading(true);
-        const res = await api.get("/tenants/all", {
-          signal: controller.signal,
-          params: {
-            page: clinicPage,
-            limit: clinicLimit,
-            search: clinicSearch.trim() || undefined,
-          },
-        });
-        setClinics(res.data?.data || []);
-        setClinicsMeta({
-          total: Number(res.data?.meta?.total || 0),
-          totalPages: Number(res.data?.meta?.totalPages || 1),
-        });
-      } catch (err) {
-        if (err?.name === "CanceledError") return;
-        setClinicsError(err?.response?.data?.message || "Connection failed.");
-      } finally {
-        setClinicsLoading(false);
-      }
-    };
-    fetchClinics();
+    fetchClinics(controller.signal);
     return () => controller.abort();
-  }, [api, clinicPage, clinicLimit, clinicSearch]);
+  }, [fetchClinics]);
 
-  const handleClinicAction = useCallback(async (clinicId, type, data = {}) => {
+  const handleClinicAction = useCallback(async (clinicId, type) => {
     const clinic = clinics.find(c => c._id === clinicId);
     setSelectedClinic(clinic);
 
-    if (type === 'PAUSE' || type === 'CANCEL_IMMEDIATE' || type === 'CANCEL_PERIOD') {
-      // These could be handled directly if simple, or via modal
-      if (type === 'PAUSE') {
-        try {
-          setActionLoading(true);
-          await api.patch(`/tenants/subscription/pause/${clinicId}`);
-          // Refresh list
-          setClinics(prev => prev.map(c => c._id === clinicId ? { ...c, isPaused: !c.isPaused } : c));
-        } catch (err) {
-          alert(err.response?.data?.message || "Action failed");
-        } finally {
-          setActionLoading(false);
-        }
-        return;
+    if (type === 'PAUSE') {
+      try {
+        setActionLoading(true);
+        await api.patch(`/tenants/subscription/pause/${clinicId}`);
+        await fetchClinics();
+      } catch (err) {
+        alert(err.response?.data?.message || "Action failed");
+      } finally {
+        setActionLoading(false);
       }
+      return;
     }
 
     // Open modal for others
     setActiveModal({ type, clinicId });
-    if (type === 'PLAN') setNewPlan(clinic.tier || 'PRO');
+    if (type === 'PLAN') setNewPlan(clinic?.tier || 'PRO');
     if (type === 'CYCLE') {
-      const c = String(clinic.billingCycle || 'MONTHLY').toUpperCase();
+      const c = String(clinic?.billingCycle || 'MONTHLY').toUpperCase();
       setNewCycle(c === 'ANNUAL' || c === 'YEARLY' ? 'ANNUAL' : 'MONTHLY');
     }
-  }, [api, clinics]);
+  }, [api, clinics, fetchClinics]);
 
-  const executeAction = async () => {
+  const executeAction = async (options = {}) => {
     if (!activeModal) return;
     const { type, clinicId } = activeModal;
 
@@ -152,7 +144,9 @@ const Subscriptions = () => {
       if (type === 'PLAN') {
         res = await api.patch(`/tenants/subscription/plan/${clinicId}`, { plan: newPlan });
       } else if (type === 'CANCEL') {
-        res = await api.patch(`/tenants/subscription/cancel/${clinicId}`, { immediate: data.immediate });
+        res = await api.patch(`/tenants/subscription/cancel/${clinicId}`, {
+          immediate: Boolean(options.immediate),
+        });
       } else if (type === 'COUPON') {
         res = await api.patch(`/tenants/subscription/coupon/${clinicId}`, { couponCode });
       } else if (type === 'CYCLE') {
@@ -162,8 +156,7 @@ const Subscriptions = () => {
       }
 
       if (res?.data?.success) {
-        // Refresh the whole list for simplicity or update locally
-        setClinicPage(p => p); // Trigger useEffect
+        await fetchClinics();
         setActiveModal(null);
         setOverrideDetails("");
         setCouponCode("");
@@ -174,7 +167,6 @@ const Subscriptions = () => {
       setActionLoading(false);
     }
   };
-
 
   return (
     <div className="bg-transparent text-[#1A1A1A] font-sans selection:bg-zinc-900 selection:text-white antialiased">
@@ -193,6 +185,12 @@ const Subscriptions = () => {
 
       {/* SECTION 03: THE GRID */}
       <main className="relative">
+        {clinicsError && (
+          <div className="mb-4 border border-red-100 bg-red-50 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-red-600">
+            {clinicsError}
+          </div>
+        )}
+
         <div className="overflow-x-auto custom-scrollbar pb-4 -mx-6 px-6 sm:mx-0 sm:px-0">
           <div className="min-w-[1200px]">
         <div className="grid grid-cols-12 px-4 py-3 bg-zinc-50 border border-zinc-100 rounded-t-sm text-[10px] font-bold uppercase tracking-widest text-zinc-400">
@@ -233,6 +231,9 @@ const Subscriptions = () => {
         {/* SECTION 04: PAGINATION */}
         {!clinicsLoading && (
           <footer className="py-10 flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-[0.3em] text-zinc-400">
+              {clinicsMeta.total} entities
+            </span>
             <button
               className="p-2 border border-zinc-100 rounded-md hover:border-zinc-900 transition-colors disabled:opacity-20"
               onClick={() => setClinicPage((p) => Math.max(1, p - 1))}
@@ -260,7 +261,7 @@ const Subscriptions = () => {
       <AnimatePresence>
         {activeModal && (
           <div className="fixed inset-0 bg-zinc-900/60 backdrop-blur-sm z-[100] flex items-center justify-center p-6">
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
@@ -376,7 +377,7 @@ const Subscriptions = () => {
                   </button>
                 </div>
               )}
-            </motion.div>
+            </Motion.div>
           </div>
         )}
       </AnimatePresence>
@@ -388,16 +389,16 @@ const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR, onAction }) => {
   const [showActions, setShowActions] = useState(false);
   const planRaw = clinic.tier || "PRO";
   const statusRaw = clinic.subscriptionStatus || "PENDING";
-  const { name, price, backend } = getPlanDisplay(planRaw, clinic.billingCycle);
+  const { price, backend } = getPlanDisplay(planRaw, clinic.billingCycle);
   const status = String(statusRaw).toUpperCase();
 
-  const handleAction = (type, data = {}) => {
+  const handleAction = (type) => {
     setShowActions(false);
-    onAction(clinic._id, type, data);
+    onAction(clinic._id, type);
   };
 
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0, y: 5 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay: idx * 0.03 }}
@@ -491,7 +492,7 @@ const ClinicRow = ({ clinic, idx, getPlanDisplay, formatINR, onAction }) => {
           </div>
         )}
       </div>
-    </motion.div>
+    </Motion.div>
   );
 };
 

@@ -18,7 +18,7 @@ const ResetPassword = () => {
   // 1. Capture context from ForgotPassword.jsx
   // IMPORTANT: 'view' determines the backend endpoint AND the redirect page
   const email = location.state?.email || "";
-  const view = location.state?.view || "user"; 
+  const view = location.state?.view || location.state?.role || "user"; 
 
   // UI & Form States
   const [otp, setOtp] = useState("");
@@ -68,7 +68,7 @@ const ResetPassword = () => {
       ? `${API_URL}/tenants/reset-password` 
       : `${API_URL}/users/reset-password-otp`;
 
-    const redirectPath = isClinicFlow ? "/login" : "/clinic-login";
+    const redirectPath = isClinicFlow ? "/clinic-login" : "/login";
 
     try {
       await axios.post(endpoint, {

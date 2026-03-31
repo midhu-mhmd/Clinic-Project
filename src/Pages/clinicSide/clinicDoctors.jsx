@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import axios from "axios";
 import {
   UserPlus,
@@ -15,9 +15,9 @@ import {
   Clock,
   DollarSign,
 } from "lucide-react";
+import { API_URL } from "../../utils/apiConfig.js";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-const API_DOCTORS = `${API_BASE}/api/doctors`;
+const API_DOCTORS = `${API_URL}/doctors`;
 
 /* =========================================================
     ✅ AUTH HELPERS
@@ -184,6 +184,12 @@ const Doctors = () => {
 
   return (
     <div className="p-8 lg:p-12 animate-in fade-in duration-700">
+      {loading && (
+        <div className="mb-8 flex items-center gap-3 text-[10px] uppercase tracking-[0.2em] text-gray-400">
+          <Loader2 size={16} className="animate-spin" /> Synchronizing Faculty...
+        </div>
+      )}
+
       {/* HEADER SECTION */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
         <div>

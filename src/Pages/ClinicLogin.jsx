@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
 import { Eye, EyeOff, Loader2, ArrowRight } from "lucide-react";
 
-import { API_BASE_URL } from "../utils/apiConfig.js";
+import API_BASE_URL from "../utils/apiConfig.js";
 
 const isValidJwt = (t) => {
   if (!t || typeof t !== "string") return false;

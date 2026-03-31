@@ -5,9 +5,9 @@ import axios from "axios";
 import { Video, MessageSquare, X, AlertCircle, Loader2, ShieldCheck, ShieldX } from "lucide-react";
 import VideoCall from "../components/consultation/VideoCall";
 import ChatBox from "../components/consultation/ChatBox";
-import { API_BASE_URL as API_BASE } from "../utils/apiConfig";
+import API_BASE_URL from "../utils/apiConfig.js";
 
-const SOCKET_URL = API_BASE;
+const SOCKET_URL = API_BASE_URL;
 
 const getAuthToken = () => {
   const t =
@@ -48,7 +48,7 @@ const ConsultationRoom = () => {
     const verifyToken = async () => {
       try {
         const { data } = await axios.post(
-          `${API_BASE}/api/video-consultations/verify-token`,
+          `${API_BASE_URL}/api/video-consultations/verify-token`,
           { meetingToken: roomToken },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -106,7 +106,7 @@ const ConsultationRoom = () => {
       const token = getAuthToken();
       try {
         await axios.post(
-          `${API_BASE}/api/video-consultations/end`,
+          `${API_BASE_URL}/api/video-consultations/end`,
           { roomId },
           { headers: { Authorization: `Bearer ${token}` } }
         );

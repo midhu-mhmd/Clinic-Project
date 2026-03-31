@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -7,7 +7,7 @@ import { ArrowUpRight, Search, MapPin, AlertCircle, Plus } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-import { API_URL as API_BASE_URL } from "../utils/apiConfig.js";
+import API_BASE_URL from "../utils/apiConfig.js";
 
 const ClinicList = () => {
   const containerRef = useRef(null);
@@ -46,7 +46,7 @@ const ClinicList = () => {
             setTotalPages(response.meta.totalPages);
           }
         }
-      } catch (err) {
+      } catch {
         setError("Network Infrastructure Offline");
       } finally {
         setTimeout(() => setLoading(false), 600);
@@ -80,7 +80,7 @@ const ClinicList = () => {
       });
 
       // Card Staggered Reveal
-      gsap.utils.toArray(".clinic-card").forEach((card, i) => {
+      gsap.utils.toArray(".clinic-card").forEach((card) => {
         gsap.from(card, {
           y: 60,
           opacity: 0,
@@ -238,8 +238,8 @@ const ClinicList = () => {
 
 const SkeletonLoader = () => (
   <>
-    {[1, 2, 3].map((i) => (
-      <div key={i} className="space-y-6 animate-pulse">
+    {[1, 2, 3].map((_, index) => (
+      <div key={index} className="space-y-6 animate-pulse">
         <div className="aspect-[4/5] bg-[#1E293B]/5" />
         <div className="h-4 w-24 bg-[#1E293B]/5" />
         <div className="h-12 w-full bg-[#1E293B]/5" />

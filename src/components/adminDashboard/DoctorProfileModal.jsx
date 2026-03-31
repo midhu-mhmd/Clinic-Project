@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { X, Activity, User, HardDrive, Calendar, Zap, AlertTriangle, ShieldCheck, Download, RefreshCw, LogIn, Trash2, CheckCircle, ShieldAlert, ExternalLink } from "lucide-react";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 /**
  * Since superadmin might need to access doctors directly, 
  * ensure the API endpoint and authorization are correct.
  */
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
 const DoctorProfileModal = ({ doctorId, doctorData, onClose, onUpdate }) => {
     const navigate = useNavigate();
     const [data, setData] = useState(doctorData || null);
@@ -16,11 +15,7 @@ const DoctorProfileModal = ({ doctorId, doctorData, onClose, onUpdate }) => {
     const [actionLoading, setActionLoading] = useState(null);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        if (!doctorData && doctorId) fetchDoctorDetails();
-    }, [doctorId, doctorData]);
-
-    const fetchDoctorDetails = async () => {
+    const fetchDoctorDetails = useCallback(async () => {
         try {
             setLoading(true);
             const token = localStorage.getItem("token");
@@ -41,7 +36,11 @@ const DoctorProfileModal = ({ doctorId, doctorData, onClose, onUpdate }) => {
         } finally {
             setLoading(false);
         }
-    };
+    }, [doctorId]);
+
+    useEffect(() => {
+        if (!doctorData && doctorId) fetchDoctorDetails();
+    }, [doctorData, doctorId, fetchDoctorDetails]);
 
     const handleAction = async (actionType) => {
         const token = localStorage.getItem("token");

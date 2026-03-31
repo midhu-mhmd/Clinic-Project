@@ -14,11 +14,9 @@ import {
   Calendar,
   FileText,
 } from "lucide-react";
+import { API_URL } from "../../utils/apiConfig.js";
 
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
-const API_APPOINTMENTS = `${API_BASE}/api/appointments/my-appointments`;
+const API_APPOINTMENTS = `${API_URL}/appointments/my-appointments`;
 
 /* =========================================================
    ✅ AUTH HELPERS (authToken-first)

@@ -18,7 +18,7 @@ import {
   Shield,
 } from "lucide-react";
 
-import { API_BASE_URL } from "../utils/apiConfig.js";
+import API_BASE_URL from "../utils/apiConfig.js";
 
 const api = axios.create({ baseURL: API_BASE_URL, timeout: 30000 });
 api.interceptors.request.use((cfg) => {
@@ -40,8 +40,8 @@ const renderMarkdown = (text) => {
     // Italic: *text*
     html = html.replace(/(?<!\*)\*(?!\*)(.*?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
     // Bullet points
-    if (/^[•\-]\s/.test(html.trim())) {
-      html = html.replace(/^[•\-]\s*/, "");
+    if (/^[•-]\s/.test(html.trim())) {
+      html = html.replace(/^[•-]\s*/, "");
       return <li key={i} className="ml-4 list-disc text-sm leading-relaxed" dangerouslySetInnerHTML={{ __html: html }} />;
     }
     // Numbered list

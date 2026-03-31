@@ -1,8 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
 import { X, Activity, Users, HardDrive, Calendar, Zap, AlertTriangle, ShieldAlert, Download, RefreshCw, LogIn, Trash2, ShieldCheck } from "lucide-react";
-
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 const TenantProfileModal = ({ tenantId, onClose, onStatusChange }) => {
     const [data, setData] = useState(null);
@@ -10,11 +9,7 @@ const TenantProfileModal = ({ tenantId, onClose, onStatusChange }) => {
     const [actionLoading, setActionLoading] = useState(null);
     const [error, setError] = useState("");
 
-    useEffect(() => {
-        fetchTenantDetails();
-    }, [tenantId]);
-
-    const fetchTenantDetails = async () => {
+    const fetchTenantDetails = useCallback(async () => {
         try {
             const token = localStorage.getItem("token");
             const res = await axios.get(`${API_BASE_URL}/api/admin/tenants/${tenantId}`, {
@@ -23,12 +18,16 @@ const TenantProfileModal = ({ tenantId, onClose, onStatusChange }) => {
             if (res.data.success) {
                 setData(res.data.data);
             }
-        } catch (err) {
+        } catch {
             setError("Failed to load tenant details.");
         } finally {
             setLoading(false);
         }
-    };
+    }, [tenantId]);
+
+    useEffect(() => {
+        fetchTenantDetails();
+    }, [fetchTenantDetails]);
 
     const handleAction = async (actionType) => {
         const token = localStorage.getItem("token");

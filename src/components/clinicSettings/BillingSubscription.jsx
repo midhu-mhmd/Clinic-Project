@@ -10,11 +10,9 @@ import {
   Zap,
   RefreshCw,
 } from "lucide-react";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 /* ----------------------------- CONFIG ----------------------------- */
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
 const getAuthToken = () => {
   // ✅ primary key
   const t = localStorage.getItem("authToken");
@@ -35,7 +33,7 @@ const getAuthToken = () => {
 
 /* ----------------------------- API CLIENT ----------------------------- */
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: API_BASE_URL,
   timeout: 20000,
 });
 
@@ -64,7 +62,7 @@ const titleCase = (s) =>
     .replace(/(^|\s)\S/g, (t) => t.toUpperCase());
 
 /* ----------------------------- COMPONENT ----------------------------- */
-const BillingSubscription = ({ data, onUpdate }) => {
+const BillingSubscription = () => {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const [tenant, setTenant] = useState(null);

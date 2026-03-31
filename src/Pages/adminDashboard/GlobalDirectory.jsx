@@ -1,32 +1,25 @@
-import React, { useState, useEffect, useMemo, useCallback } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   Search,
-  ArrowLeft,
   ChevronRight,
   Filter,
   Download,
   CheckCircle,
-  MoreVertical,
-  ChevronDown,
-  ChevronUp,
   UserX,
   Command,
   ArrowUpDown,
   ChevronLeft,
-  Shield,
-  LogOut,
   MoreHorizontal,
   UserCheck
 } from "lucide-react";
 import DoctorProfileModal from "../../components/adminDashboard/DoctorProfileModal";
+import { API_URL } from "../../utils/apiConfig.js";
 
 /* --- CONFIG --- */
-const API_BASE_URL = "https://sovereigns.site/api";
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -168,15 +161,6 @@ const GlobalDirectory = () => {
     }
   };
 
-  const formatDate = (dateString) => {
-    if (!dateString) return "N/A";
-    return new Intl.DateTimeFormat("en-GB", {
-      day: "2-digit",
-      month: "short",
-      year: "numeric"
-    }).format(new Date(dateString));
-  };
-
   const totalPages = Math.ceil(totalCount / itemsPerPage);
 
   if (loading && currentPage === 1) return <MinimalLoader />;
@@ -254,7 +238,7 @@ const GlobalDirectory = () => {
         {/* BULK ACTIONS TOOLBAR */}
         <AnimatePresence>
           {selectedIds.length > 0 && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -268,7 +252,7 @@ const GlobalDirectory = () => {
                 <BulkActionBtn icon={<UserX size={12} />} label="Deactivate" onClick={() => handleBulkAction('isActive', false)} variant="danger" />
               </div>
               <button onClick={() => setSelectedIds([])} className="text-[10px] uppercase font-bold text-zinc-500 hover:text-white underline underline-offset-4">Discard</button>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
 
@@ -309,7 +293,6 @@ const GlobalDirectory = () => {
                       index={(currentPage - 1) * itemsPerPage + index}
                       isSelected={selectedIds.includes(doc._id)}
                       onSelect={() => toggleSelect(doc._id)}
-                      formatDate={formatDate}
                       onAction={() => setSelectedDoctor(doc)}
                     />
                   ))
@@ -357,8 +340,8 @@ const GlobalDirectory = () => {
 
 /* --- SUB-COMPONENTS --- */
 
-const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate, onAction }) => (
-  <motion.div
+const FacultyRow = ({ doc, index, isSelected, onSelect, onAction }) => (
+  <Motion.div
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     onClick={onAction}
@@ -451,7 +434,7 @@ const FacultyRow = ({ doc, index, isSelected, onSelect, formatDate, onAction }) 
         <MoreHorizontal size={14} />
       </button>
     </div>
-  </motion.div>
+  </Motion.div>
 );
 
 const PaginationBtn = ({ children, onClick, disabled }) => (
@@ -480,13 +463,6 @@ const BulkActionBtn = ({ icon, label, onClick, disabled, variant = "default" }) 
 const MinimalLoader = () => (
   <div className="h-screen w-full flex items-center justify-center bg-white">
     <div className="w-5 h-5 border-2 border-zinc-100 border-t-zinc-900 rounded-full animate-spin" />
-  </div>
-);
-
-const FilterGroup = ({ label, children }) => (
-  <div className="space-y-2">
-    <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-400">{label}</label>
-    {children}
   </div>
 );
 

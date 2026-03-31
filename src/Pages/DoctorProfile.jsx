@@ -14,7 +14,7 @@ import {
   AlertCircle,
 } from "lucide-react";
 
-import { API_URL as API_BASE_URL } from "../utils/apiConfig.js";
+import { API_URL } from "../utils/apiConfig.js";
 
 // --- Styled Components / Sub-components ---
 const StatBox = ({ label, value }) => (
@@ -85,7 +85,7 @@ const DoctorProfile = () => {
         setError(null);
 
         const { data } = await axios.get(
-          `${API_BASE_URL}/doctors/public/${id}`,
+          `${API_URL}/doctors/public/${id}`,
           { signal: controller.signal }
         );
 

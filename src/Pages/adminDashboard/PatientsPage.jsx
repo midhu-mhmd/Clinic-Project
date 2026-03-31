@@ -1,37 +1,26 @@
-import React, { useState, useEffect, useCallback, useMemo } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect, useCallback } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion as Motion, AnimatePresence } from "framer-motion";
 import {
   Search,
   Filter,
   MoreHorizontal,
   Download,
-  Shield,
-  Activity,
-  Calendar,
-  Building2,
-  Users,
   ChevronLeft,
   ChevronRight,
   LogOut,
   CheckCircle2, 
   XCircle, 
   AlertCircle, 
-  Clock,
-  ChevronDown,
   ArrowUpDown,
   Command,
-  Plus, 
-  UserX 
 } from "lucide-react";
 import UserProfileModal from "../../components/adminDashboard/UserProfileModal";
+import { API_URL } from "../../utils/apiConfig.js";
 
 /* --- CONFIG --- */
-const API_BASE_URL = "https://sovereigns.site/api";
-
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
 });
 
 api.interceptors.request.use((config) => {
@@ -134,7 +123,7 @@ const PatientsPage = () => {
       await api.post("/users/bulk-update", { userIds: selectedUsers, isActive });
       setSelectedUsers([]);
       fetchUsers();
-    } catch (err) {
+    } catch {
       alert("Bulk update failed");
     } finally {
       setIsBulkLoading(false);
@@ -148,7 +137,7 @@ const PatientsPage = () => {
       await api.post("/users/bulk-logout", { userIds: selectedUsers });
       setSelectedUsers([]);
       fetchUsers();
-    } catch (err) {
+    } catch {
       alert("Bulk logout failed");
     } finally {
       setIsBulkLoading(false);
@@ -164,7 +153,7 @@ const PatientsPage = () => {
       link.setAttribute('download', 'global_users_export.csv');
       document.body.appendChild(link);
       link.click();
-    } catch (err) {
+    } catch {
       alert("Export failed");
     }
   };
@@ -286,7 +275,7 @@ const PatientsPage = () => {
         {/* BULK ACTIONS TOOLBAR */}
         <AnimatePresence>
           {selectedUsers.length > 0 && (
-            <motion.div
+            <Motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 20 }}
@@ -301,7 +290,7 @@ const PatientsPage = () => {
                 <BulkActionBtn icon={<LogOut size={12} />} label="Logout" onClick={handleBulkLogout} disabled={isBulkLoading} />
               </div>
               <button onClick={() => setSelectedUsers([])} className="text-[10px] uppercase font-bold text-zinc-500 hover:text-white underline underline-offset-4">Discard</button>
-            </motion.div>
+            </Motion.div>
           )}
         </AnimatePresence>
 
@@ -413,9 +402,8 @@ const PatientsPage = () => {
 /* --- SUB-COMPONENTS --- */
 
 const UserRow = ({ user, index, isSelected, onSelect, onAction, formatDate }) => {
-  const navigate = useNavigate();
   return (
-    <motion.div
+    <Motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       onClick={onAction} // Row click opens modal
@@ -502,7 +490,7 @@ const UserRow = ({ user, index, isSelected, onSelect, onAction, formatDate }) =>
           <MoreHorizontal size={14} />
         </button>
       </div>
-    </motion.div>
+    </Motion.div>
   );
 };
 

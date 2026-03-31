@@ -8,14 +8,12 @@ import PublicProfile from "../../components/clinicSettings/PublicProfile.jsx";
 import SecurityLogin from "../../components/clinicSettings/SecurityLogin.jsx";
 import AlertsNotifications from "../../components/clinicSettings/AlertsNotifications.jsx";
 import BillingSubscription from "../../components/clinicSettings/BillingSubscription.jsx";
+import { API_URL } from "../../utils/apiConfig.js";
 
 /* =========================================================
    CONFIG
 ========================================================= */
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
-const PROFILE_URL = `${API_BASE}/api/tenants/profile`;
+const PROFILE_URL = `${API_URL}/tenants/profile`;
 
 /* =========================================================
    AUTH HELPERS (authToken-first)

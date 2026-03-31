@@ -18,14 +18,12 @@ import {
   ArrowUpRight,
   BarChart3,
 } from "lucide-react";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 /* =========================================================
    API
 ========================================================= */
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
-
-const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 api.interceptors.request.use((cfg) => {
   const raw = localStorage.getItem("token");
   if (raw) {

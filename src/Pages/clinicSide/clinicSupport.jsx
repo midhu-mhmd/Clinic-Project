@@ -16,9 +16,7 @@ import {
   Circle,
   Filter,
 } from "lucide-react";
-
-const API_BASE =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+import API_BASE_URL from "../../utils/apiConfig.js";
 
 /* =========================================================
    AUTH HELPERS
@@ -44,7 +42,7 @@ const readAuthToken = () => {
   return null;
 };
 
-const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 api.interceptors.request.use((cfg) => {
   const t = readAuthToken();
   if (t) cfg.headers.Authorization = `Bearer ${t}`;

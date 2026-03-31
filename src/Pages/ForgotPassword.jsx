@@ -63,8 +63,6 @@ const ForgotPassword = () => {
   const isClinic = view === "clinic";
   const themeColor = isClinic ? "text-[#0F766E]" : "text-[#5B8EC2]";
   const bgColor = isClinic ? "bg-[#1E293B]" : "bg-[#1E293B]"; 
-  const accentBorder = isClinic ? "border-[#0F766E]" : "border-[#5B8EC2]";
-
   // --- VIEW 1: THE CHOICE SCREEN ---
   // If forced to clinic view, skip the choice screen
   if (view === "choice") {

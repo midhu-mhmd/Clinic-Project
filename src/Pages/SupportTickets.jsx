@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import gsap from "gsap";
@@ -16,8 +16,9 @@ import {
   Filter,
 } from "lucide-react";
 
-import { API_BASE_URL as API_BASE } from "../utils/apiConfig.js";
-const api = axios.create({ baseURL: API_BASE, timeout: 15000 });
+import API_BASE_URL from "../utils/apiConfig.js";
+
+const api = axios.create({ baseURL: API_BASE_URL, timeout: 15000 });
 api.interceptors.request.use((cfg) => {
   const t = localStorage.getItem("token") || "";
   const clean = t.replace(/['"]+/g, "").trim();
@@ -67,33 +68,33 @@ const SupportTickets = () => {
   });
   const [creating, setCreating] = useState(false);
 
-  const fetchClinics = async () => {
+  const fetchClinics = useCallback(async () => {
     try {
       const { data } = await api.get("/api/tickets/my-clinics");
       if (data.success) setClinics(data.clinics || []);
     } catch {
       // silent
     }
-  };
+  }, []);
 
-  const fetchTickets = async () => {
+  const fetchTickets = useCallback(async () => {
     setLoading(true);
     try {
       const params = {};
       if (statusFilter) params.status = statusFilter;
       const { data } = await api.get("/api/tickets", { params });
-      if (data.success) setTickets(data.tickets || []);
+      if (data.success) setTickets(data.tickets || data.data || []);
     } catch {
       // silent
     } finally {
       setLoading(false);
     }
-  };
+  }, [statusFilter]);
 
   useEffect(() => {
     fetchTickets();
     fetchClinics();
-  }, [statusFilter]);
+  }, [fetchClinics, fetchTickets]);
 
   useEffect(() => {
     if (!loading && containerRef.current) {
@@ -171,6 +172,19 @@ const SupportTickets = () => {
           <Loader2 className="w-10 h-10 text-[#0F766E] animate-spin" />
           <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/40 font-bold">
             Loading Tickets...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (selectedTicket && detailLoading && !ticketDetail) {
+    return (
+      <div className="h-screen w-full flex items-center justify-center bg-[#F0FDFA]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="w-10 h-10 text-[#0F766E] animate-spin" />
+          <p className="text-[10px] uppercase tracking-[0.4em] text-[#1E293B]/40 font-bold">
+            Loading Ticket...
           </p>
         </div>
       </div>
