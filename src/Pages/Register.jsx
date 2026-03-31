@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { Shield, ArrowRight, ArrowLeft, Mail, CheckCircle } from "lucide-react";
-import { API_URL } from "../utils/apiConfig.js";
+import {
+  API_URL,
+  GOOGLE_AUTH_DISABLED_REASON,
+  GOOGLE_AUTH_ENABLED,
+  IS_LOCAL_ENV,
+} from "../utils/apiConfig.js";
 
 const Register = () => {
   const navigate = useNavigate();
@@ -239,7 +244,18 @@ const Register = () => {
               </button>
 
               <div className="mt-8 flex flex-col items-center gap-6">
-                <GoogleLogin onSuccess={handleGoogleSuccess} onError={() => setApiError("Google Sign-up Failed")} shape="square" />
+                {GOOGLE_AUTH_ENABLED ? (
+                  <GoogleLogin
+                    onSuccess={handleGoogleSuccess}
+                    onError={() => setApiError("Google Sign-up Failed")}
+                    shape="square"
+                  />
+                ) : (
+                  <div className="w-full border border-amber-200 bg-amber-50 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-amber-700">
+                    {GOOGLE_AUTH_DISABLED_REASON}
+                    {IS_LOCAL_ENV ? " Use email registration locally, or add this origin to the Google OAuth client before re-enabling it." : ""}
+                  </div>
+                )}
                 <button type="button" onClick={() => navigate("/login")} className="text-[10px] uppercase tracking-widest font-bold opacity-40 hover:opacity-100 transition-opacity">
                   Already have an account? <span className="text-[#0F766E]">Sign In</span>
                 </button>

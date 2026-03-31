@@ -1,4 +1,6 @@
-export const API_BASE_URL =
-  import.meta.env.VITE_API_BASE_URL?.replace(/\/+$/, "") || "https://sovereigns.site";
+// src/utils/apiConfig.js
 
-export const API_URL = `${API_BASE_URL}/api`;
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL = "https://sovereigns.site/api";
+
+export default API_BASE_URL;

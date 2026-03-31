@@ -3,7 +3,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { GoogleLogin } from "@react-oauth/google";
 import { ArrowRight, Lock, AlertCircle } from "lucide-react";
-import { API_URL } from "../utils/apiConfig.js";
+import {
+  API_URL,
+  GOOGLE_AUTH_DISABLED_REASON,
+  GOOGLE_AUTH_ENABLED,
+  IS_LOCAL_ENV,
+} from "../utils/apiConfig.js";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -150,15 +155,22 @@ const Login = () => {
           </form>
 
           <div className="mt-10 md:mt-12 pt-10 md:pt-12 border-t border-[#1E293B]/5 flex flex-col items-center gap-6">
-            <div className="w-full flex justify-center [&>div]:w-full sm:[&>div]:w-[350px]">
-              <GoogleLogin
-                onSuccess={handleGoogleSuccess}
-                onError={() => setApiError("Google Sign-In Failed")}
-                theme="outline"
-                shape="square"
-                width="100%"
-              />
-            </div>
+            {GOOGLE_AUTH_ENABLED ? (
+              <div className="w-full flex justify-center [&>div]:w-full sm:[&>div]:w-[350px]">
+                <GoogleLogin
+                  onSuccess={handleGoogleSuccess}
+                  onError={() => setApiError("Google Sign-In Failed")}
+                  theme="outline"
+                  shape="square"
+                  width="100%"
+                />
+              </div>
+            ) : (
+              <div className="w-full border border-amber-200 bg-amber-50 px-4 py-3 text-[10px] font-bold uppercase tracking-widest text-amber-700">
+                {GOOGLE_AUTH_DISABLED_REASON}
+                {IS_LOCAL_ENV ? " Use email/password locally, or add this origin to the Google OAuth client before re-enabling it." : ""}
+              </div>
+            )}
             <button onClick={() => navigate("/register")} className="text-[10px] uppercase tracking-widest font-bold opacity-60 hover:opacity-100 mt-2">
               New patient? <span className="text-[#0F766E]">Join the platform</span>
             </button>
