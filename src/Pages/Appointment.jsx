@@ -23,7 +23,7 @@ import {
   User,
 } from "lucide-react";
 
-import API_BASE_URL from "../utils/apiConfig.js";
+import { API_URL } from "../utils/apiConfig.js";
 
 const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 const validatePhone = (phone) => {
@@ -126,7 +126,7 @@ const AppointmentPage = () => {
         setIsLoading((p) => ({ ...p, clinics: true }));
         setError("");
 
-        const { data: res } = await axios.get(`${API_BASE_URL}/tenants/all`, {
+        const { data: res } = await axios.get(`${API_URL}/tenants/all`, {
           signal: controller.signal,
         });
 
@@ -168,7 +168,7 @@ const AppointmentPage = () => {
 
       try {
         const { data: res } = await axios.get(
-          `${API_BASE_URL}/tenants/doctors/public/${clinicId}`,
+          `${API_URL}/tenants/doctors/public/${clinicId}`,
           { signal: controller.signal }
         );
 
@@ -218,7 +218,7 @@ const AppointmentPage = () => {
     const fetchBooked = async () => {
       try {
         const { data: res } = await axios.get(
-          `${API_BASE_URL}/appointments/booked-slots`,
+          `${API_URL}/appointments/booked-slots`,
           { params: { doctorId, date: dateStr }, signal: controller.signal }
         );
         if (res?.success) {
@@ -323,7 +323,7 @@ const AppointmentPage = () => {
         fee: totalFee, // backward compat
       };
 
-      const { data: res } = await axios.post(`${API_BASE_URL}/appointments`, payload, {
+      const { data: res } = await axios.post(`${API_URL}/appointments`, payload, {
         headers: token ? { Authorization: `Bearer ${token}` } : undefined,
       });
 

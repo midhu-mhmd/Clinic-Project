@@ -33,7 +33,7 @@ import Doctors from "./clinicSide/clinicDoctors.jsx";
 import ClinicSupport from "./clinicSide/clinicSupport.jsx";
 
 /* ----------------------------- CONFIG ----------------------------- */
-import API_BASE_URL from "../utils/apiConfig.js";
+import { API_URL } from "../utils/apiConfig.js";
 
 const MENU_ITEMS = [
   { id: "Overview", icon: LayoutDashboard, label: "Overview", path: "/dashboard" },
@@ -67,7 +67,7 @@ const getAuthToken = () => {
 
 /* ----------------------------- API CLIENT ----------------------------- */
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: API_URL,
   timeout: 20000,
 });
 

@@ -18,7 +18,7 @@ import {
 
 gsap.registerPlugin(ScrollTrigger);
 
-import API_BASE_URL from "../utils/apiConfig.js";
+import { API_URL } from "../utils/apiConfig.js";
 
 const ClinicProfile = () => {
   const { id } = useParams();
@@ -48,7 +48,7 @@ const ClinicProfile = () => {
         // ✅ If your endpoint is protected, you MUST send token
         const token = localStorage.getItem("token");
 
-        const response = await axios.get(`${API_BASE_URL}/tenants/${id}`, {
+        const response = await axios.get(`${API_URL}/tenants/${id}`, {
           signal: controller.signal,
           headers: token ? { Authorization: `Bearer ${token}` } : undefined,
         });

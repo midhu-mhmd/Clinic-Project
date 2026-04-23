@@ -7,7 +7,7 @@ import { ArrowUpRight, Search, MapPin, AlertCircle, Plus } from "lucide-react";
 
 gsap.registerPlugin(ScrollTrigger);
 
-import API_BASE_URL from "../utils/apiConfig.js";
+import { API_URL } from "../utils/apiConfig.js";
 
 const ClinicList = () => {
   const containerRef = useRef(null);
@@ -25,7 +25,7 @@ const ClinicList = () => {
     const fetchClinics = async () => {
       try {
         setLoading(true);
-        const { data: response } = await axios.get(`${API_BASE_URL}/tenants/all`, {
+        const { data: response } = await axios.get(`${API_URL}/tenants/all`, {
           params: {
             page,
             limit,
